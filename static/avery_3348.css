@@ -1,0 +1,31 @@
+/* Avery 3348 preset */
+
+@media print {
+  @page {
+    margin: 0;
+  }
+}
+
+.preset-3348 .labels {
+  grid-template-columns: repeat(auto-fill, 67mm);
+}
+
+.preset-3348 .label {
+  width: 67mm;
+  height: 38mm;
+  padding: 4mm;
+}
+
+.preset-3348 .label-code {
+  font-size: 22px;
+}
+
+.preset-3348 .label.asset .label-qr {
+  width: 26mm;
+  height: 26mm;
+}
+
+.preset-3348 .label.content .label-text {
+  font-size: 18px;
+  padding: 0 3mm;
+}

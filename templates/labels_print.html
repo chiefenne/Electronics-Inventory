@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block head_extra %}
+<link rel="stylesheet" href="/static/avery_{{ preset }}.css">
+{% endblock %}
 {% block content %}
 
 <section class="panel print-only preset-{{ preset }}">

@@ -1,0 +1,31 @@
+/* Avery 3425 preset */
+
+@media print {
+  @page {
+    margin: 0;
+  }
+}
+
+.preset-3425 .labels {
+  grid-template-columns: repeat(auto-fill, 105mm);
+}
+
+.preset-3425 .label {
+  width: 105mm;
+  height: 57mm;
+  padding: 6mm;
+}
+
+.preset-3425 .label-code {
+  font-size: 28px;
+}
+
+.preset-3425 .label.asset .label-qr {
+  width: 32mm;
+  height: 32mm;
+}
+
+.preset-3425 .label.content .label-text {
+  font-size: 24px;
+  padding: 0 6mm;
+}

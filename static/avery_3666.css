@@ -1,0 +1,32 @@
+/* Avery 3666 preset */
+
+@media print {
+  @page {
+    margin: 0;
+  }
+}
+
+.preset-3666 .labels {
+  grid-template-columns: repeat(auto-fill, 38.1mm);
+}
+
+.preset-3666 .label {
+  width: 38.1mm;
+  height: 21.2mm;
+  padding: 2mm;
+}
+
+.preset-3666 .label-code {
+  font-size: 12px;
+  margin-top: 0.5mm;
+}
+
+.preset-3666 .label.asset .label-qr {
+  width: 16mm;
+  height: 16mm;
+}
+
+.preset-3666 .label.content .label-text {
+  font-size: 10px;
+  padding: 0 1.5mm;
+}
