@@ -63,7 +63,8 @@
 
 .labels {
     display: grid;
-    gap: 6mm;
+    column-gap: var(--label_gap_x, 0mm);
+    row-gap: var(--label_gap_y, 0mm);
 }
 
 /* Base label */

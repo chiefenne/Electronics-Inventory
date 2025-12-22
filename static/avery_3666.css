@@ -1,8 +1,22 @@
 /* Avery 3666 preset */
 
+/* Printer calibration knobs (apply to print only)
+   Use negative values to move content up/left, positive to move down/right. */
+:root {
+  --label_offset_x: 0mm;
+  --label_offset_y: 0mm;
+  --label_gap_x: 0mm;
+  --label_gap_y: 0mm;
+}
+
 @media print {
   @page {
     margin: 0;
+  }
+
+  .preset-3666 .labels {
+    margin-left: var(--label_offset_x);
+    margin-top: var(--label_offset_y);
   }
 }
 
