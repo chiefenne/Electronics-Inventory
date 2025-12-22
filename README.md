@@ -108,8 +108,8 @@ Example (move 5mm left and 1mm up):
 By default, label borders are **not printed** (best for real Avery sheets where tiny alignment offsets can make printed
 outlines look off).
 
-For calibration or printing on plain paper (where you want cut guides), enable **Show cut outlines** on the Labels page
-before printing.
+For calibration or printing on plain paper (where you want cut guides), enable **Print cut outlines** on the Labels page
+before printing *(always shown on screen; printed only when enabled)*.
 
 ## Authentication
 
