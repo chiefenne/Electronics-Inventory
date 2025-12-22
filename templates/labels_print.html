@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{# Hide footer on labels page #}
+{% block footer %}{% endblock %}
+
 {% block head_extra %}
 <link rel="stylesheet" href="/static/avery_{{ preset }}.css">
 {% endblock %}
