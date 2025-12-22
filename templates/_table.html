@@ -1,0 +1,26 @@
+<table class="tbl">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>Description</th>
+            <th>Package</th>
+            <th>Container</th>
+            <th>Qty</th>
+            <th>Notes</th>
+            <th>Updated</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for part in parts %}
+        {% include "_row.html" %}
+        {% endfor %}
+        {% if parts|length == 0 %}
+        <tr>
+            <td colspan="10" class="muted">No entries yet.</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>

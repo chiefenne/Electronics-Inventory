@@ -1,0 +1,89 @@
+/* =========================
+   Help page tone and hierarchy
+   ========================= */
+
+.panel.help h2,
+.panel.help h3,
+.panel.help h4 {
+    margin: 0 0 8px 0;
+    color: #1f3b57;
+    /* slightly softer than body text, aligned with blue-gray theme */
+    letter-spacing: 0.2px;
+}
+
+.panel.help h2 {
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 6px;
+}
+
+.panel.help h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.panel.help h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 10px;
+}
+
+.panel.help p,
+.panel.help li {
+    color: var(--text-main);
+}
+
+.panel.help .muted {
+    color: var(--text-muted);
+}
+
+/* Slight “soft” background accent for help panels (subtle, not loud) */
+.panel.help {
+    background: linear-gradient(180deg, #ffffff, #fbfdff);
+    border: 1px solid rgba(214, 225, 238, 0.65);
+    /* softer than table borders */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Make code-ish examples feel lighter */
+/* Inline code chips: compact, wrap-friendly */
+.panel.help .mono {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: #f3f7fc;
+    border: 1px solid var(--border-soft);
+    color: #0f172a;
+    line-height: 1.2;
+    vertical-align: baseline;
+    white-space: nowrap;
+    /* keep each token intact */
+    margin: 0 2px;
+    /* subtle spacing between tokens */
+}
+
+/* Block code examples: keep them as blocks with larger padding */
+.panel.help pre.mono {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f3f7fc;
+    border: 1px solid var(--border-soft);
+    color: #0f172a;
+    overflow-x: auto;
+}
+
+.panel.help ul {
+    padding-left: 20px;
+}
+
+.panel.help ul ul {
+    padding-left: 18px;
+    margin-top: 6px;
+}
+
+.panel.help li {
+    margin: 4px 0;
+}

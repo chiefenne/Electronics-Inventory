@@ -1,0 +1,199 @@
+/* =========================
+   Labels: selection + print
+   ========================= */
+
+/* Selection list (optional; harmless if unused) */
+.labels-select fieldset {
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 0 0 12px 0;
+}
+
+.labels-select legend {
+    padding: 0 6px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.label-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+}
+
+.label-row .labeltext {
+    flex: 1 1 auto;
+}
+
+/* =========================
+   Print area
+   ========================= */
+
+.print-only {
+    background: #fff;
+}
+
+/* Print: hide navigation etc, keep print area visible */
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    header,
+    nav,
+    .header,
+    .nav,
+    .footer,
+    .filters,
+    .add,
+    .panel:not(.print-only) {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+}
+
+/* =========================
+   Label grid + label cards
+   ========================= */
+
+.labels {
+    display: grid;
+    gap: 6mm;
+}
+
+/* Base label */
+.label {
+    box-sizing: border-box;
+    border: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Code line */
+.label-code {
+    font-weight: 800;
+    letter-spacing: 0.6px;
+}
+
+/* Asset label: code + QR */
+.label.asset {
+    justify-content: space-between;
+}
+
+/* Content label: code + centered text */
+.label.content {
+    justify-content: flex-start;
+}
+
+.label.content .label-text {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    /* vertical center */
+    justify-content: center;
+    /* horizontal center */
+    text-align: center;
+    line-height: 1.1;
+}
+
+/* QR image (sized per preset below) */
+.label.asset .label-qr {
+    display: block;
+}
+
+/* =========================
+   Presets (layout + sizing)
+   Note: start with "close enough", calibrate margins/gaps later if needed.
+   ========================= */
+
+/* --- 3348: 67 × 38 mm (3 columns typical) --- */
+.preset-3348 .labels {
+    grid-template-columns: repeat(auto-fill, 67mm);
+}
+
+.preset-3348 .label {
+    width: 67mm;
+    height: 38mm;
+    padding: 4mm;
+}
+
+.preset-3348 .label-code {
+    font-size: 22px;
+}
+
+.preset-3348 .label.asset .label-qr {
+    width: 26mm;
+    height: 26mm;
+}
+
+.preset-3348 .label.content .label-text {
+    font-size: 18px;
+    padding: 0 3mm;
+}
+
+/* --- 3425: 105 × 57 mm (2 columns typical) --- */
+.preset-3425 .labels {
+    grid-template-columns: repeat(auto-fill, 105mm);
+}
+
+.preset-3425 .label {
+    width: 105mm;
+    height: 57mm;
+    padding: 6mm;
+}
+
+.preset-3425 .label-code {
+    font-size: 28px;
+}
+
+.preset-3425 .label.asset .label-qr {
+    width: 32mm;
+    height: 32mm;
+}
+
+.preset-3425 .label.content .label-text {
+    font-size: 24px;
+    padding: 0 6mm;
+}
+
+/* --- 3666: 38.1 × 21.2 mm (QR must be small) --- */
+.preset-3666 .labels {
+    grid-template-columns: repeat(auto-fill, 38.1mm);
+}
+
+.preset-3666 .label {
+    width: 38.1mm;
+    height: 21.2mm;
+    padding: 2mm;
+}
+
+.preset-3666 .label-code {
+    font-size: 12px;
+    margin-top: 0.5mm;
+}
+
+.preset-3666 .label.asset .label-qr {
+    width: 16mm;
+    height: 16mm;
+}
+
+.preset-3666 .label.content .label-text {
+    font-size: 10px;
+    padding: 0 1.5mm;
+}
+
+.labels-select .actions .btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.labels-select .actions .btn:not(:disabled):hover {
+    filter: brightness(1.05);
+}

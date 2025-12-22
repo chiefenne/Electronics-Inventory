@@ -1,0 +1,524 @@
+:root {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+
+    /* Core blue-gray theme */
+    --bg-header-top: #2f4f6f;
+    --bg-header-bot: #273f59;
+
+    --blue-primary: #2f6fb3;
+    --blue-primary-hi: #3f82c9;
+    --blue-soft: #e8f1fb;
+
+    --border-soft: #d6e1ee;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+
+    --danger: #b42318;
+}
+
+body {
+    margin: 0;
+    background: #f6f7f9;
+    color: #111;
+}
+
+/* =========================
+   Header (blue-forward)
+   ========================= */
+
+.header {
+    padding: 14px 20px 12px 20px;
+    background: linear-gradient(180deg,
+            var(--bg-header-top),
+            var(--bg-header-bot));
+    color: #f2f7fc;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.header-link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+.header-link:hover {
+    opacity: 0.8;
+}
+
+.title {
+    font-size: 21px;
+    font-weight: 650;
+    letter-spacing: 0.3px;
+    color: #f7fbff;
+}
+
+.sub {
+    font-size: 13px;
+    margin-top: 2px;
+    color: rgba(230, 245, 255, 0.85);
+}
+
+.nav {
+    margin-top: 10px;
+    display: flex;
+    gap: 14px;
+}
+
+.navlink {
+    font-size: 13px;
+    color: rgba(235, 245, 255, 0.9);
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.navlink:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+
+.main {
+    padding: 16px 12px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.panel {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================
+   Filters bar (robust)
+   ========================= */
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Allow children to shrink correctly */
+.filters>* {
+    min-width: 0;
+}
+
+/* Search field: flexible but bounded */
+.filters input[type="text"] {
+    flex: 2 1 320px;
+    font-weight: 550;
+}
+
+/* Category / container selects */
+.filters select {
+    flex: 1 1 200px;
+}
+
+/* Export button */
+.filters .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Important: allow inputs to shrink properly */
+.add>* {
+    min-width: 0;
+}
+
+/* Field sizing (tune as you like) */
+.add .f-category {
+    flex: 1 1 140px;
+}
+
+.add .f-subcat {
+    flex: 1 1 180px;
+}
+
+.add .f-desc {
+    flex: 2 1 320px;
+}
+
+.add .f-package {
+    flex: 1 1 140px;
+}
+
+.add .f-container {
+    flex: 1 1 160px;
+}
+
+.add .f-qty {
+    flex: 0 0 110px;
+}
+
+.add .f-notes {
+    flex: 2 1 260px;
+}
+
+.add .f-submit {
+    flex: 0 0 120px;
+    align-self: stretch;
+    /* make button height match inputs */
+}
+
+/* Force the button to the end nicely */
+.add .f-submit {
+    justify-self: end;
+}
+
+/* Tablet: wrap to multiple rows cleanly */
+@media (max-width: 1100px) {
+
+    .add {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .add .f-category {
+        grid-column: span 2;
+    }
+
+    .add .f-subcat {
+        grid-column: span 2;
+    }
+
+    .add .f-desc {
+        grid-column: span 6;
+    }
+
+    .add .f-package {
+        grid-column: span 2;
+    }
+
+    .add .f-container {
+        grid-column: span 2;
+    }
+
+    .add .f-qty {
+        grid-column: span 1;
+    }
+
+    .add .f-notes {
+        grid-column: span 3;
+    }
+
+    .add .f-submit {
+        grid-column: span 1;
+        justify-self: stretch;
+    }
+}
+
+/* Phone: single column */
+@media (max-width: 700px) {
+    .title {
+        font-size: 18px;
+    }
+
+    .sub {
+        font-size: 12px;
+    }
+
+    .nav {
+        gap: 10px;
+    }
+
+    .add {
+        grid-template-columns: 1fr;
+    }
+
+    .add .f-category,
+    .add .f-subcat,
+    .add .f-desc,
+    .add .f-package,
+    .add .f-container,
+    .add .f-qty,
+    .add .f-notes,
+    .add .f-submit {
+        grid-column: span 1;
+        justify-self: stretch;
+    }
+}
+
+input,
+select {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: var(--text-main);
+}
+
+input::placeholder {
+    color: #94a3b8;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--blue-primary);
+    box-shadow: 0 0 0 2px rgba(47, 111, 179, 0.18);
+}
+
+
+.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.tbl th,
+.tbl td {
+    border-bottom: 1px solid #eef0f3;
+    padding: 10px 8px;
+    vertical-align: top;
+}
+
+.tbl th {
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.tbl td {
+    color: #111;
+}
+
+.cell {
+    cursor: pointer;
+}
+
+.tbl tr:hover td {
+    background: #f2f7fd;
+}
+
+/* =========================
+   Chips (Container IDs)
+   ========================= */
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 3px 10px;
+    border-radius: 999px;
+
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 12px;
+    font-weight: 650;
+
+    color: #ffffff;
+    background: linear-gradient(180deg, var(--blue-primary-hi), var(--blue-primary));
+    border: 1px solid rgba(255, 255, 255, 0.0);
+    /* keeps height stable */
+
+    white-space: nowrap;
+}
+
+/* Empty/unknown container */
+.chip.muted {
+    background: #ffffff;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-soft);
+    font-weight: 600;
+}
+
+/* Make chips feel consistent inside tables */
+.tbl td .chip {
+    transform: translateY(-1px);
+}
+
+
+.cell:hover {
+    background: #fafafa;
+}
+
+.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.muted {
+    color: #777;
+}
+
+/* =========================
+   Buttons
+   ========================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+    padding: 0 14px;
+
+    border-radius: 8px;
+    border: 1px solid var(--blue-primary);
+    background: linear-gradient(180deg,
+            var(--blue-primary-hi),
+            var(--blue-primary));
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: linear-gradient(180deg,
+            #4a8fd4,
+            #2f6fb3);
+}
+
+.btn.secondary {
+    background: #ffffff;
+    color: var(--blue-primary);
+    border-color: var(--border-soft);
+}
+
+.btn.secondary:hover {
+    background: var(--blue-soft);
+}
+
+.btn.icon {
+    width: 34px;
+    padding: 6px 0;
+    text-align: center;
+}
+
+.btn.danger {
+    background: linear-gradient(180deg, #c9362a, var(--danger));
+    border-color: var(--danger);
+}
+
+
+.actions form {
+    margin: 0;
+}
+
+.edit {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.footer {
+    padding: 10px 20px;
+    color: #555;
+    font-size: 12px;
+}
+
+@media (max-width: 980px) {
+
+    .add {
+        grid-template-columns: 1fr;
+    }
+
+    .tbl {
+        font-size: 12px;
+    }
+}
+
+.cell {
+    cursor: pointer;
+}
+
+.cell:after {
+    content: " ✎";
+    color: #bbb;
+    font-size: 11px;
+}
+
+.cell:hover:after {
+    color: #777;
+}
+
+
+/* ===== Avery presets ===== */
+
+/* 3348: 67 × 38 mm */
+.preset-3348 .labels {
+    grid-template-columns: repeat(auto-fill, 67mm);
+}
+
+.preset-3348 .label {
+    width: 67mm;
+    height: 38mm;
+}
+
+/* 3425: 105 × 57 mm */
+.preset-3425 .labels {
+    grid-template-columns: repeat(auto-fill, 105mm);
+}
+
+.preset-3425 .label {
+    width: 105mm;
+    height: 57mm;
+}
+
+/* 3666: 38 × 21.2 mm */
+.preset-3666 .labels {
+    grid-template-columns: repeat(auto-fill, 38mm);
+}
+
+.preset-3666 .label {
+    width: 38mm;
+    height: 21.2mm;
+}
+
+/* Asset label (default) */
+.label.asset .label-qr {
+    width: 26mm;
+    height: 26mm;
+}
+
+/* 3348: 67×38 */
+.preset-3348 .label-code {
+    font-size: 22px;
+}
+
+.preset-3348 .label.asset .label-qr {
+    width: 26mm;
+    height: 26mm;
+}
+
+/* 3425: 105×57 */
+.preset-3425 .label-code {
+    font-size: 28px;
+}
+
+.preset-3425 .label.asset .label-qr {
+    width: 32mm;
+    height: 32mm;
+}
+
+/* 3666: 38×21.2 — must be smaller and tighter */
+.preset-3666 .label {
+    padding: 2mm;
+}
+
+.preset-3666 .label-code {
+    font-size: 12px;
+    margin-bottom: 1mm;
+}
+
+.preset-3666 .label.asset .label-qr {
+    width: 16mm;
+    height: 16mm;
+}

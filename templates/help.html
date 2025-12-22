@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block footer %}{% endblock %}
+{% block content %}
+
+<section class="panel help">
+    <h2>Usage and Concept</h2>
+    <p>
+        This inventory is designed for an electronics workbench: fast search, minimal friction,
+        and pragmatic structure. It is not a purchasing system or ERP. It reflects how engineers
+        actually store and retrieve parts.
+    </p>
+</section>
+
+<section class="panel help">
+    <h3>Core Model</h3>
+    <ul>
+        <li><b>Each row represents a part you want to find again</b> (IC, passive value, module, breakout, connector
+            set).</li>
+        <li><b>Physical storage stays flexible</b>: drawers, boxes, bags, reels — no forced standardization.</li>
+        <li><b>Category and Container are guided fields</b>:
+            <ul>
+                <li><b>Add form:</b> text input with suggestions (datalist).</li>
+                <li><b>Inline edit:</b> dropdown selection from known values.</li>
+            </ul>
+        </li>
+        <li><b>Lists update automatically</b> when you add or edit parts (no manual sync).</li>
+    </ul>
+</section>
+
+<section class="panel help">
+    <h3>Before You Populate Lots of Data</h3>
+    <p class="muted">
+        You do not need a perfect taxonomy. You need a consistent one. The system will stay maintainable if you keep
+        Category and Container stable and push detail into Description/Subcategory.
+    </p>
+
+    <h4>Container naming convention</h4>
+    <ul>
+        <li>Use short, label-friendly codes (no spaces), e.g. <span class="mono">BX-01</span>, <span
+                class="mono">BX-02</span>, <span class="mono">DR-A1</span>, <span class="mono">DR-A2</span>.</li>
+        <li>Prefer <b>type + number</b> or <b>grid</b>:
+            <ul>
+                <li><span class="mono">BX-03</span> = box 3</li>
+                <li><span class="mono">DR-A4</span> = drawer column A, slot 4</li>
+                <li><span class="mono">RACK-1</span> = rack 1</li>
+            </ul>
+        </li>
+        <li>Keep codes stable. If you reorganize, move parts by updating the container code in rows.</li>
+    </ul>
+
+    <h4>Category list: keep it small</h4>
+    <ul>
+        <li>Target <b>5–12 categories</b>, not 40.</li>
+        <li>Categories should be coarse “what kind of thing is it”, not circuit function.</li>
+        <li>Example set (works well in practice):
+            <span class="mono">PASSIVE</span>, <span class="mono">IC</span>, <span class="mono">MCU</span>, <span
+                class="mono">MODULE</span>, <span class="mono">CONNECTOR</span>, <span class="mono">MECH</span>, <span
+                class="mono">TOOLS</span>
+        </li>
+    </ul>
+
+    <h4>Description: optimize for search</h4>
+    <ul>
+        <li>Write what you will actually search for: <b>MPN + package + key detail</b>.</li>
+        <li>Good examples:
+            <ul>
+                <li><span class="mono">LM358 (SOIC-8)</span></li>
+                <li><span class="mono">ADS1115 breakout (I2C)</span></li>
+                <li><span class="mono">ESP32-S3 DevKitC-1</span></li>
+                <li><span class="mono">10k 1% 0603 resistor</span></li>
+            </ul>
+        </li>
+        <li>Avoid descriptions that are only functional and not identifying (e.g. “opamp”, “sensor board”).</li>
+    </ul>
+</section>
+
+<section class="panel help">
+    <h3>Containers (Physical Location)</h3>
+    <p>
+        A container represents a <b>physical storage unit</b> such as a box, drawer, or compartment.
+        Containers are identified by a short, stable code.
+    </p>
+    <ul>
+        <li>Examples: <span class="mono">BX-03</span>, <span class="mono">DR-A2</span>, <span class="mono">RACK-1</span>
+        </li>
+        <li><b>Add form</b> suggests existing container codes; you can still type a new one.</li>
+        <li><b>Inline edit</b> uses a dropdown to keep values consistent.</li>
+    </ul>
+</section>
+
+<section class="panel help">
+    <h3>Categories (What the Part Is)</h3>
+    <p>
+        Categories describe the <b>type of part</b>, not its value or function in a circuit.
+    </p>
+    <ul>
+        <li>Examples: <span class="mono">IC</span>, <span class="mono">MCU</span>, <span class="mono">PASSIVE</span>,
+            <span class="mono">MODULE</span>, <span class="mono">CONNECTOR</span>
+        </li>
+        <li>Keep categories coarse; put specifics in subcategory and description.</li>
+    </ul>
+</section>
+
+<section class="panel help">
+    <h3>Subcategories (Optional Refinement)</h3>
+    <p>
+        Subcategory is optional and remains <b>free text</b>, but the add form provides suggestions from what you have
+        used before.
+    </p>
+    <ul>
+        <li>Examples under <span class="mono">IC</span>: OpAmp, Logic, Driver, ADC</li>
+        <li>Examples under <span class="mono">MCU</span>: ESP32, RP2040, AVR</li>
+    </ul>
+    <p class="muted">
+        Recommendation: keep subcategories consistent within a category, but do not over-structure.
+    </p>
+</section>
+
+<section class="panel help">
+    <h3>Daily Workflow</h3>
+    <ol>
+        <li><b>Add a part:</b> assign category & container, write a searchable description, set approximate quantity.
+        </li>
+        <li><b>Find parts:</b> search by description, category, or container code.</li>
+        <li><b>Consume parts:</b> update quantity inline.</li>
+        <li><b>Reorganize storage:</b> update container codes for affected rows.</li>
+    </ol>
+</section>
+
+<section class="panel help">
+    <h3>Label Strategy</h3>
+    <p>Physically label containers with their container code:</p>
+    <pre class="mono">BX-03</pre>
+    <p>Searching for a container code shows all parts stored there.</p>
+</section>
+
+<section class="panel help">
+    <h3>Data Integrity Guarantees</h3>
+    <ul>
+        <li>Category and Container values stay consistent via controlled edit dropdowns.</li>
+        <li>Suggestion lists update automatically (no manual cleanup scripts required).</li>
+        <li>The SQLite database remains portable and human-readable.</li>
+    </ul>
+</section>
+
+<section class="panel help">
+    <h3>Backup</h3>
+    <ul>
+        <li>The entire inventory is stored in one file: <span class="mono">inventory.db</span>.</li>
+        <li>Backing up this file is sufficient.</li>
+    </ul>
+</section>
+
+<section class="panel help">
+    <h3>Planned (Optional)</h3>
+    <ul>
+        <li>Batch operations (move container / adjust quantity)</li>
+        <li>Dependent subcategory suggestions by category</li>
+        <li>Label / QR-code support</li>
+    </ul>
+</section>
+
+{% endblock %}

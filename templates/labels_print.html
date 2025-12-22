@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="panel print-only preset-{{ preset }}">
+    <div class="labels">
+        {% for l in labels %}
+        <div class="label {{ l.type }}">
+            <div class="label-code">{{ l.code }}</div>
+
+            {% if l.type == "asset" %}
+            <img class="label-qr" src="data:image/png;base64,{{ l.qr }}" alt="QR {{ l.code }}">
+            {% else %}
+            <div class="label-text">{{ l.text if l.text else "—" }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

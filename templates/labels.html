@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{# Hide footer on labels page #}
+{% block footer %}{% endblock %}
+
+{% block content %}
+
+<section class="panel help">
+    <h2>Labels</h2>
+    <p>
+        Print the labels for the inventory locations (boxes, drawers, etc.). The QR code can be scanned to quickly
+        access part information and streamline your workflow.
+    </p>
+
+</section>
+
+<div class="labels">
+    {% for l in labels %}
+    <div class="label">
+        <div class="label-code">{{ l.code }}</div>
+        <img class="label-qr" src="data:image/png;base64,{{ l.qr }}" alt="QR {{ l.code }}">
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="/static/base.css">
+    <link rel="stylesheet" href="/static/help.css">
+    <link rel="stylesheet" href="/static/labels.css">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+
+
+<body>
+    <header class="header">
+        <a href="/" class="header-link">
+            <div class="title">{{ title }}</div>
+            <div class="sub">Personal self-hosted database</div>
+        </a>
+        <nav class="nav">
+            <a href="/" class="navlink">Inventory</a>
+            <a href="/containers/labels" class="navlink">Labels</a>
+            <a href="/help" class="navlink">Usage</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        {% block footer %}
+        <span>Tip: search by Container ID (e.g., BX-03).</span>
+        {% endblock %}
+    </footer>
+
+</body>
+
+
+</html>

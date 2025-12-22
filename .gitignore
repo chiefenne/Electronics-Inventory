@@ -1,0 +1,25 @@
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Local data
+inventory.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Local archives
+codebase.zip
+
+# Editor settings
+.vscode/

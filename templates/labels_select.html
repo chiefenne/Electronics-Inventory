@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h2>Print Labels</h2>
+
+    <form method="post" action="/print/labels" class="labels-select" id="label-form">
+
+        <fieldset>
+            <legend>Containers</legend>
+
+            {% for c in containers %}
+            <div class="label-row">
+                <label class="checkbox">
+                    <input type="checkbox" name="code" value="{{ c }}">
+                    <span class="mono">{{ c }}</span>
+                </label>
+
+                <input type="text" name="text_{{ c }}" placeholder="Optional label text (e.g. R 1k–10k E24 1%)"
+                    class="labeltext" />
+            </div>
+            {% endfor %}
+        </fieldset>
+
+        <fieldset>
+            <legend>Label format</legend>
+
+            <select name="preset" required>
+                {% for p in presets %}
+                <option value="{{ p }}">{{ p }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="mode" required>
+                {% for v, label in modes %}
+                <option value="{{ v }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+        </fieldset>
+
+        <div class="actions">
+            <button class="btn" type="submit" id="print-btn" disabled>Print selected</button>
+        </div>
+
+    </form>
+</section>
+
+<script>
+    (() => {
+        const form = document.getElementById("label-form");
+        const btn = document.getElementById("print-btn");
+        if (!form || !btn) return;
+
+        const update = () => {
+            btn.disabled = form.querySelectorAll('input[name="code"]:checked').length === 0;
+        };
+
+        form.addEventListener("change", (e) => {
+            if (e.target && e.target.matches('input[name="code"]')) update();
+        });
+
+        update();
+    })();
+</script>
+
+
+{% endblock %}

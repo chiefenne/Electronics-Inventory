@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h2>Container {{ code }}</h2>
+
+    {% if parts %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>Description</th>
+                <th>Package</th>
+                <th>Qty</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in parts %}
+            <tr>
+                <td class="mono">{{ p.id }}</td>
+                <td>{{ p.category }}</td>
+                <td>{{ p.subcategory }}</td>
+                <td>{{ p.description }}</td>
+                <td>{{ p.package }}</td>
+                <td class="mono">{{ p.quantity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="muted">This container is empty.</p>
+    {% endif %}
+</section>
+
+{% endblock %}
