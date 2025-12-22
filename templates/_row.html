@@ -1,19 +1,17 @@
-<tr id="row-{{ part.id }}">
-    <td class="mono">{{ part.id }}</td>
-
-    <td class="cell" hx-get="/parts/{{ part.id }}/edit/category" hx-target="#row-{{ part.id }}" hx-swap="outerHTML">{{
+<tr id="row-{{ part.uuid }}">
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/category" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
         part.category }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.id }}/edit/subcategory" hx-target="#row-{{ part.id }}" hx-swap="outerHTML">
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
         {{ part.subcategory }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.id }}/edit/description" hx-target="#row-{{ part.id }}" hx-swap="outerHTML">
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/description" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
         {{ part.description }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.id }}/edit/package" hx-target="#row-{{ part.id }}" hx-swap="outerHTML">{{
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/package" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
         part.package }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.id }}/edit/container_id" hx-target="#row-{{ part.id }}" hx-swap="outerHTML">
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
         {% if part.container_id and part.container_id|trim %}
         <span class="chip">{{ part.container_id }}</span>
         {% else %}
@@ -21,10 +19,10 @@
         {% endif %}
     </td>
 
-    <td class="cell mono" hx-get="/parts/{{ part.id }}/edit/quantity" hx-target="#row-{{ part.id }}"
+    <td class="cell mono" hx-get="/parts/{{ part.uuid }}/edit/quantity" hx-target="#row-{{ part.uuid }}"
         hx-swap="outerHTML">{{ part.quantity }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.id }}/edit/notes" hx-target="#row-{{ part.id }}" hx-swap="outerHTML">{{
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/notes" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
         part.notes }}</td>
 
     <td class="mono muted">{{ part.updated_at }}</td>
@@ -36,7 +34,7 @@
         <a class="btn secondary icon" href="{{ part.get('datasheet_url') }}" target="_blank" rel="noopener"
             title="Open datasheet">📄</a>
         {% else %}
-        <button class="btn secondary icon" hx-get="/parts/{{ part.id }}/edit/datasheet_url" hx-target="#row-{{ part.id }}"
+        <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/datasheet_url" hx-target="#row-{{ part.uuid }}"
             hx-swap="outerHTML" title="Add datasheet link">📄</button>
         {% endif %}
 
@@ -45,11 +43,11 @@
         <a class="btn secondary icon" href="{{ part.get('pinout_url') }}" target="_blank" rel="noopener"
             title="Open pinout">🔌</a>
         {% else %}
-        <button class="btn secondary icon" hx-get="/parts/{{ part.id }}/edit/pinout_url" hx-target="#row-{{ part.id }}"
+        <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/pinout_url" hx-target="#row-{{ part.uuid }}"
             hx-swap="outerHTML" title="Add pinout link">🔌</button>
         {% endif %}
 
-        <form hx-post="/parts/{{ part.id }}/delete" hx-target="#table" hx-swap="innerHTML"
+        <form hx-post="/parts/{{ part.uuid }}/delete" hx-target="#table" hx-swap="innerHTML"
             hx-confirm="Delete this part?">
             <button class="btn danger" type="submit">Del</button>
         </form>

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+    <form class="filters" method="get" action="/restore">
+        <input type="text" name="q" placeholder="Search trash…" value="{{ q }}" />
+
+        <select name="category">
+            <option value="">All categories</option>
+            {% for c in categories %}
+            <option value="{{ c }}" {% if c==category %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="container_id">
+            <option value="">All containers</option>
+            {% for c in containers %}
+            <option value="{{ c }}" {% if c==container_id %}selected{% endif %}>{{ c }}</option>
+            {% endfor %}
+        </select>
+
+        <button class="btn" type="submit">Filter</button>
+    </form>
+</section>
+
+<section class="panel">
+    {% if error %}
+    <div style="padding: 10px; border: 1px solid var(--border-soft); border-radius: 10px; margin: 0 0 10px 0;">
+        <strong>Restore:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/restore">
+        <input type="hidden" name="q" value="{{ q }}" />
+        <input type="hidden" name="category" value="{{ category }}" />
+        <input type="hidden" name="container_id" value="{{ container_id }}" />
+
+        <div class="actions" style="justify-content: flex-end; margin-bottom: 10px;">
+            <button class="btn secondary" type="submit" name="action" value="filter">Restore by current filter</button>
+            <button class="btn" type="submit" name="action" value="selected">Restore selected</button>
+        </div>
+
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Category</th>
+                    <th>Subcategory</th>
+                    <th>Description</th>
+                    <th>Package</th>
+                    <th>Container</th>
+                    <th>Qty</th>
+                    <th>Deleted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in items %}
+                <tr>
+                    <td><input type="checkbox" name="uuid" value="{{ p.uuid }}" /></td>
+                    <td>{{ p.category }}</td>
+                    <td>{{ p.subcategory }}</td>
+                    <td>{{ p.description }}</td>
+                    <td>{{ p.package }}</td>
+                    <td class="mono">{{ p.container_id }}</td>
+                    <td class="mono">{{ p.quantity }}</td>
+                    <td class="mono muted">{{ p.deleted_at_human or p.deleted_at }}</td>
+                </tr>
+                {% endfor %}
+                {% if items|length == 0 %}
+                <tr>
+                    <td colspan="8" class="muted">Trash is empty.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </form>
+</section>
+{% endblock %}

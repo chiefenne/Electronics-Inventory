@@ -35,15 +35,27 @@ QR code support is included via the `qrcode` dependency in `requirements.txt`.
 
 ### 3) Run the server
 
-This app uses HTTP Basic authentication. You must configure credentials via environment variables before it will serve requests.
+This app uses a login page + server-side sessions. You must configure credentials via environment variables.
+
+Dev (auto-reload on code changes):
 
 ```bash
-uvicorn app:app --reload --host 0.0.0.0 --port 8001
+INVENTORY_USER="andreas" \
+INVENTORY_PASS_HASH='$pbkdf2-sha256$...$...$...' \
+uvicorn app:app --reload --host 0.0.0.0 --port 8001 --proxy-headers
+```
+
+Prod (no reload):
+
+```bash
+INVENTORY_USER="andreas" \
+INVENTORY_PASS_HASH='$pbkdf2-sha256$...$...$...' \
+uvicorn app:app --host 0.0.0.0 --port 8001 --proxy-headers
 ```
 
 Open:
 
-- http://localhost:8001
+- <http://localhost:8001>
 
 ## Data storage
 
@@ -67,7 +79,7 @@ Container label QR codes are generated using `BASE_URL` in `app.py`.
 
 ## Authentication
 
-This app uses **HTTP Basic Auth** for all routes.
+This app uses a **login page + server-side sessions** (stored in SQLite) for all routes.
 
 Configure it with:
 
@@ -84,11 +96,13 @@ Run with credentials (example):
 
 ```bash
 export INVENTORY_USER="andreas"
-export INVENTORY_PASS_HASH="<paste-hash-here>"
-uvicorn app:app --host 0.0.0.0 --port 8001
+export INVENTORY_PASS_HASH='<paste-hash-here>'
+uvicorn app:app --host 0.0.0.0 --port 8001 --proxy-headers
 ```
 
-If `INVENTORY_USER` / `INVENTORY_PASS_HASH` are not set, the app returns an error because auth is not configured.
+If `INVENTORY_USER` / `INVENTORY_PASS_HASH` are not set, the login page will show an error because auth is not configured.
+
+Note: the Passlib hash contains `$` characters. Use **single quotes** around `INVENTORY_PASS_HASH` (or escape `$`) to avoid shell expansion.
 
 ## Notes
 

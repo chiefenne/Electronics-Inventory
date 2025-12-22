@@ -5,6 +5,7 @@ import os
 import secrets
 import time
 from datetime import datetime, timedelta, timezone
+import uuid
 
 import csv
 import io
@@ -236,6 +237,69 @@ def fetch_parts(
     return [dict(r) for r in rows]
 
 
+def fetch_trash(
+    q: str = "",
+    category: str = "",
+    container_id: str = "",
+    limit: int = 500,
+) -> List[Dict[str, Any]]:
+    sql = "SELECT *, datetime(deleted_at, 'unixepoch', 'localtime') AS deleted_at_human FROM parts_trash WHERE 1=1"
+    params: List[Any] = []
+
+    if q.strip():
+        sql += " AND (description LIKE ? OR notes LIKE ? OR subcategory LIKE ? OR package LIKE ?)"
+        pat = f"%{q.strip()}%"
+        params += [pat, pat, pat, pat]
+
+    if category.strip():
+        sql += " AND category = ?"
+        params.append(category.strip())
+
+    if container_id.strip():
+        sql += " AND container_id = ?"
+        params.append(container_id.strip())
+
+    sql += " ORDER BY deleted_at DESC, trash_id DESC LIMIT ?"
+    params.append(limit)
+
+    with get_conn() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    return [dict(r) for r in rows]
+
+
+def _trash_parts(where_sql: str, params: List[Any], deleted_by: str) -> str:
+    batch_id = secrets.token_urlsafe(12)
+    now_ts = _now_ts()
+
+    with get_conn() as conn:
+        conn.execute("BEGIN")
+        # Copy rows into trash
+        conn.execute(
+            f"""
+            INSERT INTO parts_trash(
+                uuid, original_id, batch_id, deleted_at, deleted_by,
+                category, subcategory, description, package, container_id, quantity, notes,
+                datasheet_url, pinout_url, updated_at
+            )
+            SELECT
+                uuid, id, ?, ?, ?,
+                category, subcategory, description, package, container_id, quantity, notes,
+                datasheet_url, pinout_url, updated_at
+            FROM parts
+            WHERE {where_sql}
+            """,
+            [batch_id, now_ts, deleted_by, *params],
+        )
+        # Delete from parts
+        conn.execute(
+            f"DELETE FROM parts WHERE {where_sql}",
+            params,
+        )
+        conn.execute("COMMIT")
+
+    return batch_id
+
+
 def fetch_distinct(field: str) -> List[str]:
     with get_conn() as conn:
         rows = conn.execute(
@@ -337,13 +401,16 @@ def add_part(
     ensure_container(container_id)
     ensure_subcategory(subcategory)
 
+    part_uuid = str(uuid.uuid4())
+
     with get_conn() as conn:
         conn.execute(
             """
-            INSERT INTO parts (category, subcategory, description, package, container_id, quantity, notes, datasheet_url, pinout_url, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            INSERT INTO parts (uuid, category, subcategory, description, package, container_id, quantity, notes, datasheet_url, pinout_url, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
             """,
             (
+                part_uuid,
                 category,
                 subcategory.strip(),
                 description,
@@ -361,20 +428,20 @@ def add_part(
     return render("_table.html", parts=parts)
 
 
-@app.post("/parts/{part_id}/delete", response_class=HTMLResponse)
-def delete_part(part_id: int) -> HTMLResponse:
-    with get_conn() as conn:
-        conn.execute("DELETE FROM parts WHERE id = ?", (part_id,))
+@app.post("/parts/{part_uuid}/delete", response_class=HTMLResponse)
+def delete_part(request: Request, part_uuid: str) -> HTMLResponse:
+    deleted_by = getattr(request.state, "user", "") or ""
+    _trash_parts("uuid = ?", [part_uuid], deleted_by=deleted_by)
     parts = fetch_parts()
     return render("_table.html", parts=parts)
 
-@app.get("/parts/{part_id}/edit/{field}", response_class=HTMLResponse)
-def edit_cell(part_id: int, field: str) -> HTMLResponse:
+@app.get("/parts/{part_uuid}/edit/{field}", response_class=HTMLResponse)
+def edit_cell(part_uuid: str, field: str) -> HTMLResponse:
     if field not in ALLOWED_EDIT_FIELDS:
         return HTMLResponse("Invalid field", status_code=400)
 
     with get_conn() as conn:
-        row = conn.execute("SELECT * FROM parts WHERE id = ?", (part_id,)).fetchone()
+        row = conn.execute("SELECT * FROM parts WHERE uuid = ?", (part_uuid,)).fetchone()
 
     if row is None:
         return HTMLResponse("Not found", status_code=404)
@@ -385,8 +452,8 @@ def edit_cell(part_id: int, field: str) -> HTMLResponse:
                   containers=containers, categories=categories)
 
 
-@app.post("/parts/{part_id}/edit/{field}", response_class=HTMLResponse)
-def save_cell(part_id: int, field: str, value: str = Form("")) -> HTMLResponse:
+@app.post("/parts/{part_uuid}/edit/{field}", response_class=HTMLResponse)
+def save_cell(part_uuid: str, field: str, value: str = Form("")) -> HTMLResponse:
     if field not in ALLOWED_EDIT_FIELDS:
         return HTMLResponse("Invalid field", status_code=400)
 
@@ -410,16 +477,117 @@ def save_cell(part_id: int, field: str, value: str = Form("")) -> HTMLResponse:
 
     with get_conn() as conn:
         conn.execute(
-            f"UPDATE parts SET {field} = ?, updated_at = datetime('now') WHERE id = ?",
-            (value, part_id),
+            f"UPDATE parts SET {field} = ?, updated_at = datetime('now') WHERE uuid = ?",
+            (value, part_uuid),
         )
-        row = conn.execute("SELECT * FROM parts WHERE id = ?", (part_id,)).fetchone()
+        row = conn.execute("SELECT * FROM parts WHERE uuid = ?", (part_uuid,)).fetchone()
 
     if row is None:
         return HTMLResponse("Not found", status_code=404)
 
     # Return the rendered row so the table updates cleanly
     return render("_row.html", part=dict(row))
+
+
+@app.get("/restore", response_class=HTMLResponse)
+def restore_page(
+    request: Request,
+    q: str = "",
+    category: str = "",
+    container_id: str = "",
+) -> HTMLResponse:
+    items = fetch_trash(q=q, category=category, container_id=container_id)
+    categories = list_categories_in_use()
+    containers = list_containers_in_use()
+    return render(
+        "restore.html",
+        request=request,
+        title=f"{APP_TITLE}",
+        items=items,
+        q=q,
+        category=category,
+        container_id=container_id,
+        categories=categories,
+        containers=containers,
+        error="",
+    )
+
+
+@app.post("/restore", response_class=HTMLResponse)
+async def restore_post(
+    request: Request,
+    action: str = Form("selected"),
+    q: str = Form(""),
+    category: str = Form(""),
+    container_id: str = Form(""),
+    uuid: List[str] = Form([]),
+) -> HTMLResponse:
+    # Determine which trash rows to restore
+    if action == "filter":
+        rows = fetch_trash(q=q, category=category, container_id=container_id, limit=100000)
+        restore_uuids = [r.get("uuid", "") for r in rows if r.get("uuid")]
+    else:
+        restore_uuids = [u for u in uuid if u]
+
+    if not restore_uuids:
+        items = fetch_trash(q=q, category=category, container_id=container_id)
+        return render(
+            "restore.html",
+            request=request,
+            title=f"{APP_TITLE}",
+            items=items,
+            q=q,
+            category=category,
+            container_id=container_id,
+            categories=list_categories_in_use(),
+            containers=list_containers_in_use(),
+            error="Nothing selected to restore",
+        )
+
+    with get_conn() as conn:
+        placeholders = ",".join(["?"] * len(restore_uuids))
+
+        existing = conn.execute(
+            f"SELECT uuid FROM parts WHERE uuid IN ({placeholders})",
+            restore_uuids,
+        ).fetchall()
+        if existing:
+            items = fetch_trash(q=q, category=category, container_id=container_id)
+            return render(
+                "restore.html",
+                request=request,
+                title=f"{APP_TITLE}",
+                items=items,
+                q=q,
+                category=category,
+                container_id=container_id,
+                categories=list_categories_in_use(),
+                containers=list_containers_in_use(),
+                error="Some items already exist in inventory and cannot be restored again",
+            )
+
+        conn.execute("BEGIN")
+        conn.execute(
+            f"""
+            INSERT INTO parts(
+                uuid, category, subcategory, description, package, container_id, quantity, notes,
+                datasheet_url, pinout_url, updated_at
+            )
+            SELECT
+                uuid, category, subcategory, description, package, container_id, quantity, notes,
+                datasheet_url, pinout_url, datetime('now')
+            FROM parts_trash
+            WHERE uuid IN ({placeholders})
+            """,
+            restore_uuids,
+        )
+        conn.execute(
+            f"DELETE FROM parts_trash WHERE uuid IN ({placeholders})",
+            restore_uuids,
+        )
+        conn.execute("COMMIT")
+
+    return RedirectResponse(url="/restore", status_code=303)
 
 
 @app.get("/export.csv")

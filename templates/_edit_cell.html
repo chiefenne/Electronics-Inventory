@@ -1,12 +1,10 @@
-<tr id="row-{{ part.id }}">
-    <td class="mono">{{ part.id }}</td>
-
+<tr id="row-{{ part.uuid }}">
     {% set fields = ["category","subcategory","description","package","container_id","quantity","notes", "datasheet_url", "pinout_url"] %}
 
     {% for f in fields %}
     {% if f == field %}
     <td colspan="1">
-        <form class="edit" hx-post="/parts/{{ part.id }}/edit/{{ f }}" hx-target="#row-{{ part.id }}"
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/{{ f }}" hx-target="#row-{{ part.uuid }}"
             hx-swap="outerHTML">
 
             {% if f == "category" %}
@@ -42,8 +40,8 @@
         </form>
     </td>
     {% else %}
-    <td class="cell {% if f == 'quantity' %}mono{% endif %}" hx-get="/parts/{{ part.id }}/edit/{{ f }}"
-        hx-target="#row-{{ part.id }}" hx-swap="outerHTML">
+    <td class="cell {% if f == 'quantity' %}mono{% endif %}" hx-get="/parts/{{ part.uuid }}/edit/{{ f }}"
+        hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
 
         {% if f == "container_id" %}
         {% if part[f] and part[f]|trim %}
@@ -67,7 +65,7 @@
     <a class="btn secondary icon" href="{{ part.get('datasheet_url') }}" target="_blank" rel="noopener"
         title="Open datasheet">📄</a>
     {% else %}
-    <button class="btn secondary icon" hx-get="/parts/{{ part.id }}/edit/datasheet_url" hx-target="#row-{{ part.id }}"
+    <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/datasheet_url" hx-target="#row-{{ part.uuid }}"
         hx-swap="outerHTML" title="Add datasheet link">📄</button>
     {% endif %}
 
@@ -76,11 +74,11 @@
     <a class="btn secondary icon" href="{{ part.get('pinout_url') }}" target="_blank" rel="noopener"
         title="Open pinout">🔌</a>
     {% else %}
-    <button class="btn secondary icon" hx-get="/parts/{{ part.id }}/edit/pinout_url" hx-target="#row-{{ part.id }}"
+    <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/pinout_url" hx-target="#row-{{ part.uuid }}"
         hx-swap="outerHTML" title="Add pinout link">🔌</button>
     {% endif %}
 
-    <form hx-post="/parts/{{ part.id }}/delete" hx-target="#table" hx-swap="innerHTML">
+    <form hx-post="/parts/{{ part.uuid }}/delete" hx-target="#table" hx-swap="innerHTML" hx-confirm="Delete this part?">
         <button class="btn danger" type="submit">Del</button>
     </form>
 </td>

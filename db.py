@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+import uuid
 
 DB_PATH = Path(__file__).with_name("inventory.db")
 
@@ -17,10 +18,12 @@ def get_conn() -> sqlite3.Connection:
 
 def init_db() -> None:
     with get_conn() as conn:
+        # Core data table
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS parts (
                 id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                uuid         TEXT,
                 category     TEXT NOT NULL,
                 subcategory  TEXT,
                 description  TEXT NOT NULL,
@@ -28,6 +31,8 @@ def init_db() -> None:
                 container_id TEXT,
                 quantity     INTEGER NOT NULL DEFAULT 0,
                 notes        TEXT,
+                datasheet_url TEXT,
+                pinout_url    TEXT,
                 updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
             );
             """
@@ -35,6 +40,30 @@ def init_db() -> None:
         conn.execute("CREATE INDEX IF NOT EXISTS idx_parts_category ON parts(category);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_parts_container ON parts(container_id);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_parts_desc ON parts(description);")
+
+        # Lookup tables (used by dropdowns)
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS containers (
+                code TEXT PRIMARY KEY,
+                name TEXT
+            );
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS categories (
+                name TEXT PRIMARY KEY
+            );
+            """
+        )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS subcategories (
+                name TEXT PRIMARY KEY
+            );
+            """
+        )
 
         conn.execute(
             """
@@ -47,6 +76,60 @@ def init_db() -> None:
             """
         )
         conn.execute("CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);")
+
+        # Trash table for delete/restore
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS parts_trash (
+                trash_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+                uuid         TEXT NOT NULL UNIQUE,
+                original_id  INTEGER,
+                batch_id     TEXT,
+                deleted_at   INTEGER NOT NULL,
+                deleted_by   TEXT,
+
+                category     TEXT,
+                subcategory  TEXT,
+                description  TEXT,
+                package      TEXT,
+                container_id TEXT,
+                quantity     INTEGER,
+                notes        TEXT,
+                datasheet_url TEXT,
+                pinout_url    TEXT,
+                updated_at   TEXT
+            );
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_parts_trash_deleted_at ON parts_trash(deleted_at);")
+
+        # ---- Migrations for existing databases ----
+        def _has_column(table: str, column: str) -> bool:
+            rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+            return any(r[1] == column for r in rows)  # (cid, name, type, notnull, dflt_value, pk)
+
+        # Add missing columns (SQLite supports ADD COLUMN only)
+        for col_def in (
+            "uuid TEXT",
+            "datasheet_url TEXT",
+            "pinout_url TEXT",
+        ):
+            col_name = col_def.split()[0]
+            if not _has_column("parts", col_name):
+                conn.execute(f"ALTER TABLE parts ADD COLUMN {col_def};")
+
+        # Backfill uuid for existing rows
+        missing = conn.execute(
+            "SELECT id FROM parts WHERE uuid IS NULL OR TRIM(uuid) = ''"
+        ).fetchall()
+        for (part_id,) in missing:
+            conn.execute(
+                "UPDATE parts SET uuid = ? WHERE id = ?",
+                (str(uuid.uuid4()), part_id),
+            )
+
+        # Ensure the unique index exists after backfill
+        conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_parts_uuid ON parts(uuid);")
 
 
 def list_containers():
