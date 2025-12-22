@@ -35,6 +35,8 @@ QR code support is included via the `qrcode` dependency in `requirements.txt`.
 
 ### 3) Run the server
 
+This app uses HTTP Basic authentication. You must configure credentials via environment variables before it will serve requests.
+
 ```bash
 uvicorn app:app --reload --host 0.0.0.0 --port 8001
 ```
@@ -59,18 +61,39 @@ On startup, the app creates/uses a SQLite database at `inventory.db` (in the rep
 
 ## QR label URLs (important)
 
-Container label QR codes are generated using `BASE_URL`.
+Container label QR codes are generated using `BASE_URL` in `app.py`.
 
-- Default is `http://localhost:8001`.
-- To generate phone-reachable QR codes, run with e.g.:
+- If you run this on a different host/port, update `BASE_URL` so the QR codes point to a reachable URL (e.g. your LAN IP).
+
+## Authentication
+
+This app uses **HTTP Basic Auth** for all routes.
+
+Configure it with:
+
+- `INVENTORY_USER` – username
+- `INVENTORY_PASS_HASH` – password hash in Passlib `pbkdf2_sha256` format
+
+Generate a hash (example):
 
 ```bash
-BASE_URL="http://<your-lan-ip>:8001" uvicorn app:app --host 0.0.0.0 --port 8001
+python3 -c "from passlib.hash import pbkdf2_sha256; print(pbkdf2_sha256.hash('change-me'))"
 ```
+
+Run with credentials (example):
+
+```bash
+export INVENTORY_USER="andreas"
+export INVENTORY_PASS_HASH="<paste-hash-here>"
+uvicorn app:app --host 0.0.0.0 --port 8001
+```
+
+If `INVENTORY_USER` / `INVENTORY_PASS_HASH` are not set, the app returns an error because auth is not configured.
 
 ## Notes
 
-- This is intended for trusted networks: there is no authentication/authorization.
+- Security: even with Basic Auth, treat this as a trusted-LAN tool. Do not expose it directly to the public internet.
+- If you need remote access, prefer a VPN and restrict access.
 
 ## License
 

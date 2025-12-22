@@ -1,6 +1,9 @@
 # app.py
 from __future__ import annotations
 
+import os
+import secrets
+
 import csv
 import io
 from typing import Any, Dict, List, Optional
@@ -12,6 +15,11 @@ import base64
 from fastapi import FastAPI, Form, Request, Query
 from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+
+from passlib.hash import pbkdf2_sha256
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from db import get_conn, init_db, \
@@ -34,7 +42,28 @@ ALLOWED_EDIT_FIELDS = {
     "pinout_url",
 }
 
-app = FastAPI(title=APP_TITLE)
+
+security = HTTPBasic()
+
+AUTH_USER = os.environ.get("INVENTORY_USER", "")
+AUTH_PASS_HASH = os.environ.get("INVENTORY_PASS_HASH", "")
+
+def require_basic_auth(credentials: HTTPBasicCredentials = Depends(security)) -> None:
+    if not AUTH_USER or not AUTH_PASS_HASH:
+        raise HTTPException(status_code=500, detail="Auth not configured")
+
+    user_ok = secrets.compare_digest(credentials.username, AUTH_USER)
+    pass_ok = pbkdf2_sha256.verify(credentials.password, AUTH_PASS_HASH)
+
+    if not (user_ok and pass_ok):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+
+
+app = FastAPI(dependencies=[Depends(require_basic_auth)])
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -42,7 +71,6 @@ templates = Environment(
     loader=FileSystemLoader("templates"),
     autoescape=select_autoescape(["html", "xml"]),
 )
-
 
 def render(template_name: str, **context: Any) -> HTMLResponse:
     tpl = templates.get_template(template_name)
