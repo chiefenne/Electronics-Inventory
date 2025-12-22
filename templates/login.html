@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{# Hide footer on labels page #}
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="panel" style="max-width: 520px; margin: 0 auto;">
+    <h2 style="margin-top: 0;">Login</h2>
+
+    {% if error %}
+    <div style="padding: 10px; border: 1px solid var(--border-soft); border-radius: 10px; margin: 10px 0;">
+        <strong>Login failed:</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/login" class="form">
+        <div style="display: grid; gap: 10px;">
+            <label>
+                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Username</div>
+                <input name="username" type="text" autocomplete="username" required />
+            </label>
+
+            <label>
+                <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Password</div>
+                <input name="password" type="password" autocomplete="current-password" required />
+            </label>
+
+            <button class="btn" type="submit">Sign in</button>
+        </div>
+    </form>
+
+    <p style="margin-bottom: 0; color: var(--text-muted); font-size: 12px;">
+        This instance is protected and requires a valid account.
+    </p>
+</div>
+{% endblock %}

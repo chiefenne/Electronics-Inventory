@@ -36,6 +36,18 @@ def init_db() -> None:
         conn.execute("CREATE INDEX IF NOT EXISTS idx_parts_container ON parts(container_id);")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_parts_desc ON parts(description);")
 
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS sessions (
+                token      TEXT PRIMARY KEY,
+                username   TEXT NOT NULL,
+                created_at INTEGER NOT NULL,
+                expires_at INTEGER NOT NULL
+            );
+            """
+        )
+        conn.execute("CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);")
+
 
 def list_containers():
     with get_conn() as conn:

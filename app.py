@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import os
 import secrets
+import time
+from datetime import datetime, timedelta, timezone
 
 import csv
 import io
@@ -13,10 +15,9 @@ from io import BytesIO
 import base64
 
 from fastapi import FastAPI, Form, Request, Query
-from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import HTTPException
 
 from passlib.hash import pbkdf2_sha256
 
@@ -29,6 +30,9 @@ from db import get_conn, init_db, \
 APP_TITLE = "Electronics Inventory"
 
 BASE_URL = "http://192.168.8.20:8001"
+
+SESSION_COOKIE_NAME = "inventory_session"
+SESSION_TTL_SECONDS = 24 * 60 * 60
 
 ALLOWED_EDIT_FIELDS = {
     "category",
@@ -43,27 +47,82 @@ ALLOWED_EDIT_FIELDS = {
 }
 
 
-security = HTTPBasic()
+def _auth_config() -> tuple[str, str]:
+    # Read at request-time so runtime env changes (service env, docker env, etc.) are respected.
+    return (
+        os.environ.get("INVENTORY_USER", ""),
+        os.environ.get("INVENTORY_PASS_HASH", ""),
+    )
 
-AUTH_USER = os.environ.get("INVENTORY_USER", "")
-AUTH_PASS_HASH = os.environ.get("INVENTORY_PASS_HASH", "")
 
-def require_basic_auth(credentials: HTTPBasicCredentials = Depends(security)) -> None:
-    if not AUTH_USER or not AUTH_PASS_HASH:
-        raise HTTPException(status_code=500, detail="Auth not configured")
+def _now_ts() -> int:
+    return int(time.time())
 
-    user_ok = secrets.compare_digest(credentials.username, AUTH_USER)
-    pass_ok = pbkdf2_sha256.verify(credentials.password, AUTH_PASS_HASH)
 
-    if not (user_ok and pass_ok):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Unauthorized",
-            headers={"WWW-Authenticate": "Basic"},
+def _cleanup_expired_sessions(now_ts: int) -> None:
+    with get_conn() as conn:
+        conn.execute("DELETE FROM sessions WHERE expires_at <= ?", (now_ts,))
+
+
+def _get_valid_session(token: str) -> Optional[Dict[str, Any]]:
+    if not token:
+        return None
+
+    now_ts = _now_ts()
+    with get_conn() as conn:
+        conn.execute("DELETE FROM sessions WHERE expires_at <= ?", (now_ts,))
+        row = conn.execute(
+            "SELECT token, username, expires_at FROM sessions WHERE token = ? AND expires_at > ?",
+            (token, now_ts),
+        ).fetchone()
+
+    return dict(row) if row is not None else None
+
+
+def _create_session(username: str) -> tuple[str, int]:
+    token = secrets.token_urlsafe(32)
+    now_ts = _now_ts()
+    expires_ts = now_ts + SESSION_TTL_SECONDS
+
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO sessions(token, username, created_at, expires_at) VALUES (?, ?, ?, ?)",
+            (token, username, now_ts, expires_ts),
         )
 
+    return token, expires_ts
 
-app = FastAPI(dependencies=[Depends(require_basic_auth)])
+
+def _delete_session(token: str) -> None:
+    if not token:
+        return
+    with get_conn() as conn:
+        conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
+
+
+app = FastAPI()
+
+
+@app.middleware("http")
+async def session_auth_middleware(request: Request, call_next):
+    path = request.url.path
+
+    # Allow unauthenticated access
+    if path == "/login" or path == "/favicon.ico" or path.startswith("/static/"):
+        return await call_next(request)
+
+    token = request.cookies.get(SESSION_COOKIE_NAME, "")
+    session = _get_valid_session(token)
+    if session is not None:
+        request.state.user = session.get("username")
+        return await call_next(request)
+
+    accept = request.headers.get("accept", "")
+    wants_html = ("text/html" in accept) or ("*/*" in accept) or (accept.strip() == "")
+    if wants_html:
+        return RedirectResponse(url="/login", status_code=303)
+
+    return HTMLResponse("Unauthorized", status_code=401)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -77,9 +136,71 @@ def render(template_name: str, **context: Any) -> HTMLResponse:
     return HTMLResponse(tpl.render(**context))
 
 
+def render_with_status(template_name: str, status_code: int, **context: Any) -> HTMLResponse:
+    tpl = templates.get_template(template_name)
+    return HTMLResponse(tpl.render(**context), status_code=status_code)
+
+
 @app.on_event("startup")
 def _startup() -> None:
     init_db()
+
+
+@app.get("/login", response_class=HTMLResponse)
+def login_get(request: Request) -> HTMLResponse:
+    return render("login.html", request=request, title=f"{APP_TITLE} – Login", error="")
+
+
+@app.post("/login")
+def login_post(
+    request: Request,
+    username: str = Form(""),
+    password: str = Form(""),
+):
+    auth_user, auth_pass_hash = _auth_config()
+    if not auth_user or not auth_pass_hash:
+        return render_with_status(
+            "login.html",
+            500,
+            request=request,
+            title=f"{APP_TITLE} – Login",
+            error="Auth not configured on server (set INVENTORY_USER and INVENTORY_PASS_HASH)",
+        )
+
+    user_ok = secrets.compare_digest((username or ""), auth_user)
+    pass_ok = pbkdf2_sha256.verify((password or ""), auth_pass_hash)
+
+    if not (user_ok and pass_ok):
+        return render(
+            "login.html",
+            request=request,
+            title=f"{APP_TITLE} – Login",
+            error="Invalid username or password",
+        )
+
+    token, expires_ts = _create_session(username=auth_user)
+    resp = RedirectResponse(url="/", status_code=303)
+    expires_dt = datetime.fromtimestamp(expires_ts, tz=timezone.utc)
+    resp.set_cookie(
+        key=SESSION_COOKIE_NAME,
+        value=token,
+        max_age=SESSION_TTL_SECONDS,
+        expires=expires_dt,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/",
+    )
+    return resp
+
+
+@app.get("/logout")
+def logout(request: Request):
+    token = request.cookies.get(SESSION_COOKIE_NAME, "")
+    _delete_session(token)
+    resp = RedirectResponse(url="/login", status_code=303)
+    resp.delete_cookie(key=SESSION_COOKIE_NAME, path="/")
+    return resp
 
 @app.get("/favicon.ico")
 async def favicon():
