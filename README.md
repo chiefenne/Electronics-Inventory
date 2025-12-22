@@ -103,6 +103,14 @@ Example (move 5mm left and 1mm up):
 --label_offset_y: -1mm;
 ```
 
+### Outlines (calibration vs Avery sheets)
+
+By default, label borders are **not printed** (best for real Avery sheets where tiny alignment offsets can make printed
+outlines look off).
+
+For calibration or printing on plain paper (where you want cut guides), enable **Show cut outlines** on the Labels page
+before printing.
+
 ## Authentication
 
 This app uses a **login page + server-side sessions** (stored in SQLite) for all routes.

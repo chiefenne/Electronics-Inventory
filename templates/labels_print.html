@@ -7,7 +7,7 @@
 {% endblock %}
 {% block content %}
 
-<section class="panel print-only preset-{{ preset }}">
+<section class="panel print-only preset-{{ preset }}{% if show_outline %} show-outline{% endif %}">
     <div class="labels">
         {% for l in labels %}
         <div class="label {{ l.type }}">

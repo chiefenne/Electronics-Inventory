@@ -55,6 +55,16 @@
     .print-only {
         display: block !important;
     }
+
+    /* On real label sheets, outlines look bad if alignment is slightly off.
+       Default: do NOT print borders; enable explicitly for calibration/cut prints. */
+    .label {
+        border: none !important;
+    }
+
+    .show-outline .label {
+        border: 1px solid #000 !important;
+    }
 }
 
 /* =========================

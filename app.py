@@ -648,6 +648,7 @@ async def print_labels(
     preset: str = Form("3348"),
     mode: str = Form("asset"),
     code: list[str] = Form([]),
+    outline: str = Form(""),
 ) -> HTMLResponse:
 
     if preset not in _available_label_presets():
@@ -683,6 +684,7 @@ async def print_labels(
         title=f"{APP_TITLE}",
         labels=labels,
         preset=preset,
+        show_outline=bool(outline),
     )
 
 
