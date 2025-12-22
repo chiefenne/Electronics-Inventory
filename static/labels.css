@@ -3,6 +3,11 @@
    ========================= */
 
 /* Selection list (optional; harmless if unused) */
+.labels-select {
+    /* Responsive sizing for container codes in the selection list */
+    --container_code_size: clamp(12px, 1.6vw, 16px);
+}
+
 .labels-select fieldset {
     border: 1px solid var(--border-soft);
     border-radius: 10px;
@@ -23,8 +28,55 @@
     padding: 6px 0;
 }
 
+/* Keep container code (e.g. BX-01) on one line */
+.label-row label.checkbox {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.label-row label.checkbox .mono {
+    white-space: nowrap;
+    word-break: keep-all;
+    font-size: var(--container_code_size);
+    font-weight: 650;
+}
+
+.labels-select label.checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+}
+
+.labels-select label.checkbox input[type="checkbox"] {
+    margin: 0;
+    accent-color: var(--blue-primary);
+    transform: scale(1.0);
+    transform-origin: left center;
+}
+
+/* Keep the format controls on one tidy row (without affecting the containers fieldset) */
+.labels-select fieldset.label-format {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Outline toggle: keep checkbox + text together, no wrapping */
+.labels-select .outline-toggle {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.labels-select .outline-toggle span {
+    white-space: nowrap;
+}
+
 .label-row .labeltext {
-    flex: 1 1 auto;
+    flex: 0 1 360px;
+    width: 360px;
+    max-width: 100%;
 }
 
 /* =========================

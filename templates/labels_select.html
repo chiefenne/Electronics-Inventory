@@ -25,7 +25,7 @@
             {% endfor %}
         </fieldset>
 
-        <fieldset>
+        <fieldset class="label-format">
             <legend>Label format</legend>
 
             <select name="preset" required>
@@ -40,8 +40,8 @@
                 {% endfor %}
             </select>
 
-            <label class="checkbox" style="margin-left: 10px;">
-                <input type="checkbox" name="outline" value="1">
+            <label class="checkbox outline-toggle">
+                <input type="checkbox" name="outline" value="1" id="outline">
                 <span>Show cut outlines</span>
             </label>
         </fieldset>
@@ -57,7 +57,40 @@
     (() => {
         const form = document.getElementById("label-form");
         const btn = document.getElementById("print-btn");
+        const preset = form?.querySelector('select[name="preset"]');
+        const mode = form?.querySelector('select[name="mode"]');
+        const outline = form?.querySelector('input[name="outline"]');
         if (!form || !btn) return;
+
+        const KEY = "labels.print.settings";
+
+        const loadSettings = () => {
+            try {
+                const raw = localStorage.getItem(KEY);
+                if (!raw) return;
+                const s = JSON.parse(raw);
+                if (preset && typeof s?.preset === "string") preset.value = s.preset;
+                if (mode && typeof s?.mode === "string") mode.value = s.mode;
+                if (outline && typeof s?.outline === "boolean") outline.checked = s.outline;
+            } catch {
+                // ignore
+            }
+        };
+
+        const saveSettings = () => {
+            try {
+                localStorage.setItem(
+                    KEY,
+                    JSON.stringify({
+                        preset: preset?.value || "",
+                        mode: mode?.value || "",
+                        outline: !!outline?.checked,
+                    })
+                );
+            } catch {
+                // ignore
+            }
+        };
 
         const update = () => {
             btn.disabled = form.querySelectorAll('input[name="code"]:checked').length === 0;
@@ -65,7 +98,10 @@
 
         form.addEventListener("change", (e) => {
             if (e.target && e.target.matches('input[name="code"]')) update();
+            if (e.target && (e.target === preset || e.target === mode || e.target === outline)) saveSettings();
         });
+
+        loadSettings();
 
         update();
     })();
