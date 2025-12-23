@@ -96,7 +96,7 @@ Container label QR codes are generated using `BASE_URL` in `app.py`.
 Example (behind reverse proxy + HTTPS):
 
 ```bash
-export INVENTORY_BASE_URL="https://inventory.simtechconsult.com"
+export INVENTORY_BASE_URL="https://inventory.reverseproxy.com"
 ```
 
 ## Label printing layouts
