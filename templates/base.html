@@ -16,8 +16,10 @@
 <body>
     <header class="header">
         <a href="/" class="header-link">
-            <div class="title">{{ title }}</div>
-            <div class="sub">Personal self-hosted database • v{{ app_version }}</div>
+            <div class="title">{{ app_title }} <span class="app-version">v{{ app_version }}</span></div>
+            <div class="sub">
+                {% if title and title != app_title %}{{ title }}{% else %}Personal self-hosted database{% endif %}
+            </div>
         </a>
         <nav class="nav">
             <a href="/" class="navlink">Inventory</a>

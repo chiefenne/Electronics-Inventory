@@ -52,6 +52,14 @@ body {
     color: #f7fbff;
 }
 
+.title .app-version {
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0.2px;
+    opacity: 0.85;
+    margin-left: 8px;
+}
+
 .sub {
     font-size: 13px;
     margin-top: 2px;
