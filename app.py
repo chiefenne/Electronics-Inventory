@@ -630,11 +630,19 @@ def export_csv(q: str = "", category: str = "", container_id: str = "") -> Strea
     parts = fetch_parts(q=q, category=category, container_id=container_id, limit=100000)
 
     buf = io.StringIO()
-    writer = csv.DictWriter(
-        buf,
-        fieldnames=["uuid", "category", "subcategory", "description", "package", "container_id", "quantity", "notes", "updated_at"],
-        extrasaction="ignore",
-    )
+    fieldnames = [
+        "category",
+        "subcategory",
+        "description",
+        "package",
+        "container_id",
+        "quantity",
+        "notes",
+        "updated_at",
+        "uuid",
+    ]
+    writer = csv.DictWriter(buf, fieldnames=fieldnames, extrasaction="ignore")
+
     writer.writeheader()
     writer.writerows(parts)
     buf.seek(0)
