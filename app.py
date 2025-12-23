@@ -32,6 +32,8 @@ from db import get_conn, init_db, \
 
 APP_TITLE = "Electronics Inventory"
 
+APP_VERSION = "1.0"
+
 BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
 
 SESSION_COOKIE_NAME = "inventory_session"
@@ -159,6 +161,9 @@ templates = Environment(
     loader=FileSystemLoader("templates"),
     autoescape=select_autoescape(["html", "xml"]),
 )
+
+templates.globals["app_title"] = APP_TITLE
+templates.globals["app_version"] = APP_VERSION
 
 def render(template_name: str, **context: Any) -> HTMLResponse:
     tpl = templates.get_template(template_name)
@@ -557,14 +562,14 @@ async def restore_post(
     container_id: str = Form(""),
     uuid: List[str] = Form([]),
 ) -> HTMLResponse:
-    # Determine which trash rows to restore
-    if action == "filter":
+    # Determine which trash rows to target
+    if action in ("filter", "delete_filter"):
         rows = fetch_trash(q=q, category=category, container_id=container_id, limit=100000)
-        restore_uuids = [r.get("uuid", "") for r in rows if r.get("uuid")]
+        target_uuids = [r.get("uuid", "") for r in rows if r.get("uuid")]
     else:
-        restore_uuids = [u for u in uuid if u]
+        target_uuids = [u for u in uuid if u]
 
-    if not restore_uuids:
+    if not target_uuids:
         items = fetch_trash(q=q, category=category, container_id=container_id)
         return render(
             "restore.html",
@@ -576,15 +581,25 @@ async def restore_post(
             container_id=container_id,
             categories=list_categories_in_use(),
             containers=list_containers_in_use(),
-            error="Nothing selected to restore",
+            error="Nothing selected",
         )
 
+    # Permanent delete from trash
+    if action in ("delete_filter", "delete_selected"):
+        with get_conn() as conn:
+            placeholders = ",".join(["?"] * len(target_uuids))
+            conn.execute(
+                f"DELETE FROM parts_trash WHERE uuid IN ({placeholders})",
+                target_uuids,
+            )
+        return RedirectResponse(url="/restore", status_code=303)
+
     with get_conn() as conn:
-        placeholders = ",".join(["?"] * len(restore_uuids))
+        placeholders = ",".join(["?"] * len(target_uuids))
 
         existing = conn.execute(
             f"SELECT uuid FROM parts WHERE uuid IN ({placeholders})",
-            restore_uuids,
+            target_uuids,
         ).fetchall()
         if existing:
             items = fetch_trash(q=q, category=category, container_id=container_id)
@@ -614,11 +629,11 @@ async def restore_post(
             FROM parts_trash
             WHERE uuid IN ({placeholders})
             """,
-            restore_uuids,
+            target_uuids,
         )
         conn.execute(
             f"DELETE FROM parts_trash WHERE uuid IN ({placeholders})",
-            restore_uuids,
+            target_uuids,
         )
         conn.execute("COMMIT")
 

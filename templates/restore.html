@@ -28,7 +28,7 @@
 <section class="panel">
     {% if error %}
     <div style="padding: 10px; border: 1px solid var(--border-soft); border-radius: 10px; margin: 0 0 10px 0;">
-        <strong>Restore:</strong> {{ error }}
+        <strong>Trash:</strong> {{ error }}
     </div>
     {% endif %}
 
@@ -40,6 +40,10 @@
         <div class="actions" style="justify-content: flex-end; margin-bottom: 10px;">
             <button class="btn secondary" type="submit" name="action" value="filter">Restore by current filter</button>
             <button class="btn" type="submit" name="action" value="selected">Restore selected</button>
+            <button class="btn danger secondary" type="submit" name="action" value="delete_filter"
+                onclick="return confirm('Permanently delete ALL trash items matching the current filter? This cannot be undone.');">Delete by current filter</button>
+            <button class="btn danger" type="submit" name="action" value="delete_selected"
+                onclick="return confirm('Permanently delete the selected trash items? This cannot be undone.');">Delete selected</button>
         </div>
 
         <table class="tbl">

@@ -1,5 +1,7 @@
 # Electronics Inventory
 
+Version: **v1.0**
+
 A lightweight web app to track electronics parts (category, subcategory, description, package, container, quantity, notes) with a simple HTML UI — including optional links to datasheets and pinouts.
 
 ## Features
