@@ -10,6 +10,7 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 - Search + filter by category and container
 - CSV export
 - Optional links per part: datasheet + pinout (quick-open buttons in the table)
+- Optional images per part: device photo + pinout image (hover preview in the table)
 - Container pages and printable container labels with QR codes
 - Uses a local SQLite database file (no server required)
 
@@ -98,6 +99,26 @@ On startup, the app creates/uses a SQLite database at `inventory.db` (in the rep
 - `/export.csv` – download CSV export (respects current filters via query params)
 - `/containers/{code}` – show parts in a specific container
 - `/containers/labels` – printable labels with QR codes
+
+## Images (device + pinout)
+
+Each part can store optional image URLs:
+
+- `image_url` – photo of the IC/module/device
+- `pinout_image_url` – a direct pinout image (handy when searching pinouts is time-consuming)
+
+### Recommended: store images in `static/`
+
+Store images under the repo's `static/` folder (for example `static/images/` and `static/pinouts/`).
+Then reference them with a URL starting with `/static/...`:
+
+- `image_url`: `/static/images/MP2307_HW133ABC_board.jpg`
+- `pinout_image_url`: `/static/pinouts/MP2307_pinout.jpg`
+
+### Hover preview behavior
+
+If the URL ends with an image extension (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.svg`), the table shows a hover preview.
+Clicking the preview opens the image in a new tab.
 
 ## QR label URLs (important)
 

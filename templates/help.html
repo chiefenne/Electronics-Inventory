@@ -134,10 +134,34 @@
         Each part can store optional URLs to its <b>datasheet</b> and <b>pinout</b> for quick reference.
     </p>
     <ul>
-        <li><b>📄 Datasheet:</b> click to open the saved datasheet link, or click the button to add one.</li>
-        <li><b>🔌 Pinout:</b> click to open the saved pinout link, or click the button to add one.</li>
-        <li>Links open in a new tab and can be edited like other fields.</li>
+        <li><b>📄 Datasheet:</b> hover to show an <b>Open</b> link; click the icon to edit.</li>
+        <li><b>🔌 Pinout link:</b> if the link points to an image, hover shows a preview; click the icon to edit.</li>
+        <li>Links open in a new tab and can be edited any time.</li>
     </ul>
+</section>
+
+<section class="panel help">
+    <h3>Images (Device + Pinout)</h3>
+    <p>
+        To get an immediate look & feel, you can store two optional image URLs per part:
+    </p>
+    <ul>
+        <li><b>🖼️ Device image:</b> a photo of the IC/module/device.</li>
+        <li><b>🧷 Pinout image:</b> a direct pinout image (useful when pinout searching is time-consuming).</li>
+    </ul>
+    <p>
+        <b>Recommended:</b> store images under the app's <span class="mono">static/</span> folder and reference them as
+        <span class="mono">/static/…</span> URLs.
+    </p>
+    <ul>
+        <li>Example: <span class="mono">/static/images/MP2307_HW133ABC_board.jpg</span></li>
+        <li>Example: <span class="mono">/static/pinouts/MP2307_pinout.jpg</span></li>
+    </ul>
+    <p class="muted">
+        Hover shows an image preview for URLs ending in <span class="mono">.png</span>, <span class="mono">.jpg</span>,
+        <span class="mono">.jpeg</span>, <span class="mono">.gif</span>, <span class="mono">.webp</span>, <span class="mono">.svg</span>.
+        Clicking the preview opens it in a new tab; clicking the icon opens the editor.
+    </p>
 </section>
 
 <section class="panel help">

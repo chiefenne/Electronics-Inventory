@@ -56,8 +56,10 @@ ALLOWED_EDIT_FIELDS = {
     "container_id",
     "quantity",
     "notes",
+    "image_url",
     "datasheet_url",
     "pinout_url",
+    "pinout_image_url",
 }
 
 
@@ -319,12 +321,12 @@ def _trash_parts(where_sql: str, params: List[Any], deleted_by: str) -> str:
             INSERT INTO parts_trash(
                 uuid, original_id, batch_id, deleted_at, deleted_by,
                 category, subcategory, description, package, container_id, quantity, notes,
-                datasheet_url, pinout_url, updated_at
+                image_url, datasheet_url, pinout_url, pinout_image_url, updated_at
             )
             SELECT
                 uuid, id, ?, ?, ?,
                 category, subcategory, description, package, container_id, quantity, notes,
-                datasheet_url, pinout_url, updated_at
+                image_url, datasheet_url, pinout_url, pinout_image_url, updated_at
             FROM parts
             WHERE {where_sql}
             """,
@@ -511,7 +513,7 @@ def save_cell(part_uuid: str, field: str, value: str = Form("")) -> HTMLResponse
         ensure_category(value)
     elif field == "subcategory":
         ensure_subcategory(value)
-    elif field in ("datasheet_url", "pinout_url"):
+    elif field in ("datasheet_url", "pinout_url", "image_url", "pinout_image_url"):
         value = value.strip()
 
 
@@ -621,11 +623,11 @@ async def restore_post(
             f"""
             INSERT INTO parts(
                 uuid, category, subcategory, description, package, container_id, quantity, notes,
-                datasheet_url, pinout_url, updated_at
+                image_url, datasheet_url, pinout_url, pinout_image_url, updated_at
             )
             SELECT
                 uuid, category, subcategory, description, package, container_id, quantity, notes,
-                datasheet_url, pinout_url, datetime('now')
+                image_url, datasheet_url, pinout_url, pinout_image_url, datetime('now')
             FROM parts_trash
             WHERE uuid IN ({placeholders})
             """,
@@ -653,6 +655,10 @@ def export_csv(q: str = "", category: str = "", container_id: str = "") -> Strea
         "container_id",
         "quantity",
         "notes",
+        "image_url",
+        "datasheet_url",
+        "pinout_url",
+        "pinout_image_url",
         "updated_at",
         "uuid",
     ]

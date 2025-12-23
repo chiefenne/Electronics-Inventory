@@ -31,8 +31,10 @@ def init_db() -> None:
                 container_id TEXT,
                 quantity     INTEGER NOT NULL DEFAULT 0,
                 notes        TEXT,
+                image_url    TEXT,
                 datasheet_url TEXT,
                 pinout_url    TEXT,
+                pinout_image_url TEXT,
                 updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
             );
             """
@@ -95,8 +97,10 @@ def init_db() -> None:
                 container_id TEXT,
                 quantity     INTEGER,
                 notes        TEXT,
+                image_url    TEXT,
                 datasheet_url TEXT,
                 pinout_url    TEXT,
+                pinout_image_url TEXT,
                 updated_at   TEXT
             );
             """
@@ -111,12 +115,22 @@ def init_db() -> None:
         # Add missing columns (SQLite supports ADD COLUMN only)
         for col_def in (
             "uuid TEXT",
+            "image_url TEXT",
             "datasheet_url TEXT",
             "pinout_url TEXT",
+            "pinout_image_url TEXT",
         ):
             col_name = col_def.split()[0]
             if not _has_column("parts", col_name):
                 conn.execute(f"ALTER TABLE parts ADD COLUMN {col_def};")
+
+        for col_def in (
+            "image_url TEXT",
+            "pinout_image_url TEXT",
+        ):
+            col_name = col_def.split()[0]
+            if not _has_column("parts_trash", col_name):
+                conn.execute(f"ALTER TABLE parts_trash ADD COLUMN {col_def};")
 
         # Backfill uuid for existing rows
         missing = conn.execute(

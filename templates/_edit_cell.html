@@ -1,86 +1,150 @@
 <tr id="row-{{ part.uuid }}">
-    {% set fields = ["category","subcategory","description","package","container_id","quantity","notes", "datasheet_url", "pinout_url"] %}
-
-    {% for f in fields %}
-    {% if f == field %}
-    <td colspan="1">
-        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/{{ f }}" hx-target="#row-{{ part.uuid }}"
-            hx-swap="outerHTML">
-
-            {% if f == "category" %}
+    {# Category #}
+    {% if field == "category" %}
+    <td class="cell">
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/category" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
             <select name="value" autofocus>
                 {% for cat in categories %}
-                <option value="{{ cat }}" {% if cat==part.category %}selected{% endif %}>
-                    {{ cat }}
-                </option>
+                <option value="{{ cat }}" {% if cat==part.category %}selected{% endif %}>{{ cat }}</option>
                 {% endfor %}
             </select>
-
-            {% elif f == "container_id" %}
-            <select name="value" autofocus>
-                {% for c in containers %}
-                <option value="{{ c.code }}" {% if c.code==part.container_id %}selected{% endif %}>
-                    {{ c.code }}
-                </option>
-                {% endfor %}
-            </select>
-
-            {% elif f in ["datasheet_url", "pinout_url"] %}
-            <input name="value" value="{{ part.get(f, '') }}" type="url" placeholder="https://…" autofocus />
-
-            {% else %}
-            <input name="value" value="{{ part[f] }}" {% if f=="quantity" %}type="number" min="0" {% endif %}
-                autofocus />
-            {% endif %}
-
             <button class="btn" type="submit">Save</button>
-            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">
-                Cancel
-            </button>
+            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">Cancel</button>
         </form>
     </td>
     {% else %}
-    <td class="cell {% if f == 'quantity' %}mono{% endif %}" hx-get="/parts/{{ part.uuid }}/edit/{{ f }}"
-        hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/category" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{ part.category }}</td>
+    {% endif %}
 
-        {% if f == "container_id" %}
-        {% if part[f] and part[f]|trim %}
-        <span class="chip">{{ part[f] }}</span>
+    {# Subcategory #}
+    {% if field == "subcategory" %}
+    <td class="cell">
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            <input name="value" value="{{ part.get('subcategory','') }}" autofocus />
+            <button class="btn" type="submit">Save</button>
+            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">Cancel</button>
+        </form>
+    </td>
+    {% else %}
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{ part.subcategory }}</td>
+    {% endif %}
+
+    {# Description #}
+    {% if field == "description" %}
+    <td class="cell">
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/description" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            <input name="value" value="{{ part.get('description','') }}" autofocus />
+            <button class="btn" type="submit">Save</button>
+            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">Cancel</button>
+        </form>
+    </td>
+    {% else %}
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/description" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{ part.description }}</td>
+    {% endif %}
+
+    {# Package #}
+    {% if field == "package" %}
+    <td class="cell">
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/package" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            <input name="value" value="{{ part.get('package','') }}" autofocus />
+            <button class="btn" type="submit">Save</button>
+            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">Cancel</button>
+        </form>
+    </td>
+    {% else %}
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/package" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{ part.package }}</td>
+    {% endif %}
+
+    {# Container #}
+    {% if field == "container_id" %}
+    <td class="cell">
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            <select name="value" autofocus>
+                {% for c in containers %}
+                <option value="{{ c.code }}" {% if c.code==part.container_id %}selected{% endif %}>{{ c.code }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn" type="submit">Save</button>
+            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">Cancel</button>
+        </form>
+    </td>
+    {% else %}
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+        {% if part.container_id and part.container_id|trim %}
+        <span class="chip">{{ part.container_id }}</span>
         {% else %}
         <span class="chip muted">—</span>
         {% endif %}
-        {% else %}
-        {{ part[f] }}
-        {% endif %}
     </td>
     {% endif %}
-    {% endfor %}
+
+    {# Qty #}
+    {% if field == "quantity" %}
+    <td class="cell mono">
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/quantity" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            <input name="value" value="{{ part.get('quantity', 0) }}" type="number" min="0" autofocus />
+            <button class="btn" type="submit">Save</button>
+            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">Cancel</button>
+        </form>
+    </td>
+    {% else %}
+    <td class="cell mono" hx-get="/parts/{{ part.uuid }}/edit/quantity" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{ part.quantity }}</td>
+    {% endif %}
+
+    {# Notes #}
+    {% if field == "notes" %}
+    <td class="cell">
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/notes" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            <input name="value" value="{{ part.get('notes','') }}" autofocus />
+            <button class="btn" type="submit">Save</button>
+            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">Cancel</button>
+        </form>
+    </td>
+    {% else %}
+    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/notes" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{ part.notes }}</td>
+    {% endif %}
 
     <td class="mono muted">{{ part.updated_at }}</td>
 
-<td class="actions">
+    <td class="actions">
+        {% if field in ["datasheet_url", "pinout_url", "image_url", "pinout_image_url"] %}
+        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/{{ field }}" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            <input name="value" value="{{ part.get(field, '') }}" type="text" inputmode="url" placeholder="/static/images/… or https://…" autofocus />
+            <button class="btn" type="submit">Save</button>
+            <button class="btn secondary" type="button" hx-get="/partials/table" hx-target="#table" hx-swap="innerHTML">Cancel</button>
+        </form>
+        {% else %}
+            {# Keep the actions consistent with the normal row #}
+            {% if part.get("datasheet_url") and part.get("datasheet_url")|trim %}
+            <a class="btn secondary icon" href="{{ part.get('datasheet_url') }}" target="_blank" rel="noopener" title="Open datasheet">📄</a>
+            {% else %}
+            <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/datasheet_url" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML" title="Add datasheet link">📄</button>
+            {% endif %}
 
-    {# Datasheet button #}
-    {% if part.get("datasheet_url") and part.get("datasheet_url")|trim %}
-    <a class="btn secondary icon" href="{{ part.get('datasheet_url') }}" target="_blank" rel="noopener"
-        title="Open datasheet">📄</a>
-    {% else %}
-    <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/datasheet_url" hx-target="#row-{{ part.uuid }}"
-        hx-swap="outerHTML" title="Add datasheet link">📄</button>
-    {% endif %}
+            {% set image_url = part.get("image_url", "") %}
+            {% if image_url and image_url|trim %}
+            <a class="btn secondary icon" href="{{ image_url }}" target="_blank" rel="noopener" title="Open device image">🖼️</a>
+            {% else %}
+            <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/image_url" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML" title="Add device image">🖼️</button>
+            {% endif %}
 
-    {# Pinout button #}
-    {% if part.get("pinout_url") and part.get("pinout_url")|trim %}
-    <a class="btn secondary icon" href="{{ part.get('pinout_url') }}" target="_blank" rel="noopener"
-        title="Open pinout">🔌</a>
-    {% else %}
-    <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/pinout_url" hx-target="#row-{{ part.uuid }}"
-        hx-swap="outerHTML" title="Add pinout link">🔌</button>
-    {% endif %}
+            {% set pinout_url = part.get("pinout_url", "") %}
+            {% if pinout_url and pinout_url|trim %}
+            <a class="btn secondary icon" href="{{ pinout_url }}" target="_blank" rel="noopener" title="Open pinout">🔌</a>
+            {% else %}
+            <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/pinout_url" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML" title="Add pinout link">🔌</button>
+            {% endif %}
 
-    <form hx-post="/parts/{{ part.uuid }}/delete" hx-target="#table" hx-swap="innerHTML" hx-confirm="Delete this part?">
-        <button class="btn danger" type="submit">Del</button>
-    </form>
-</td>
+            {% set pinout_image_url = part.get("pinout_image_url", "") %}
+            {% if pinout_image_url and pinout_image_url|trim %}
+            <a class="btn secondary icon" href="{{ pinout_image_url }}" target="_blank" rel="noopener" title="Open pinout image">🧷</a>
+            {% else %}
+            <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/pinout_image_url" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML" title="Add pinout image">🧷</button>
+            {% endif %}
 
+            <form hx-post="/parts/{{ part.uuid }}/delete" hx-target="#table" hx-swap="innerHTML" hx-confirm="Delete this part?">
+                <button class="btn danger" type="submit">Del</button>
+            </form>
+        {% endif %}
+    </td>
 </tr>

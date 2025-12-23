@@ -23,6 +23,41 @@ body {
 }
 
 /* =========================
+   Hover preview (pinout)
+   ========================= */
+
+.hover-preview {
+    position: relative;
+    display: inline-block;
+}
+
+.hover-preview__bubble {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 20;
+    display: none;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+}
+
+.hover-preview:hover .hover-preview__bubble,
+.hover-preview:focus-within .hover-preview__bubble {
+    display: block;
+}
+
+.hover-preview__img {
+    display: block;
+    max-width: min(420px, 70vw);
+    max-height: 320px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
+/* =========================
    Header (blue-forward)
    ========================= */
 
