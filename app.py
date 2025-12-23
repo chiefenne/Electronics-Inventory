@@ -37,6 +37,15 @@ BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip(
 SESSION_COOKIE_NAME = "inventory_session"
 SESSION_TTL_SECONDS = 24 * 60 * 60
 
+
+def _env_truthy(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "y", "on")
+
+
+def _auth_disabled() -> bool:
+    # Intended for fully-local setups only. Do NOT use on internet-exposed deployments.
+    return _env_truthy("INVENTORY_DISABLE_AUTH")
+
 ALLOWED_EDIT_FIELDS = {
     "category",
     "subcategory",
@@ -121,6 +130,10 @@ app = FastAPI()
 
 @app.middleware("http")
 async def session_auth_middleware(request: Request, call_next):
+    if _auth_disabled():
+        request.state.user = "local"
+        return await call_next(request)
+
     path = request.url.path
 
     # Allow unauthenticated access
@@ -164,6 +177,8 @@ def _startup() -> None:
 
 @app.get("/login", response_class=HTMLResponse)
 def login_get(request: Request) -> HTMLResponse:
+    if _auth_disabled():
+        return RedirectResponse(url="/", status_code=303)
     return render("login.html", request=request, title=f"{APP_TITLE} – Login", error="")
 
 
@@ -173,6 +188,9 @@ def login_post(
     username: str = Form(""),
     password: str = Form(""),
 ):
+    if _auth_disabled():
+        return RedirectResponse(url="/", status_code=303)
+
     auth_user, auth_pass_hash = _auth_config()
     if not auth_user or not auth_pass_hash:
         return render_with_status(
@@ -212,6 +230,8 @@ def login_post(
 
 @app.get("/logout")
 def logout(request: Request):
+    if _auth_disabled():
+        return RedirectResponse(url="/", status_code=303)
     token = request.cookies.get(SESSION_COOKIE_NAME, "")
     _delete_session(token)
     resp = RedirectResponse(url="/login", status_code=303)

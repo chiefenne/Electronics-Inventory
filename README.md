@@ -49,6 +49,16 @@ QR code support is included via the `qrcode` dependency in `requirements.txt`.
 
 This app uses a login page + server-side sessions. You must configure credentials via environment variables.
 
+Local-only (no authentication):
+
+```bash
+INVENTORY_DISABLE_AUTH=1 \
+INVENTORY_BASE_URL="http://127.0.0.1:8001" \
+uvicorn app:app --reload --host 127.0.0.1 --port 8001
+```
+
+Do not use `INVENTORY_DISABLE_AUTH` on an internet-exposed instance.
+
 If you run behind a reverse proxy (recommended for HTTPS), also set `INVENTORY_BASE_URL` so label QR codes point to the correct external hostname.
 
 Dev (auto-reload on code changes):
@@ -144,6 +154,11 @@ Configure it with:
 - `INVENTORY_USER` – username
 - `INVENTORY_PASS_HASH` – password hash in Passlib `pbkdf2_sha256` format
 - `INVENTORY_BASE_URL` – optional; external base URL used for container label QR codes
+
+Optional (local-only):
+
+- `INVENTORY_DISABLE_AUTH` – when set to `1`/`true`, disables authentication entirely.
+  Use only for fully local deployments (e.g. bound to `127.0.0.1`). Do not enable this on an internet-exposed instance.
 
 Note: the session cookie is configured as `secure`, so you should access the app via HTTPS (directly or via reverse proxy).
 
