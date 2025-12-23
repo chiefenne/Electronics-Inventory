@@ -32,7 +32,7 @@ from db import get_conn, init_db, \
 
 APP_TITLE = "Electronics Inventory"
 
-BASE_URL = "http://192.168.8.20:8001"
+BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
 
 SESSION_COOKIE_NAME = "inventory_session"
 SESSION_TTL_SECONDS = 24 * 60 * 60

@@ -49,11 +49,14 @@ QR code support is included via the `qrcode` dependency in `requirements.txt`.
 
 This app uses a login page + server-side sessions. You must configure credentials via environment variables.
 
+If you run behind a reverse proxy (recommended for HTTPS), also set `INVENTORY_BASE_URL` so label QR codes point to the correct external hostname.
+
 Dev (auto-reload on code changes):
 
 ```bash
 INVENTORY_USER="andreas" \
 INVENTORY_PASS_HASH='$pbkdf2-sha256$...$...$...' \
+INVENTORY_BASE_URL="http://127.0.0.1:8001" \
 uvicorn app:app --reload --host 0.0.0.0 --port 8001 --proxy-headers
 ```
 
@@ -62,6 +65,7 @@ Prod (no reload):
 ```bash
 INVENTORY_USER="andreas" \
 INVENTORY_PASS_HASH='$pbkdf2-sha256$...$...$...' \
+INVENTORY_BASE_URL="http://127.0.0.1:8001" \
 uvicorn app:app --host 0.0.0.0 --port 8001 --proxy-headers
 ```
 
@@ -87,7 +91,13 @@ On startup, the app creates/uses a SQLite database at `inventory.db` (in the rep
 
 Container label QR codes are generated using `BASE_URL` in `app.py`.
 
-- If you run this on a different host/port, update `BASE_URL` so the QR codes point to a reachable URL (e.g. your LAN IP).
+- Configure the external base URL via `INVENTORY_BASE_URL` so QR codes point to a reachable URL (LAN IP or public HTTPS hostname).
+
+Example (behind reverse proxy + HTTPS):
+
+```bash
+export INVENTORY_BASE_URL="https://inventory.simtechconsult.com"
+```
 
 ## Label printing layouts
 
@@ -131,6 +141,9 @@ Configure it with:
 
 - `INVENTORY_USER` – username
 - `INVENTORY_PASS_HASH` – password hash in Passlib `pbkdf2_sha256` format
+- `INVENTORY_BASE_URL` – optional; external base URL used for container label QR codes
+
+Note: the session cookie is configured as `secure`, so you should access the app via HTTPS (directly or via reverse proxy).
 
 Generate a hash (example):
 
