@@ -323,6 +323,11 @@ select:focus {
     font-size: 13px;
 }
 
+/* Improve readability without changing layout */
+.tbl tbody tr:nth-child(even) td {
+    background: color-mix(in srgb, var(--blue-soft) 35%, #fff);
+}
+
 .tbl th,
 .tbl td {
     border-bottom: 1px solid #eef0f3;
@@ -339,6 +344,32 @@ select:focus {
 
 .tbl td {
     color: #111;
+    overflow-wrap: normal;
+}
+
+/* Allow long content in editable/text cells to wrap (but keep action buttons intact) */
+.tbl td.cell,
+.tbl td.notes {
+    overflow-wrap: anywhere;
+}
+
+/* Monospace fields (qty, uuid, timestamps) should not wrap */
+.tbl td.mono {
+    white-space: nowrap;
+    overflow-wrap: normal;
+}
+
+/* Allow long free-text columns to wrap cleanly */
+.tbl td.notes {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* Truncate very long UUIDs when space is tight (e.g., container view) */
+.tbl td.uuid {
+    max-width: 18ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .cell {
@@ -443,6 +474,20 @@ select:focus {
     width: 34px;
     padding: 6px 0;
     text-align: center;
+}
+
+/* Inline SVG icons: consistent sizing and alignment */
+.btn.icon svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+/* Image icons (SVG via <img>): consistent sizing and alignment */
+.btn.icon img {
+    width: 18px;
+    height: 18px;
+    display: block;
 }
 
 .btn.danger {

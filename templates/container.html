@@ -5,26 +5,28 @@
     <h2>Container {{ code }}</h2>
 
     {% if parts %}
-    <table>
+    <table class="tbl">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Category</th>
-                <th>Subcategory</th>
                 <th>Description</th>
                 <th>Package</th>
+                <th>Notes</th>
                 <th>Qty</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>UUID</th>
             </tr>
         </thead>
         <tbody>
             {% for p in parts %}
             <tr>
-                <td class="mono">{{ p.id }}</td>
-                <td>{{ p.category }}</td>
-                <td>{{ p.subcategory }}</td>
                 <td>{{ p.description }}</td>
                 <td>{{ p.package }}</td>
+                <td class="notes">{{ p.notes }}</td>
                 <td class="mono">{{ p.quantity }}</td>
+                <td>{{ p.category }}</td>
+                <td>{{ p.subcategory }}</td>
+                <td class="mono uuid">{{ p.uuid }}</td>
             </tr>
             {% endfor %}
         </tbody>
