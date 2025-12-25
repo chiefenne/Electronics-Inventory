@@ -35,6 +35,7 @@ def init_db() -> None:
                 datasheet_url TEXT,
                 pinout_url    TEXT,
                 pinout_image_url TEXT,
+                created_at   TEXT NOT NULL DEFAULT (datetime('now')),
                 updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
             );
             """
@@ -101,6 +102,7 @@ def init_db() -> None:
                 datasheet_url TEXT,
                 pinout_url    TEXT,
                 pinout_image_url TEXT,
+                created_at   TEXT,
                 updated_at   TEXT
             );
             """
@@ -119,18 +121,40 @@ def init_db() -> None:
             "datasheet_url TEXT",
             "pinout_url TEXT",
             "pinout_image_url TEXT",
+            "created_at TEXT",
         ):
             col_name = col_def.split()[0]
             if not _has_column("parts", col_name):
                 conn.execute(f"ALTER TABLE parts ADD COLUMN {col_def};")
 
+        # Backfill created_at for existing rows (best effort)
+        if _has_column("parts", "created_at"):
+            conn.execute(
+                """
+                UPDATE parts
+                SET created_at = updated_at
+                WHERE created_at IS NULL OR TRIM(created_at) = ''
+                """
+            )
+
         for col_def in (
             "image_url TEXT",
             "pinout_image_url TEXT",
+            "created_at TEXT",
         ):
             col_name = col_def.split()[0]
             if not _has_column("parts_trash", col_name):
                 conn.execute(f"ALTER TABLE parts_trash ADD COLUMN {col_def};")
+
+        # Backfill created_at for existing trash rows (best effort)
+        if _has_column("parts_trash", "created_at"):
+            conn.execute(
+                """
+                UPDATE parts_trash
+                SET created_at = updated_at
+                WHERE created_at IS NULL OR TRIM(created_at) = ''
+                """
+            )
 
         # Backfill uuid for existing rows
         missing = conn.execute(

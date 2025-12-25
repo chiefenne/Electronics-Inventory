@@ -104,8 +104,6 @@
     <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{ part.subcategory }}</td>
     {% endif %}
 
-    <td class="mono muted">{{ part.updated_at }}</td>
-
     <td class="actions">
         {% if field in ["datasheet_url", "pinout_url", "image_url"] %}
         <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/{{ field }}" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
@@ -115,12 +113,6 @@
         </form>
         {% else %}
             {# Keep the actions consistent with the normal row #}
-            {% if part.get("datasheet_url") and part.get("datasheet_url")|trim %}
-            <a class="btn secondary icon" href="{{ part.get('datasheet_url') }}" target="_blank" rel="noopener" title="Open datasheet">📄</a>
-            {% else %}
-            <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/datasheet_url" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML" title="Add datasheet link">📄</button>
-            {% endif %}
-
             {% set image_url = part.get("image_url", "") %}
             {% if image_url and image_url|trim %}
             <a class="btn secondary icon" href="{{ image_url }}" target="_blank" rel="noopener" title="Open device image" aria-label="Open device image">
@@ -168,6 +160,30 @@
                 </svg>
             </button>
             {% endif %}
+
+            {% if part.get("datasheet_url") and part.get("datasheet_url")|trim %}
+            <a class="btn secondary icon" href="{{ part.get('datasheet_url') }}" target="_blank" rel="noopener" title="Open datasheet">📄</a>
+            {% else %}
+            <button class="btn secondary icon" hx-get="/parts/{{ part.uuid }}/edit/datasheet_url" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML" title="Add datasheet link">📄</button>
+            {% endif %}
+
+            <span class="hover-preview">
+                <button class="btn secondary icon" type="button" title="Show timestamps" aria-label="Show timestamps">
+                    <img src="/static/icons/Information_icon.svg" alt="" aria-hidden="true" />
+                </button>
+                <span class="hover-preview__bubble" role="tooltip">
+                    <div>
+                        <div><strong>Created:</strong> <span class="mono ts">{{ part.get('created_at_local') or part.get('created_at') or '—' }}</span></div>
+                        <div><strong>Updated:</strong> <span class="mono ts">{{ part.get('updated_at_local') or part.get('updated_at') or '—' }}</span></div>
+                        <div><strong>Links:</strong>
+                            Image: {{ 'yes' if (part.get('image_url') or '')|trim else 'no' }},
+                            Pinout: {{ 'yes' if (part.get('pinout_url') or '')|trim else 'no' }},
+                            Datasheet: {{ 'yes' if (part.get('datasheet_url') or '')|trim else 'no' }}
+                        </div>
+                        <div><strong>UUID:</strong> <span class="mono">{{ part.get('uuid') or '—' }}</span></div>
+                    </div>
+                </span>
+            </span>
 
             <form hx-post="/parts/{{ part.uuid }}/delete" hx-target="#table" hx-swap="innerHTML" hx-confirm="Delete this part?">
                 <button class="btn danger icon" type="submit" title="Delete" aria-label="Delete">

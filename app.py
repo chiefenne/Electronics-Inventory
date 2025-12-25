@@ -255,7 +255,12 @@ def fetch_parts(
     container_id: str = "",
     limit: int = 500,
 ) -> List[Dict[str, Any]]:
-    sql = "SELECT * FROM parts WHERE 1=1"
+    sql = (
+        "SELECT *, "
+        "datetime(created_at, 'localtime') AS created_at_local, "
+        "datetime(updated_at, 'localtime') AS updated_at_local "
+        "FROM parts WHERE 1=1"
+    )
     params: List[Any] = []
 
     if q.strip():
@@ -321,12 +326,12 @@ def _trash_parts(where_sql: str, params: List[Any], deleted_by: str) -> str:
             INSERT INTO parts_trash(
                 uuid, original_id, batch_id, deleted_at, deleted_by,
                 category, subcategory, description, package, container_id, quantity, notes,
-                image_url, datasheet_url, pinout_url, pinout_image_url, updated_at
+                image_url, datasheet_url, pinout_url, pinout_image_url, created_at, updated_at
             )
             SELECT
                 uuid, id, ?, ?, ?,
                 category, subcategory, description, package, container_id, quantity, notes,
-                image_url, datasheet_url, pinout_url, pinout_image_url, updated_at
+                image_url, datasheet_url, pinout_url, pinout_image_url, created_at, updated_at
             FROM parts
             WHERE {where_sql}
             """,
@@ -448,8 +453,11 @@ def add_part(
     with get_conn() as conn:
         conn.execute(
             """
-            INSERT INTO parts (uuid, category, subcategory, description, package, container_id, quantity, notes, datasheet_url, pinout_url, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            INSERT INTO parts (
+                uuid, category, subcategory, description, package, container_id, quantity, notes,
+                datasheet_url, pinout_url, created_at, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
             """,
             (
                 part_uuid,
@@ -499,7 +507,16 @@ def edit_cell(part_uuid: str, field: str) -> HTMLResponse:
         return HTMLResponse("Invalid field", status_code=400)
 
     with get_conn() as conn:
-        row = conn.execute("SELECT * FROM parts WHERE uuid = ?", (part_uuid,)).fetchone()
+        row = conn.execute(
+            """
+            SELECT *,
+                   datetime(created_at, 'localtime') AS created_at_local,
+                   datetime(updated_at, 'localtime') AS updated_at_local
+            FROM parts
+            WHERE uuid = ?
+            """,
+            (part_uuid,),
+        ).fetchone()
 
     if row is None:
         return HTMLResponse("Not found", status_code=404)
@@ -538,7 +555,16 @@ def save_cell(part_uuid: str, field: str, value: str = Form("")) -> HTMLResponse
             f"UPDATE parts SET {field} = ?, updated_at = datetime('now') WHERE uuid = ?",
             (value, part_uuid),
         )
-        row = conn.execute("SELECT * FROM parts WHERE uuid = ?", (part_uuid,)).fetchone()
+        row = conn.execute(
+            """
+            SELECT *,
+                   datetime(created_at, 'localtime') AS created_at_local,
+                   datetime(updated_at, 'localtime') AS updated_at_local
+            FROM parts
+            WHERE uuid = ?
+            """,
+            (part_uuid,),
+        ).fetchone()
 
     if row is None:
         return HTMLResponse("Not found", status_code=404)
@@ -639,11 +665,13 @@ async def restore_post(
             f"""
             INSERT INTO parts(
                 uuid, category, subcategory, description, package, container_id, quantity, notes,
-                image_url, datasheet_url, pinout_url, pinout_image_url, updated_at
+                image_url, datasheet_url, pinout_url, pinout_image_url, created_at, updated_at
             )
             SELECT
                 uuid, category, subcategory, description, package, container_id, quantity, notes,
-                image_url, datasheet_url, pinout_url, pinout_image_url, datetime('now')
+                image_url, datasheet_url, pinout_url, pinout_image_url,
+                COALESCE(created_at, updated_at, datetime('now')),
+                datetime('now')
             FROM parts_trash
             WHERE uuid IN ({placeholders})
             """,

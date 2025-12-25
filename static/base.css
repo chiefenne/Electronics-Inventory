@@ -33,8 +33,8 @@ body {
 
 .hover-preview__bubble {
     position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
+    top: 0;
+    right: calc(100% + 6px);
     z-index: 20;
     display: none;
     padding: 6px;
@@ -426,6 +426,11 @@ select:focus {
 
 .mono {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Keep timestamps on one line in tooltips */
+.ts {
+    white-space: nowrap;
 }
 
 .muted {

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 12.0.1, SVG Export Plug-In . SVG Version: 6.00 Build 51448)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [
+	<!ENTITY ns_svg "http://www.w3.org/2000/svg">
+	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">
+]>
+<svg  version="1.1"
+	 id="Vectorised" xmlns:sodipodi="http://inkscape.sourceforge.net/DTD/sodipodi-0.dtd" inkscape:version="0.43" sodipodi:version="0.32" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://web.resource.org/cc/" sodipodi:docname="Information_icon.svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" sodipodi:docbase="/Users/trevor/Desktop" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" width="62" height="62" viewBox="0 0 62 62"
+	 overflow="visible" enable-background="new 0 0 62 62" xml:space="preserve">
+<sodipodi:namedview  id="base" inkscape:current-layer="Vectorised" inkscape:window-y="22" pagecolor="#ffffff" inkscape:window-x="0" inkscape:cy="31" inkscape:cx="31" inkscape:zoom="9.0806452" inkscape:window-width="936" bordercolor="#666666" inkscape:pageopacity="0.0" borderopacity="1.0" inkscape:pageshadow="2" inkscape:window-height="728">
+	</sodipodi:namedview>
+<g id="g1333" transform="matrix(1.064807,0.000000,0.000000,1.064822,-2.099045,1.086391)">
+	
+		<radialGradient id="circle1341_1_" cx="11.602" cy="44.3108" r="27" gradientTransform="matrix(1.0648 0 0 -1.0648 20.1467 76.6853)" gradientUnits="userSpaceOnUse">
+		<stop  offset="0" style="stop-color:#C0C0C0"/>
+		<stop  offset="0.8824" style="stop-color:#C0C0C0"/>
+		<stop  offset="1" style="stop-color:#C0C0C0"/>
+	</radialGradient>
+	<circle id="circle1341" fill="url(#circle1341_1_)" cx="32.501" cy="29.502" r="26.5"/>
+</g>
+<g id="g5" transform="translate(-1.500000,1.497999)">
+	
+		<linearGradient id="circle12_1_" gradientUnits="userSpaceOnUse" x1="56.9541" y1="16.7486" x2="11.0467" y2="43.2532" gradientTransform="matrix(1 0 0 -1 -1.5 59.502)">
+		<stop  offset="0" style="stop-color:#3057A7"/>
+		<stop  offset="1" style="stop-color:#5A7AC6"/>
+	</linearGradient>
+	<circle id="circle12" fill="url(#circle12_1_)" cx="32.5" cy="29.502" r="26.5"/>
+</g>
+<linearGradient id="Outer_x5F_Circle_1_" gradientUnits="userSpaceOnUse" x1="42.9863" y1="53.9883" x2="22.0143" y2="9.0136" gradientTransform="matrix(1 0 0 -1 -1.5 62.5009)">
+	<stop  offset="0.0056" style="stop-color:#BCD6FE"/>
+	<stop  offset="1" style="stop-color:#6787D3"/>
+</linearGradient>
+<circle id="Outer_x5F_Circle" fill="url(#Outer_x5F_Circle_1_)" cx="31" cy="31" r="24.806"/>
+<g id="Letter_x5F_I" transform="translate(-2.062000,2.500000)">
+	<polygon id="polygon21" fill="#FFFFFF" points="25.062,22.753 37.062,22.753 37.062,41.753 41.062,41.753 41.062,45.753 
+		25.062,45.753 25.062,41.753 29.062,41.753 29.062,25.753 25.062,25.753 	"/>
+	<circle id="circle23" fill="#FFFFFF" cx="32.833" cy="15.011" r="3.764"/>
+</g>
+</svg>
