@@ -35,7 +35,7 @@ body {
     position: absolute;
     top: 0;
     right: calc(100% + 6px);
-    z-index: 20;
+    z-index: 100;
     display: none;
     padding: 6px;
     background: #fff;
@@ -43,8 +43,15 @@ body {
     border-radius: 10px;
 }
 
-.hover-preview:hover .hover-preview__bubble,
-.hover-preview:focus-within .hover-preview__bubble {
+@media (hover: hover) and (pointer: fine) {
+    .hover-preview:hover .hover-preview__bubble,
+    .hover-preview:focus-within .hover-preview__bubble {
+        display: block;
+    }
+}
+
+/* For touch devices we toggle this via JS */
+.hover-preview.is-open .hover-preview__bubble {
     display: block;
 }
 
@@ -520,15 +527,138 @@ select:focus {
     display: inline-flex;
 }
 
+/* =========================
+   Mobile table -> cards
+   - iPhone + iPad portrait
+   - keep iPad landscape as table
+   ========================= */
+
+@media (max-width: 820px) {
+    .tbl thead {
+        display: none;
+    }
+
+    .tbl,
+    .tbl tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .tbl tbody tr {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+
+        margin: 10px 0;
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        overflow: visible;
+        background: #ffffff;
+    }
+
+    /* Disable zebra striping in card view */
+    .tbl tbody tr:nth-child(even) td {
+        background: transparent;
+    }
+
+    .tbl td {
+        display: block;
+        border-bottom: 1px solid #eef0f3;
+        padding: 10px 12px;
+    }
+
+    .tbl tbody tr td:last-child {
+        border-bottom: none;
+    }
+
+    .tbl td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 4px;
+    }
+
+    /* Reorder fields for mobile:
+       Description, Package, Container, Qty, Notes, Actions, Category, Subcategory */
+    .tbl tbody tr > td:nth-child(1) { order: 1; }
+    .tbl tbody tr > td:nth-child(2) { order: 2; }
+    .tbl tbody tr > td:nth-child(3) { order: 3; }
+    .tbl tbody tr > td:nth-child(4) { order: 4; }
+    .tbl tbody tr > td:nth-child(5) { order: 5; }
+    .tbl tbody tr > td:nth-child(8) { order: 6; }
+    .tbl tbody tr > td:nth-child(6) { order: 7; }
+    .tbl tbody tr > td:nth-child(7) { order: 8; }
+
+    /* Actions: align like a card footer */
+    .tbl td.actions {
+        justify-content: flex-start;
+        background: color-mix(in srgb, var(--blue-soft) 25%, #fff);
+        border-top: 1px solid #eef0f3;
+        border-bottom: none;
+
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .tbl td.actions::before {
+        margin-bottom: 8px;
+    }
+
+    /* In card view, keep action buttons compact even on small screens */
+    .tbl td.actions .btn {
+        width: 34px;
+    }
+
+    /* On mobile, open popups below the tapped button (avoid off-screen left). */
+    .hover-preview__bubble {
+        top: calc(100% + 6px);
+        left: 0;
+        right: auto;
+        max-width: min(420px, 90vw);
+    }
+}
+
 @media (max-width: 700px) {
     .tbl td.actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 6px;
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .tbl td.actions .btn {
-        width: 100%;
+        width: 34px;
+    }
+}
+
+/* Close control inside hover bubbles (shown on touch devices) */
+.hover-preview__close {
+    display: none;
+    margin-left: auto;
+    margin-bottom: 6px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+    background: #fff;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.hover-preview__close:hover {
+    background: var(--blue-soft);
+}
+
+@media (hover: none), (pointer: coarse) {
+    .hover-preview__close {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 

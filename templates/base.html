@@ -39,6 +39,80 @@
         {% endblock %}
     </footer>
 
+    <script>
+        (function () {
+            // Touch devices don't have hover; enable tap-to-toggle for hover popups.
+            var isTouch = window.matchMedia && (
+                window.matchMedia('(hover: none)').matches ||
+                window.matchMedia('(pointer: coarse)').matches
+            );
+
+            if (!isTouch) return;
+
+            function closeAll(except) {
+                document.querySelectorAll('.hover-preview.is-open').forEach(function (el) {
+                    if (except && el === except) return;
+                    el.classList.remove('is-open');
+                    // If focus remains inside, :focus-within can keep the bubble visible.
+                    if (el.contains(document.activeElement) && document.activeElement && document.activeElement.blur) {
+                        document.activeElement.blur();
+                    }
+                });
+            }
+
+            document.addEventListener('click', function (e) {
+                var trigger = e.target.closest('.hover-preview > button');
+                if (!trigger) {
+                    // Tap outside closes any open bubble.
+                    closeAll();
+                    return;
+                }
+
+                var wrapper = trigger.parentElement;
+                var hasHxGet = trigger.hasAttribute('hx-get');
+
+                // First tap: open bubble (prevent edit/navigation).
+                if (!wrapper.classList.contains('is-open')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeAll(wrapper);
+                    wrapper.classList.add('is-open');
+                    try { trigger.focus(); } catch (_) {}
+                    return;
+                }
+
+                // Second tap:
+                // - if this is an "edit" button (hx-get), allow default to proceed.
+                // - otherwise, just close.
+                if (!hasHxGet) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    wrapper.classList.remove('is-open');
+                }
+            }, true);
+
+            // Prevent taps inside the bubble from closing it immediately.
+            document.addEventListener('click', function (e) {
+                var bubble = e.target.closest('.hover-preview__bubble');
+                if (!bubble) return;
+
+                // Close button inside bubble.
+                if (e.target.closest('.hover-preview__close')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var wrapper = bubble.closest('.hover-preview');
+                    if (wrapper) wrapper.classList.remove('is-open');
+                    if (document.activeElement && document.activeElement.blur) {
+                        document.activeElement.blur();
+                    }
+                    return;
+                }
+
+                e.stopPropagation();
+            }, true);
+        })();
+    </script>
+
 </body>
 
 

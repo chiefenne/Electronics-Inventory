@@ -1,11 +1,11 @@
 <tr id="row-{{ part.uuid }}">
-    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/description" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+    <td class="cell" data-label="Description" hx-get="/parts/{{ part.uuid }}/edit/description" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
         {{ part.description }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/package" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
+    <td class="cell" data-label="Package" hx-get="/parts/{{ part.uuid }}/edit/package" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
         part.package }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+    <td class="cell" data-label="Container" hx-get="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
         {% if part.container_id and part.container_id|trim %}
         <span class="chip">{{ part.container_id }}</span>
         {% else %}
@@ -13,19 +13,19 @@
         {% endif %}
     </td>
 
-    <td class="cell mono" hx-get="/parts/{{ part.uuid }}/edit/quantity" hx-target="#row-{{ part.uuid }}"
+    <td class="cell mono" data-label="Qty" hx-get="/parts/{{ part.uuid }}/edit/quantity" hx-target="#row-{{ part.uuid }}"
         hx-swap="outerHTML">{{ part.quantity }}</td>
 
-    <td class="cell notes" hx-get="/parts/{{ part.uuid }}/edit/notes" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
+    <td class="cell notes" data-label="Notes" hx-get="/parts/{{ part.uuid }}/edit/notes" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
         part.notes }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/category" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
+    <td class="cell" data-label="Category" hx-get="/parts/{{ part.uuid }}/edit/category" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
         part.category }}</td>
 
-    <td class="cell" hx-get="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+    <td class="cell" data-label="Subcategory" hx-get="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
         {{ part.subcategory }}</td>
 
-    <td class="actions">
+    <td class="actions" data-label="Actions">
         {# Device image (photo) #}
         {% set image_url = part.get("image_url", "") %}
         {% if image_url and image_url|trim %}
@@ -42,6 +42,7 @@
                 <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" />
             </button>
             <span class="hover-preview__bubble" role="tooltip">
+                <button class="hover-preview__close" type="button" aria-label="Close preview" title="Close">×</button>
                 <a href="{{ image_url }}" target="_blank" rel="noopener" title="Open device image">
                     <img class="hover-preview__img" src="{{ image_url }}" alt="Device image preview" loading="lazy" />
                 </a>
@@ -54,6 +55,7 @@
                 <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" />
             </button>
             <span class="hover-preview__bubble" role="tooltip">
+                <button class="hover-preview__close" type="button" aria-label="Close preview" title="Close">×</button>
                 <a class="btn secondary" href="{{ image_url }}" target="_blank" rel="noopener" title="Open device image">Open</a>
             </span>
         </span>
@@ -88,6 +90,7 @@
                 </svg>
             </button>
             <span class="hover-preview__bubble" role="tooltip">
+                <button class="hover-preview__close" type="button" aria-label="Close preview" title="Close">×</button>
                 {% if pinout_url_l.endswith('.png')
                       or pinout_url_l.endswith('.jpg')
                       or pinout_url_l.endswith('.jpeg')
@@ -131,6 +134,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13 9h5.5L13 3.5zM6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m4.93 10.44c.41.9.93 1.64 1.53 2.15l.41.32c-.87.16-2.07.44-3.34.93l-.11.04l.5-1.04c.45-.87.78-1.66 1.01-2.4m6.48 3.81c.18-.18.27-.41.28-.66c.03-.2-.02-.39-.12-.55c-.29-.47-1.04-.69-2.28-.69l-1.29.07l-.87-.58c-.63-.52-1.2-1.43-1.6-2.56l.04-.14c.33-1.33.64-2.94-.02-3.6a.85.85 0 0 0-.61-.24h-.24c-.37 0-.7.39-.79.77c-.37 1.33-.15 2.06.22 3.27v.01c-.25.88-.57 1.9-1.08 2.93l-.96 1.8l-.89.49c-1.2.75-1.77 1.59-1.88 2.12c-.04.19-.02.36.05.54l.03.05l.48.31l.44.11c.81 0 1.73-.95 2.97-3.07l.18-.07c1.03-.33 2.31-.56 4.03-.75c1.03.51 2.24.74 3 .74c.44 0 .74-.11.91-.3m-.41-.71l.09.11c-.01.1-.04.11-.09.13h-.04l-.19.02c-.46 0-1.17-.19-1.9-.51c.09-.1.13-.1.23-.1c1.4 0 1.8.25 1.9.35M7.83 17c-.65 1.19-1.24 1.85-1.69 2c.05-.38.5-1.04 1.21-1.69zm3.02-6.91c-.23-.9-.24-1.63-.07-2.05l.07-.12l.15.05c.17.24.19.56.09 1.1l-.03.16l-.16.82z"/></svg>
             </button>
             <span class="hover-preview__bubble" role="tooltip">
+                <button class="hover-preview__close" type="button" aria-label="Close preview" title="Close">×</button>
                 <a class="btn secondary" href="{{ datasheet_url }}" target="_blank" rel="noopener" title="Open datasheet">Open</a>
             </span>
         </span>
@@ -147,6 +151,7 @@
                 <img src="/static/icons/Information_icon.svg" alt="" aria-hidden="true" />
             </button>
             <span class="hover-preview__bubble" role="tooltip">
+                <button class="hover-preview__close" type="button" aria-label="Close" title="Close">×</button>
                 <div>
                     <div><strong>Created:</strong> <span class="mono ts">{{ part.get('created_at_local') or part.get('created_at') or '—' }}</span></div>
                     <div><strong>Updated:</strong> <span class="mono ts">{{ part.get('updated_at_local') or part.get('updated_at') or '—' }}</span></div>
