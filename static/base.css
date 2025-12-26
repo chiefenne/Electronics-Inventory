@@ -88,7 +88,7 @@ body {
 }
 
 .title {
-    font-size: 21px;
+    font-size: 24px;
     font-weight: 650;
     letter-spacing: 0.3px;
     color: #f7fbff;
@@ -273,7 +273,7 @@ body {
 /* Phone: single column */
 @media (max-width: 700px) {
     .title {
-        font-size: 18px;
+        font-size: 22px;
     }
 
     .sub {
@@ -524,6 +524,7 @@ select:focus {
 .btn.danger {
     background: color-mix(in srgb, var(--danger) 82%, #fff);
     border-color: color-mix(in srgb, var(--danger) 65%, #fff);
+    color: #ffffff;
 }
 
 .btn.danger:hover {
