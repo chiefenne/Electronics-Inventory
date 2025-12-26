@@ -21,11 +21,14 @@
                 {% if title and title != app_title %}{{ title }}{% else %}Personal self-hosted database{% endif %}
             </div>
         </a>
+        {% set current_path = request.url.path if request is defined else '' %}
         <nav class="nav">
-            <a href="/" class="navlink">Inventory</a>
-            <a href="/containers/labels" class="navlink">Labels</a>
-            <a href="/restore" class="navlink">Restore</a>
-            <a href="/help" class="navlink">Usage</a>
+            {% set inventory_active = (current_path == '/') or (current_path.startswith('/containers/') and not current_path.startswith('/containers/labels')) %}
+            {% set labels_active = current_path.startswith('/containers/labels') or current_path.startswith('/print/labels') %}
+            <a href="/" class="navlink{% if inventory_active %} active{% endif %}"{% if inventory_active %} aria-current="page"{% endif %}>Inventory</a>
+            <a href="/containers/labels" class="navlink{% if labels_active %} active{% endif %}"{% if labels_active %} aria-current="page"{% endif %}>Labels</a>
+            <a href="/restore" class="navlink{% if current_path.startswith('/restore') %} active{% endif %}"{% if current_path.startswith('/restore') %} aria-current="page"{% endif %}>Restore</a>
+            <a href="/help" class="navlink{% if current_path.startswith('/help') %} active{% endif %}"{% if current_path.startswith('/help') %} aria-current="page"{% endif %}>Usage</a>
         </nav>
     </header>
 

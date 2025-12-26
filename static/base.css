@@ -127,6 +127,11 @@ body {
     color: #ffffff;
 }
 
+.navlink.active {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
 
 .main {
     /* Extra bottom space so hover previews on the last rows can be viewed
