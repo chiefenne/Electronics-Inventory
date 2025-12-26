@@ -482,6 +482,15 @@ select:focus {
     cursor: pointer;
 }
 
+/* Action icons that are intentionally "empty" (no link/image yet) but still clickable to edit/add. */
+.btn.icon.dimmed {
+    opacity: 0.45;
+}
+
+.btn.icon.dimmed:hover {
+    opacity: 0.85;
+}
+
 .btn:hover {
     background: linear-gradient(180deg,
             #4a8fd4,

@@ -485,6 +485,19 @@ def delete_part(request: Request, part_uuid: str) -> HTMLResponse:
 
     # HTMX main-table delete expects the table fragment back.
     if request.headers.get("hx-request", "").lower() == "true":
+        referer = request.headers.get("referer", "")
+
+        # If the delete was triggered from a container page, keep that view filtered.
+        try:
+            ref = urlparse(referer)
+            if ref.path.startswith("/containers/") and not ref.path.startswith("/containers/labels"):
+                code = ref.path[len("/containers/"):].strip("/")
+                if code:
+                    parts = fetch_parts(container_id=code)
+                    return render("_table.html", parts=parts)
+        except Exception:
+            pass
+
         parts = fetch_parts()
         return render("_table.html", parts=parts)
 
@@ -570,6 +583,26 @@ def save_cell(part_uuid: str, field: str, value: str = Form("")) -> HTMLResponse
         return HTMLResponse("Not found", status_code=404)
 
     # Return the rendered row so the table updates cleanly
+    return render("_row.html", part=dict(row))
+
+
+@app.get("/parts/{part_uuid}/row", response_class=HTMLResponse)
+def get_row(part_uuid: str) -> HTMLResponse:
+    with get_conn() as conn:
+        row = conn.execute(
+            """
+            SELECT *,
+                   datetime(created_at, 'localtime') AS created_at_local,
+                   datetime(updated_at, 'localtime') AS updated_at_local
+            FROM parts
+            WHERE uuid = ?
+            """,
+            (part_uuid,),
+        ).fetchone()
+
+    if row is None:
+        return HTMLResponse("Not found", status_code=404)
+
     return render("_row.html", part=dict(row))
 
 
