@@ -153,6 +153,7 @@
     <ul>
         <li><b><span class="help-icon help-icon--pdf" aria-hidden="true"></span>Datasheet:</b> hover (or tap on mobile) to show an <b>Open</b> link; click the icon to edit.</li>
         <li><b><span class="help-icon help-icon--pinout" aria-hidden="true"></span>Pinout:</b> if the URL points to an image, hover (or tap on mobile) shows a preview; click the icon to edit.</li>
+        <li class="muted">Tip: for Pinout, you can paste just a filename (e.g. <span class="mono">MP2307_pinout.jpg</span>) and it will resolve under <span class="mono">/static/pinouts/</span>.</li>
         <li>Links open in a new tab and can be edited any time.</li>
     </ul>
 </section>
@@ -169,6 +170,11 @@
     <p>
         <b>Recommended:</b> store images under the app's <span class="mono">static/</span> folder and reference them as
         <span class="mono">/static/…</span> URLs.
+    </p>
+    <p>
+        <b>Shortcut:</b> when editing the Device image or Pinout fields, you can paste just the filename
+        (for example <span class="mono">MP2307_HW133ABC_board.jpg</span> or <span class="mono">MP2307_pinout.jpg</span>).
+        The app will resolve it under <span class="mono">/static/images/</span> or <span class="mono">/static/pinouts/</span>.
     </p>
     <p class="muted">
         Note: <span class="mono">static/images/</span> and <span class="mono">static/pinouts/</span> exist in the repository, but the actual image files are intentionally ignored by git.

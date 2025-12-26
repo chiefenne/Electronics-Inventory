@@ -131,6 +131,9 @@ Then reference them with a URL starting with `/static/...`:
 - `image_url`: `/static/images/MP2307_HW133ABC_board.jpg`
 - `pinout_url`: `/static/pinouts/MP2307_pinout.jpg`
 
+Shortcut: when editing `image_url` / `pinout_url`, you can paste just the filename (for example `MP2307_HW133ABC_board.jpg` or `MP2307_pinout.jpg`).
+The app will automatically resolve it under `/static/images/` or `/static/pinouts/`.
+
 Note: `static/images/` and `static/pinouts/` are present in the repo (via `.gitkeep`), but the actual image files are intentionally ignored by git.
 
 ### Hover preview behavior

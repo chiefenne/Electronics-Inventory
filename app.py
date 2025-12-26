@@ -40,6 +40,8 @@ BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip(
 SESSION_COOKIE_NAME = "inventory_session"
 SESSION_TTL_SECONDS = 24 * 60 * 60
 
+STATIC_DIR = Path(__file__).with_name("static")
+
 
 def _env_truthy(name: str) -> bool:
     return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "y", "on")
@@ -103,6 +105,80 @@ def _available_label_presets() -> List[str]:
         if preset and re.fullmatch(r"[A-Za-z0-9_-]+", preset):
             presets.append(preset)
     return sorted(set(presets))
+
+
+def _normalize_static_media_path(field: str, value: str) -> str:
+    """Normalize user-entered media references.
+
+    Allows entering just a filename for the per-part image/pinout fields.
+
+    Examples:
+    - image_url: "LM358_board.jpg" -> "/static/images/LM358_board.jpg"
+    - pinout_url: "LM358_pinout.png" -> "/static/pinouts/LM358_pinout.png"
+
+    If an extension is omitted and there is exactly one matching file by stem
+    in the target folder, it will be used.
+
+    Absolute paths (starting with '/') and URLs are preserved.
+    """
+    raw = (value or "").strip()
+    if raw == "":
+        return ""
+
+    # Leave full URLs or absolute paths untouched
+    lowered = raw.lower()
+    if "://" in raw or lowered.startswith("data:") or lowered.startswith("mailto:"):
+        return raw
+    if raw.startswith("/"):
+        return raw
+
+    # Normalize a few common relative patterns into /static/…
+    for prefix in ("static/", "static\\"):
+        if raw.startswith(prefix):
+            return "/" + raw.replace("\\", "/")
+    for prefix in ("images/", "images\\", "pinouts/", "pinouts\\"):
+        if raw.startswith(prefix):
+            return "/static/" + raw.replace("\\", "/")
+
+    # Only treat plain filenames (no path separators) as candidates.
+    if "/" in raw or "\\" in raw or ".." in raw:
+        return raw
+
+    subdir = None
+    if field == "image_url":
+        subdir = "images"
+    elif field == "pinout_url":
+        subdir = "pinouts"
+
+    if subdir is None:
+        return raw
+
+    folder = STATIC_DIR / subdir
+    if not folder.exists() or not folder.is_dir():
+        return f"/static/{subdir}/{raw}"
+
+    # 1) Exact match
+    if (folder / raw).exists():
+        return f"/static/{subdir}/{raw}"
+
+    # 2) Case-insensitive match
+    try:
+        entries = [p for p in folder.iterdir() if p.is_file()]
+    except Exception:
+        entries = []
+
+    ci = [p for p in entries if p.name.lower() == raw.lower()]
+    if len(ci) == 1:
+        return f"/static/{subdir}/{ci[0].name}"
+
+    # 3) Stem match when extension omitted
+    if "." not in raw:
+        stem_matches = [p for p in entries if p.stem.lower() == raw.lower()]
+        if len(stem_matches) == 1:
+            return f"/static/{subdir}/{stem_matches[0].name}"
+
+    # Default: assume it belongs in that folder
+    return f"/static/{subdir}/{raw}"
 
 
 def _auth_config() -> tuple[str, str]:
@@ -473,6 +549,9 @@ def add_part(
     category = category.strip()
     description = description.strip()
 
+    # Allow entering just a filename for pinouts
+    pinout_url = _normalize_static_media_path("pinout_url", pinout_url)
+
     ensure_category(category)
     ensure_container(container_id)
     ensure_subcategory(subcategory)
@@ -606,7 +685,10 @@ def save_cell(
     elif field == "subcategory":
         ensure_subcategory(value)
     elif field in ("datasheet_url", "pinout_url", "image_url"):
-        value = value.strip()
+        if field in ("pinout_url", "image_url"):
+            value = _normalize_static_media_path(field, value)
+        else:
+            value = value.strip()
 
 
     with get_conn() as conn:
