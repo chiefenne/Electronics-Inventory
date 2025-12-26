@@ -4,7 +4,8 @@ Version: **v1.0**
 
 A lightweight web app to track electronics parts (category, subcategory, description, package, container, quantity, notes) with a simple HTML UI — including optional links to datasheets and pinouts.
 
-Note: If you’re looking for a more professional-grade (and free) inventory system with broader features, you may want to check out [InvenTree](https://inventree.org/) (it might be a better fit depending on your needs).
+> [!NOTE]
+> If you’re looking for a more professional-grade (and free) inventory system with broader features, you may want to check out [InvenTree](https://inventree.org/) (it might be a better fit depending on your needs).
 
 ## Features
 
