@@ -484,6 +484,17 @@ select:focus {
     background: var(--blue-soft);
 }
 
+/* Delete buttons: match other action buttons (white + blue outline), but keep icon red */
+.btn.danger-outline {
+    background: #ffffff;
+    border-color: var(--blue-primary);
+    color: var(--danger);
+}
+
+.btn.danger-outline:hover {
+    background: var(--blue-soft);
+}
+
 .btn.icon {
     width: 34px;
     padding: 6px 0;
@@ -504,9 +515,19 @@ select:focus {
     display: block;
 }
 
+/* Slightly larger icons for Save/Cancel in edit forms */
+.btn.icon.icon-lg img {
+    width: 20px;
+    height: 20px;
+}
+
 .btn.danger {
-    background: linear-gradient(180deg, #c9362a, var(--danger));
-    border-color: var(--danger);
+    background: color-mix(in srgb, var(--danger) 82%, #fff);
+    border-color: color-mix(in srgb, var(--danger) 65%, #fff);
+}
+
+.btn.danger:hover {
+    background: color-mix(in srgb, var(--danger) 90%, #fff);
 }
 
 
