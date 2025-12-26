@@ -93,15 +93,27 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
-    vertical-align: text-bottom;
+    width: 1.15em;
+    height: 1.15em;
+    vertical-align: -0.16em;
     margin-right: 6px;
+
+    /* Tint like the main UI action buttons */
+    background-color: var(--blue-primary);
+
+    /* Use the referenced SVG as a mask so it inherits the theme color */
+    -webkit-mask: var(--help-icon-url) no-repeat center / contain;
+    mask: var(--help-icon-url) no-repeat center / contain;
 }
 
-.panel.help .help-icon img,
-.panel.help .help-icon svg {
-    width: 18px;
-    height: 18px;
-    display: block;
+.panel.help .help-icon--pdf {
+    --help-icon-url: url('/static/icons/pdf.svg');
+}
+
+.panel.help .help-icon--pinout {
+    --help-icon-url: url('/static/icons/pinout.svg');
+}
+
+.panel.help .help-icon--image {
+    --help-icon-url: url('/static/icons/IC_SMD16SQ_filled.svg');
 }
