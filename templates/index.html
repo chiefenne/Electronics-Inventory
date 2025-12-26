@@ -28,48 +28,48 @@
 
 <section class="panel">
     <form class="add" hx-post="/parts" hx-target="#table" hx-swap="innerHTML">
-        <input name="category"
-               placeholder="Category (IC, MCU, PASSIVE…)"
-               list="dl-categories"
-               autocomplete="off"
-               spellcheck="false"
-               title="What kind of item this is physically (IC, board, module, passive)."
-               required />
-
-        <input name="subcategory"
-               placeholder="Subcategory (OpAmp, Logic…)"
-               list="dl-subcategories"
-               autocomplete="off"
-               spellcheck="false"
-               title="Optional technical role or family (MCU, OpAmp, DC/DC, Encoder)." />
-
-        <input name="description"
+     <input class="f-desc" name="description"
                placeholder="Description (LM358 DIP, ADS1115 board…)"
                title="What you will actually search for (MPN, package, key detail)."
                required />
 
-        <input name="package"
+     <input class="f-notes" name="notes"
+         placeholder="Notes (optional)"
+         title="Free text for anything that doesn't fit elsewhere." />
+
+     <input class="f-package" name="package"
                placeholder="Package (DIP, SOIC, Module…)"
                title="Physical form factor (DIP, SOIC, 0603, Module)." />
 
-        <input name="container_id"
+     <input class="f-container" name="container_id"
                placeholder="Container (BX-03, DR-01…)"
                list="dl-containers"
                autocomplete="off"
                spellcheck="false"
                title="Physical storage location (box, drawer, compartment)." />
 
-        <input name="quantity"
+     <input class="f-qty" name="quantity"
                type="number"
                min="0"
                value="0"
                title="Approximate stock count (can be updated anytime)." />
 
-        <input name="notes"
-               placeholder="Notes (optional)"
-               title="Free text for anything that doesn't fit elsewhere." />
+     <input class="f-category" name="category"
+         placeholder="Category (IC, MCU, PASSIVE…)"
+         list="dl-categories"
+         autocomplete="off"
+         spellcheck="false"
+         title="What kind of item this is physically (IC, board, module, passive)."
+         required />
 
-        <button class="btn" type="submit">Add</button>
+     <input class="f-subcat" name="subcategory"
+         placeholder="Subcategory (OpAmp, Logic…)"
+         list="dl-subcategories"
+         autocomplete="off"
+         spellcheck="false"
+         title="Optional technical role or family (MCU, OpAmp, DC/DC, Encoder)." />
+
+     <button class="btn f-submit" type="submit">Add</button>
     </form>
 
     <!-- Suggestions -->

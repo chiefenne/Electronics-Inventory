@@ -17,7 +17,7 @@
 
     /* Stock status colors (qty chip) */
     --stock-ok: #15803d;
-    --stock-warn: #ca8a04;
+    --stock-warn: #ffa000;
     --stock-low: var(--danger);
 }
 
@@ -188,9 +188,16 @@ body {
 }
 
 .add {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    /* 20-col grid so we can express ratios precisely without overlap.
+       - Row 1 (full width): 3:5:2 => 6:10:4 columns
+       - Row 2 (half width): container:qty 2:1 within left half => 6:3 columns (1 col left empty)
+       - Row 3 (half width): cat:subcat 2:2 within left half => 5:5 columns
+    */
+    grid-template-columns: repeat(20, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    /* slightly larger than the default so inputs don't look glued together */
+    gap: 10px 12px;
     align-items: center;
 }
 
@@ -199,85 +206,27 @@ body {
     min-width: 0;
 }
 
-/* Field sizing (tune as you like) */
-.add .f-category {
-    flex: 1 1 140px;
-}
+/* Add-form layout (desktop):
+   Row 1: Description | Notes
+   Row 2: Package (full width)
+   Row 3: Container | Qty
+   Row 4: Category | Subcategory
+   Row 5: Add button (full row)
+*/
+.add .f-desc { grid-column: 1 / span 6; grid-row: 1; }
+.add .f-notes { grid-column: 7 / span 10; grid-row: 1; }
+.add .f-package { grid-column: 1 / span 6; grid-row: 2; }
 
-.add .f-subcat {
-    flex: 1 1 180px;
-}
+.add .f-container { grid-column: 1 / span 6; grid-row: 3; }
+.add .f-qty { grid-column: 7 / span 3; grid-row: 3; }
 
-.add .f-desc {
-    flex: 2 1 320px;
-}
-
-.add .f-package {
-    flex: 1 1 140px;
-}
-
-.add .f-container {
-    flex: 1 1 160px;
-}
-
-.add .f-qty {
-    flex: 0 0 110px;
-}
-
-.add .f-notes {
-    flex: 2 1 260px;
-}
+.add .f-category { grid-column: 1 / span 5; grid-row: 4; }
+.add .f-subcat { grid-column: 6 / span 5; grid-row: 4; }
 
 .add .f-submit {
-    flex: 0 0 120px;
-    align-self: stretch;
-    /* make button height match inputs */
-}
-
-/* Force the button to the end nicely */
-.add .f-submit {
-    justify-self: end;
-}
-
-/* Tablet: wrap to multiple rows cleanly */
-@media (max-width: 1100px) {
-
-    .add {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
-    }
-
-    .add .f-category {
-        grid-column: span 2;
-    }
-
-    .add .f-subcat {
-        grid-column: span 2;
-    }
-
-    .add .f-desc {
-        grid-column: span 6;
-    }
-
-    .add .f-package {
-        grid-column: span 2;
-    }
-
-    .add .f-container {
-        grid-column: span 2;
-    }
-
-    .add .f-qty {
-        grid-column: span 1;
-    }
-
-    .add .f-notes {
-        grid-column: span 3;
-    }
-
-    .add .f-submit {
-        grid-column: span 1;
-        justify-self: stretch;
-    }
+    grid-column: 1 / -1;
+    grid-row: 5;
+    justify-self: start;
 }
 
 /* Phone: single column */
@@ -313,6 +262,7 @@ body {
 
 input,
 select {
+    box-sizing: border-box;
     width: 100%;
     height: 42px;
     padding: 0 12px;
@@ -322,6 +272,10 @@ select {
 
     background: #ffffff;
     color: var(--text-main);
+}
+
+button {
+    box-sizing: border-box;
 }
 
 input::placeholder {
@@ -786,6 +740,23 @@ select:focus {
 
     .add {
         grid-template-columns: 1fr;
+    }
+
+    .add .f-category,
+    .add .f-subcat,
+    .add .f-desc,
+    .add .f-package,
+    .add .f-container,
+    .add .f-qty,
+    .add .f-notes,
+    .add .f-submit {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        justify-self: stretch;
+    }
+
+    .add .f-submit {
+        justify-self: start;
     }
 
     .tbl {
