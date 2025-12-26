@@ -23,7 +23,8 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 
 More screenshots:
 
-- [Main screen (container pulldown)](docs/screenshots/Main_screen_pulldown_container.png)
+- [Main screen (board popup)](docs/screenshots/Main_screen_board_popup.jpg)
+- [Main screen (container pulldown)] docs/screenshots/Main_screen_pulldown_container.png)
 - [Label selection](docs/screenshots/Print_label_selection.png)
 - [Printable labels](docs/screenshots/Print_labels.png)
 - [Restore parts (trash)](docs/screenshots/Restore_parts.png)
