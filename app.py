@@ -33,7 +33,7 @@ from db import get_conn, init_db, \
 
 APP_TITLE = "Electronics Inventory"
 
-APP_VERSION = "2.1"
+APP_VERSION = "2.2"
 
 BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
 
