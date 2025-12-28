@@ -40,7 +40,7 @@ The Qty chip can be color-coded using optional stock levels:
 |:--:|:--:|
 | QR code + description | Box contents |
 
-**Fig. 4:** Container page showing contents of box BX-50 after scanning the QR code.
+**Fig. 4:** Container page showing contents of box BX-50 (accessed by clicking the chip or scanning the QR code).
 
 ![Container BX-50 contents](docs/screenshots/Example_label_03.jpg)
 
