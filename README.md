@@ -37,7 +37,7 @@ The Qty chip can be color-coded using optional stock levels:
 
 | ![Label with QR code and text](docs/screenshots/Example_label_01.jpg) | ![Label with QR code and text](docs/screenshots/Example_label_02.jpg) |
 |:--:|:--:|
-| QR code only | QR code + description |
+| QR code + description | Box contents |
 
 **Fig. 2 & 3:** Printable container labels – combined QR + text.
 
