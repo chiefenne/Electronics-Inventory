@@ -30,7 +30,15 @@ The Qty chip can be color-coded using optional stock levels:
 
 ## Screenshots
 
+**Fig. 1:** Main inventory screen with search, filters, and inline editing.
+
 ![Main inventory screen](docs/screenshots/Main_screen.jpg)
+
+**Fig. 2 & 3:** Printable container labels – QR-only (left) and combined QR + text (right).
+
+| ![Label with QR code](docs/screenshots/Example_label_01.jpg) | ![Label with QR code and text](docs/screenshots/Example_label_02.jpg) |
+|:--:|:--:|
+| QR code only | QR code + description |
 
 More screenshots:
 
