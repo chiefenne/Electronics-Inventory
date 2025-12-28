@@ -17,9 +17,8 @@ inventory.db
 *.db
 *.sqlite
 *.sqlite3
-
-# Local archives
 codebase.zip
+command.sh
 
 # User-managed assets (often large / personal)
 # Keep the folders in git (via .gitkeep), but ignore user content.
