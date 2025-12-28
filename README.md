@@ -30,16 +30,19 @@ The Qty chip can be color-coded using optional stock levels:
 
 ## Screenshots
 
-![Main inventory screen](docs/screenshots/Main_screen.jpg)
-
 **Fig. 1:** Main inventory screen with search, filters, and inline editing.
 
+![Main inventory screen](docs/screenshots/Main_screen.jpg)
+
+**Fig. 2 & 3:** Printable container labels – combined QR + text.
 
 | ![Label with QR code and text](docs/screenshots/Example_label_01.jpg) | ![Label with QR code and text](docs/screenshots/Example_label_02.jpg) |
 |:--:|:--:|
 | QR code + description | Box contents |
 
-**Fig. 2 & 3:** Printable container labels – combined QR + text.
+**Fig. 4:** Container page showing contents of box BX-50 after scanning the QR code.
+
+![Container BX-50 contents](docs/screenshots/Example_label_03.jpg)
 
 More screenshots:
 
