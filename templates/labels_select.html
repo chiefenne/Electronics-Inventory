@@ -19,7 +19,7 @@
                     <span class="mono">{{ c }}</span>
                 </label>
 
-                <input type="text" name="text_{{ c }}" placeholder="Optional label text (e.g. R 1k–10k E24 1%)"
+                <input type="text" name="text_{{ c }}" placeholder="Optional text (for combined/content modes)"
                     class="labeltext" />
             </div>
             {% endfor %}
@@ -28,17 +28,27 @@
         <fieldset class="label-format">
             <legend>Label format</legend>
 
-            <select name="preset" required>
+            <select name="preset" required id="preset-select">
                 {% for p in presets %}
-                <option value="{{ p }}">{{ p }}</option>
+                <option value="{{ p }}"
+                    data-columns="{{ preset_meta.get(p, {}).get('columns', '?') }}"
+                    data-rows="{{ preset_meta.get(p, {}).get('rows', '?') }}"
+                    data-size="{{ preset_meta.get(p, {}).get('label_size', '?') }}">{{ p }}</option>
                 {% endfor %}
             </select>
+            <span class="preset-info muted" id="preset-info"></span>
 
             <select name="mode" required>
                 {% for v, label in modes %}
                 <option value="{{ v }}">{{ label }}</option>
                 {% endfor %}
             </select>
+
+            <label class="start-position">
+                <span>Start at position</span>
+                <input type="number" name="start_position" value="1" min="1" max="100" id="start-position" />
+                <span class="muted" id="position-hint">(skip used labels)</span>
+            </label>
 
             <label class="checkbox outline-toggle">
                 <input type="checkbox" name="outline" value="1" id="outline">
@@ -61,9 +71,26 @@
         const preset = form?.querySelector('select[name="preset"]');
         const mode = form?.querySelector('select[name="mode"]');
         const outline = form?.querySelector('input[name="outline"]');
+        const startPos = form?.querySelector('input[name="start_position"]');
+        const presetInfo = document.getElementById("preset-info");
+        const positionHint = document.getElementById("position-hint");
         if (!form || !btn) return;
 
         const KEY = "labels.print.settings";
+
+        const updatePresetInfo = () => {
+            if (!preset || !presetInfo) return;
+            const opt = preset.options[preset.selectedIndex];
+            const cols = opt?.dataset.columns || "?";
+            const rows = opt?.dataset.rows || "?";
+            const size = opt?.dataset.size || "?";
+            presetInfo.textContent = `(${cols}×${rows} = ${cols * rows} labels, ${size})`;
+
+            // Update position hint with column info
+            if (positionHint && cols !== "?") {
+                positionHint.textContent = `(${cols} per row, left→right)`;
+            }
+        };
 
         const loadSettings = () => {
             try {
@@ -73,6 +100,7 @@
                 if (preset && typeof s?.preset === "string") preset.value = s.preset;
                 if (mode && typeof s?.mode === "string") mode.value = s.mode;
                 if (outline && typeof s?.outline === "boolean") outline.checked = s.outline;
+                // Don't restore start_position - user should set it fresh each time
             } catch {
                 // ignore
             }
@@ -99,11 +127,12 @@
 
         form.addEventListener("change", (e) => {
             if (e.target && e.target.matches('input[name="code"]')) update();
-            if (e.target && (e.target === preset || e.target === mode || e.target === outline)) saveSettings();
+            if (e.target && (e.target === preset || e.target === mode || e.target === outline || e.target === startPos)) saveSettings();
+            if (e.target === preset) updatePresetInfo();
         });
 
         loadSettings();
-
+        updatePresetInfo();
         update();
     })();
 </script>

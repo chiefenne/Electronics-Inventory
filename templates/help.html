@@ -220,10 +220,40 @@
         the QR links will follow that.
     </p>
 
+    <h4>Label modes</h4>
+    <ul>
+        <li><b>Asset (QR only)</b> – container code at top, QR code centered below.</li>
+        <li><b>Asset + text (combined)</b> – container code at top, QR code left, optional text right (single label).</li>
+        <li><b>Content (text only)</b> – container code at top, descriptive text centered below.</li>
+        <li><b>Separate labels (QR + text)</b> – creates two labels per container (one QR, one text).</li>
+    </ul>
+    <p class="muted">
+        Tip: use "Asset + text (combined)" for larger labels (like Avery 3425) to fit both QR and description on one label.
+    </p>
+
+    <h4>Starting position (skip used labels)</h4>
+    <p>
+        If your Avery sheet has some labels already used (peeled off), set <b>"Start at position"</b> to skip them.
+        Positions are counted <b>row-wise</b> (left to right, top to bottom). The number of columns depends on your label preset.
+    </p>
+    <p>Example for a 2-column layout (like Avery 3425):</p>
+    <pre class="mono">┌─────┬─────┐
+│  1  │  2  │
+├─────┼─────┤
+│  3  │  4  │
+├─────┼─────┤
+│  5  │  6  │
+└─────┴─────┘</pre>
+    <p>
+        Example: if positions 1–2 are used, set start position to <b>3</b> to begin printing on the second row.
+        Skipped positions appear as placeholders on screen but are blank when printed.
+    </p>
+
     <h4>Printing labels</h4>
     <ul>
         <li>Go to <span class="mono">Labels</span> in the navigation, select containers and a preset, then print.</li>
-        <li>Presets come from the available layout files in <span class="mono">static/avery_*.css</span>.</li>
+        <li>Presets come from the available layout files in <span class="mono">static/avery_*.css</span>.
+            The UI shows grid info (columns × rows) read from each preset's metadata comment.</li>
         <li>For best results, use print settings: <b>Scale 100%</b>, <b>Margins: none</b>, and disable browser
             <b>headers/footers</b>.</li>
         <li>By default, outlines are not printed (best for real Avery sheets). Enable <b>Print cut outlines</b> for
@@ -232,6 +262,18 @@
             <span class="mono">--label_offset_x</span>/<span class="mono">--label_offset_y</span> (sheet shift) and
             <span class="mono">--label_gap_x</span>/<span class="mono">--label_gap_y</span> (spacing).</li>
     </ul>
+
+    <h4>Adding new label presets</h4>
+    <p>To add a new Avery (or compatible) label layout:</p>
+    <ol>
+        <li>Create <span class="mono">static/avery_&lt;id&gt;.css</span> (e.g., <span class="mono">avery_L7160.css</span>).</li>
+        <li>Add a metadata comment near the top:
+            <pre class="mono">/* Meta: columns=3, rows=7, label_size=63.5x38.1mm */</pre>
+            This enables the UI to show grid info and position hints.
+        </li>
+        <li>Define the label dimensions, grid, font sizes, and QR sizes (see existing presets for reference).</li>
+        <li>Reload the Labels page — new presets are discovered automatically.</li>
+    </ol>
 </section>
 
 <section class="panel help">

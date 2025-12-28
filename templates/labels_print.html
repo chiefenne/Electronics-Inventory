@@ -10,15 +10,28 @@
 <section class="panel print-only preset-{{ preset }}{% if show_outline %} show-outline{% endif %}">
     <div class="labels">
         {% for l in labels %}
+        {% if l.type == "skip" %}
+        <div class="label skip" aria-hidden="true">
+            <span class="skip-marker">×</span>
+        </div>
+        {% else %}
         <div class="label {{ l.type }}">
             <div class="label-code">{{ l.code }}</div>
 
             {% if l.type == "asset" %}
             <img class="label-qr" src="data:image/png;base64,{{ l.qr }}" alt="QR {{ l.code }}">
+            {% elif l.type == "combo" %}
+            <div class="label-combo-content">
+                <img class="label-qr" src="data:image/png;base64,{{ l.qr }}" alt="QR {{ l.code }}">
+                {% if l.text %}
+                <div class="label-text">{{ l.text }}</div>
+                {% endif %}
+            </div>
             {% else %}
             <div class="label-text">{{ l.text if l.text else "—" }}</div>
             {% endif %}
         </div>
+        {% endif %}
         {% endfor %}
     </div>
 </section>

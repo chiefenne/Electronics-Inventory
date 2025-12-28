@@ -1,4 +1,5 @@
 /* Avery 3666 preset */
+/* Meta: columns=5, rows=13, label_size=38x21.2mm */
 
 /* Printer calibration knobs (apply to print only)
    Use negative values to move content up/left, positive to move down/right. */
@@ -21,11 +22,11 @@
 }
 
 .preset-3666 .labels {
-  grid-template-columns: repeat(auto-fill, 38.1mm);
+  grid-template-columns: repeat(5, 38.1mm);
 }
 
 .preset-3666 .label {
-  width: 38.1mm;
+  width: 38.0mm;
   height: 21.2mm;
   padding: 2mm;
 }
@@ -36,8 +37,18 @@
 }
 
 .preset-3666 .label.asset .label-qr {
-  width: 16mm;
-  height: 16mm;
+  width: 14mm;
+  height: 14mm;
+}
+
+.preset-3666 .label.combo .label-qr {
+  width: 12mm;
+  height: 12mm;
+}
+
+.preset-3666 .label.combo .label-text {
+  font-size: 9px;
+  padding: 0 1mm;
 }
 
 .preset-3666 .label.content .label-text {

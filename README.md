@@ -157,6 +157,34 @@ export INVENTORY_BASE_URL="https://inventory.reverseproxy.com"
 
 ## Label printing layouts
 
+Label printing supports multiple modes:
+
+- **Asset (QR only)** – container code + QR code
+- **Asset + text (combined)** – container code + QR code + optional text on one label
+- **Content (text only)** – container code + descriptive text
+- **Separate labels (QR + text)** – creates two labels per container
+
+### Starting position (skip used labels)
+
+If your Avery sheet has some labels already used, set **"Start at position"** to skip them.
+Positions are counted row-wise (left to right, top to bottom). The number of columns depends on your label preset.
+
+Example for a 2-column layout (like Avery 3425):
+
+```
+┌─────┬─────┐
+│  1  │  2  │
+├─────┼─────┤
+│  3  │  4  │
+├─────┼─────┤
+│  5  │  6  │
+└─────┴─────┘
+```
+
+For example, if positions 1–2 are used, set start position to **3** to begin on the second row.
+
+### Layout files
+
 Label printing is implemented as:
 
 - Shared label UI/print styles: `static/labels.css`
@@ -164,10 +192,15 @@ Label printing is implemented as:
 
 **Trademark notice:** Avery® is a registered trademark of its respective owner (commonly Avery Products Corporation and/or affiliated entities). This project is not affiliated with, sponsored, or endorsed by Avery. The Avery name and label numbers are used only to indicate intended compatibility with commonly available label sheets.
 
-To add a new layout later:
+To add a new layout:
 
 1) Create `static/avery_<new-id>.css`
-2) Reload the Labels page — the preset list is discovered automatically from `static/avery_*.css`
+2) Add a metadata comment near the top of the file:
+   ```css
+   /* Meta: columns=2, rows=8, label_size=105x57mm */
+   ```
+   This enables the UI to show grid info (e.g., "2×8 = 16 labels") and position hints.
+3) Reload the Labels page — the preset list is discovered automatically from `static/avery_*.css`
 
 ### Print calibration (offset + spacing)
 

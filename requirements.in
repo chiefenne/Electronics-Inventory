@@ -3,4 +3,5 @@ fastapi
 jinja2
 python-multipart
 qrcode
+pillow
 passlib

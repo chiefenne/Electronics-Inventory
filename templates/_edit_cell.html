@@ -187,7 +187,7 @@
             {% else %}
                 {% set placeholder = "https://…" %}
             {% endif %}
-            <input name="value" value="{{ part.get(field, '') }}" type="text" inputmode="url" placeholder="{{ placeholder }}" autofocus />
+            <input name="value" value="{{ part.get(field, '') or '' }}" type="text" inputmode="url" placeholder="{{ placeholder }}" autofocus />
             <button class="btn secondary icon icon-lg" type="submit" title="Save" aria-label="Save">
                 <img src="/static/icons/Green_Checkmark_Circle.svg" alt="" aria-hidden="true" />
             </button>

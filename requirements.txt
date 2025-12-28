@@ -26,6 +26,8 @@ markupsafe==3.0.3
     # via jinja2
 passlib==1.7.4
     # via -r requirements.in
+pillow==11.3.0
+    # via -r requirements.in
 pydantic==2.12.5
     # via fastapi
 pydantic-core==2.41.5

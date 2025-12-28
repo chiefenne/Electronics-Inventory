@@ -1,4 +1,5 @@
 /* Avery 3425 preset */
+/* Meta: columns=2, rows=5, label_size=105x57mm */
 
 /* Printer calibration knobs (apply to print only)
    Use negative values to move content up/left, positive to move down/right. */
@@ -21,7 +22,7 @@
 }
 
 .preset-3425 .labels {
-  grid-template-columns: repeat(auto-fill, 105mm);
+  grid-template-columns: repeat(2, 105mm);
 }
 
 .preset-3425 .label {
@@ -37,6 +38,16 @@
 .preset-3425 .label.asset .label-qr {
   width: 32mm;
   height: 32mm;
+}
+
+.preset-3425 .label.combo .label-qr {
+  width: 28mm;
+  height: 28mm;
+}
+
+.preset-3425 .label.combo .label-text {
+  font-size: 22px;
+  padding: 0 3mm;
 }
 
 .preset-3425 .label.content .label-text {

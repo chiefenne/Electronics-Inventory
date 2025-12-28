@@ -107,6 +107,36 @@ def _available_label_presets() -> List[str]:
     return sorted(set(presets))
 
 
+def _label_preset_metadata() -> dict:
+    """Read metadata from preset CSS files.
+
+    Expects a comment like: /* Meta: columns=2, rows=8, label_size=105x57mm */
+    """
+    static_dir = Path(__file__).with_name("static")
+    metadata = {}
+    for css_file in static_dir.glob("avery_*.css"):
+        name = css_file.stem
+        if not name.startswith("avery_"):
+            continue
+        preset = name[len("avery_"):]
+        if not (preset and re.fullmatch(r"[A-Za-z0-9_-]+", preset)):
+            continue
+        try:
+            content = css_file.read_text()
+            match = re.search(r'/\*\s*Meta:\s*(.+?)\s*\*/', content)
+            if match:
+                meta_str = match.group(1)
+                meta = {}
+                for part in meta_str.split(","):
+                    if "=" in part:
+                        k, v = part.strip().split("=", 1)
+                        meta[k.strip()] = v.strip()
+                metadata[preset] = meta
+        except Exception:
+            pass
+    return metadata
+
+
 def _normalize_static_media_path(field: str, value: str) -> str:
     """Normalize user-entered media references.
 
@@ -948,6 +978,7 @@ def export_csv(q: str = "", category: str = "", container_id: str = "") -> Strea
 def container_labels(request: Request) -> HTMLResponse:
     containers = list_containers_in_use()
     presets = _available_label_presets() or ["3348", "3425", "3666"]
+    preset_meta = _label_preset_metadata()
 
     return render(
         "labels_select.html",
@@ -955,10 +986,12 @@ def container_labels(request: Request) -> HTMLResponse:
         title=f"{APP_TITLE}",
         containers=containers,
         presets=presets,
+        preset_meta=preset_meta,
         modes=[
-            ("asset", "Asset (QR)"),
-            ("content", "Content (text)"),
-            ("both", "Both"),
+            ("asset", "Asset (QR only)"),
+            ("combo", "Asset + text (combined)"),
+            ("content", "Content (text only)"),
+            ("both", "Separate labels (QR + text)"),
         ],
     )
 
@@ -970,6 +1003,7 @@ async def print_labels(
     mode: str = Form("asset"),
     code: list[str] = Form([]),
     outline: str = Form(""),
+    start_position: int = Form(1),
 ) -> HTMLResponse:
 
     if preset not in _available_label_presets():
@@ -980,19 +1014,41 @@ async def print_labels(
 
     form = await request.form()
 
+    # Add blank labels to skip positions (start_position is 1-based)
     labels = []
+    skip_count = max(0, start_position - 1)
+    for _ in range(skip_count):
+        labels.append({"type": "skip"})
+
     for c in code:
-        # Asset label: container + QR
-        if mode in ("asset", "both"):
+        text = (form.get(f"text_{c}") or "").strip()
+
+        # Combo label: QR + optional text on a single label
+        if mode == "combo":
+            labels.append({
+                "type": "combo",
+                "code": c,
+                "qr": qr_base64(f"{BASE_URL}/containers/{c}"),
+                "text": text
+            })
+
+        # Asset label: container + QR only
+        elif mode in ("asset", "both"):
             labels.append({
                 "type": "asset",
                 "code": c,
                 "qr": qr_base64(f"{BASE_URL}/containers/{c}")
             })
+            # Content label: container + free text entered in selection UI
+            if mode == "both":
+                labels.append({
+                    "type": "content",
+                    "code": c,
+                    "text": text
+                })
 
-        # Content label: container + free text entered in selection UI
-        if mode in ("content", "both"):
-            text = (form.get(f"text_{c}") or "").strip()
+        # Content label only
+        elif mode == "content":
             labels.append({
                 "type": "content",
                 "code": c,

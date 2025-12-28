@@ -77,6 +77,30 @@
     font-size: 12px;
 }
 
+/* Start position input */
+.labels-select .start-position {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.labels-select .start-position input[type="number"] {
+    width: 60px;
+    text-align: center;
+}
+
+.labels-select .start-position .muted {
+    font-size: 12px;
+}
+
+/* Preset info display */
+.labels-select .preset-info {
+    font-size: 12px;
+    margin-left: 4px;
+}
+
 .label-row .labeltext {
     flex: 0 1 360px;
     width: 360px;
@@ -89,6 +113,12 @@
 
 .print-only {
     background: #fff;
+    /* A4 page preview on screen */
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 /* Print: hide navigation etc, keep print area visible */
@@ -110,6 +140,10 @@
 
     .print-only {
         display: block !important;
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        box-shadow: none;
     }
 
     /* On real label sheets, outlines look bad if alignment is slightly off.
@@ -142,6 +176,39 @@
     align-items: center;
 }
 
+/* Skip label: placeholder for skipped positions */
+.label.skip {
+    border: 1px dashed #ccc;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 5px,
+        rgba(0, 0, 0, 0.03) 5px,
+        rgba(0, 0, 0, 0.03) 10px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.label.skip .skip-marker {
+    font-size: 24px;
+    color: #ccc;
+    font-weight: bold;
+}
+
+/* Hide skip labels when printing */
+@media print {
+    .label.skip {
+        border: none !important;
+        background: none !important;
+    }
+
+    .label.skip .skip-marker {
+        display: none;
+    }
+}
+
 /* Code line */
 .label-code {
     font-weight: 800;
@@ -168,6 +235,38 @@
     /* horizontal center */
     text-align: center;
     line-height: 1.1;
+}
+
+/* Combo label: code at top, QR left + text right below */
+.label.combo {
+    justify-content: flex-start;
+}
+
+.label.combo .label-combo-content {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 3mm;
+    width: 100%;
+}
+
+.label.combo .label-qr {
+    display: block;
+    flex-shrink: 0;
+}
+
+.label.combo .label-text {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.15;
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 /* QR image (sized per preset below) */
