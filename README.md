@@ -49,7 +49,8 @@ More screenshots:
 - [Main screen (board popup)](docs/screenshots/Main_screen_board_popup.jpg)
 - [Main screen (container pulldown)](docs/screenshots/Main_screen_pulldown_container.png)
 - [Label selection](docs/screenshots/Print_label_selection.png)
-- [Printable labels](docs/screenshots/Print_labels.png)
+- [Printable Avery labels (with offset support for partially-used label sheets)](docs/screenshots/Print_labels.png)
+- [Printable Avery labels (incl. offset for used labels)](docs/screenshots/Print_labels.png)
 - [Restore parts (trash)](docs/screenshots/Restore_parts.png)
 
 ## Tech stack
