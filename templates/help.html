@@ -220,7 +220,7 @@
         the QR links will follow that.
     </p>
 
-    <h4>Label modes</h4>
+    <h4>Container label modes</h4>
     <ul>
         <li><b>Asset (QR only)</b> – container code at top, QR code centered below.</li>
         <li><b>Asset + text (combined)</b> – container code at top, QR code left, optional text right (single label).</li>
@@ -228,6 +228,33 @@
         <li><b>Separate labels (QR + text)</b> – creates two labels per container (one QR, one text).</li>
     </ul>
     <p class="muted">
+        Tip: use "Asset + text (combined)" for larger labels (like Avery 3425) to fit both QR and description on one label.
+    </p>
+
+    <h4>Part labels</h4>
+    <p>
+        Part labels are designed for <b>Gridfinity bins</b> or other small compartments inside containers.
+        They help you identify parts at a glance without scanning QR codes.
+    </p>
+    <p>Each part label shows:</p>
+    <ul>
+        <li><b>Container</b> – which container the part is in (top, small text)</li>
+        <li><b>Description</b> – part name/description (large, prominent)</li>
+        <li><b>Notes</b> – additional details like package, specs (smaller text)</li>
+        <li><b>Subcategory</b> – part classification (bottom, italic)</li>
+    </ul>
+    <p>To print part labels:</p>
+    <ol>
+        <li>Go to <span class="mono">Labels</span> in the navigation.</li>
+        <li>Select <b>Part Labels</b> (mutually exclusive with container labels).</li>
+        <li>Filter parts using search text, category, or container dropdowns.</li>
+        <li>Check the parts you want to label.</li>
+        <li>Select a preset and print.</li>
+    </ol>
+    <p class="muted">
+        Note: Part label text sizes automatically scale down for smaller presets (like Avery 3666).
+        Each preset can define its own sizing via CSS custom properties.
+    </p>
         Tip: use "Asset + text (combined)" for larger labels (like Avery 3425) to fit both QR and description on one label.
     </p>
 

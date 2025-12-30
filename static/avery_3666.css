@@ -55,3 +55,13 @@
   font-size: 10px;
   padding: 0 1.5mm;
 }
+
+/* Part labels: smaller sizes for 38x21mm labels */
+.preset-3666 .label.part {
+  --part-padding: 1mm;
+  --part-gap: 0.2mm;
+  --part-container-size: 4.0mm;
+  --part-description-size: 3.0mm;
+  --part-notes-size: 2.0mm;
+  --part-subcategory-size: 2.5mm;
+}

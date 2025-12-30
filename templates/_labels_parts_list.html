@@ -1,0 +1,19 @@
+{% if parts %}
+<div class="checkbox-list">
+  {% for part in parts %}
+  <label>
+    <input type="checkbox" name="part_uuid[]" value="{{ part.uuid }}">
+    <span class="part-info">
+      <strong>{{ part.description }}</strong>
+      <span class="part-meta">{{ part.container_id }}{% if part.subcategory %} · {{ part.subcategory }}{% endif %}</span>
+      {% if part.notes %}<span class="part-notes">{{ part.notes }}</span>{% endif %}
+    </span>
+  </label>
+  {% endfor %}
+</div>
+{% if parts|length >= 200 %}
+<div class="muted" style="margin-top: 0.5rem;">Showing first 200 results. Refine your filter for more specific results.</div>
+{% endif %}
+{% else %}
+<div class="muted">No parts found matching filters</div>
+{% endif %}

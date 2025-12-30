@@ -977,6 +977,7 @@ def export_csv(q: str = "", category: str = "", container_id: str = "") -> Strea
 @app.get("/containers/labels", response_class=HTMLResponse)
 def container_labels(request: Request) -> HTMLResponse:
     containers = list_containers_in_use()
+    categories = list_categories_in_use()
     presets = _available_label_presets() or ["3348", "3425", "3666"]
     preset_meta = _label_preset_metadata()
 
@@ -985,15 +986,35 @@ def container_labels(request: Request) -> HTMLResponse:
         request=request,
         title=f"{APP_TITLE}",
         containers=containers,
+        categories=categories,
         presets=presets,
         preset_meta=preset_meta,
-        modes=[
+        container_modes=[
             ("asset", "Asset (QR only)"),
             ("combo", "Asset + text (combined)"),
             ("content", "Content (text only)"),
             ("both", "Separate labels (QR + text)"),
         ],
+        part_modes=[
+            ("part", "Part label"),
+        ],
     )
+
+
+@app.get("/labels/parts", response_class=HTMLResponse)
+def labels_parts_list(
+    request: Request,
+    q: str = "",
+    category: str = "",
+    container_id: str = "",
+) -> HTMLResponse:
+    """Return filtered parts list for label selection (HTMX partial)."""
+    # Only return results if at least one filter is set
+    if not q.strip() and not category.strip() and not container_id.strip():
+        return HTMLResponse('<div class="muted">Use filters above to find parts</div>')
+
+    parts = fetch_parts(q=q, category=category, container_id=container_id, limit=200)
+    return render("_labels_parts_list.html", parts=parts)
 
 
 @app.post("/print/labels", response_class=HTMLResponse)
@@ -1009,10 +1030,13 @@ async def print_labels(
     if preset not in _available_label_presets():
         raise HTTPException(status_code=400, detail="Invalid label preset")
 
-    if not code:
-        return HTMLResponse("No containers selected", status_code=400)
-
     form = await request.form()
+
+    # Check for part labels
+    part_uuids = form.getlist("part_uuid[]")
+
+    if not code and not part_uuids:
+        return HTMLResponse("No containers or parts selected", status_code=400)
 
     # Add blank labels to skip positions (start_position is 1-based)
     labels = []
@@ -1020,40 +1044,72 @@ async def print_labels(
     for _ in range(skip_count):
         labels.append({"type": "skip"})
 
-    for c in code:
-        text = (form.get(f"text_{c}") or "").strip()
+    # Part labels
+    if part_uuids:
+        with get_conn() as conn:
+            placeholders = ",".join("?" * len(part_uuids))
+            rows = conn.execute(
+                f"SELECT * FROM parts WHERE uuid IN ({placeholders})",
+                list(part_uuids)
+            ).fetchall()
+            parts_map = {r["uuid"]: dict(r) for r in rows}
 
-        # Combo label: QR + optional text on a single label
-        if mode == "combo":
-            labels.append({
-                "type": "combo",
-                "code": c,
-                "qr": qr_base64(f"{BASE_URL}/containers/{c}"),
-                "text": text
-            })
+        for uuid in part_uuids:
+            part = parts_map.get(uuid)
+            if part:
+                labels.append({
+                    "type": "part",
+                    "container": part.get("container_id", ""),
+                    "description": part.get("description", ""),
+                    "notes": part.get("notes", ""),
+                    "subcategory": part.get("subcategory", ""),
+                })
 
-        # Asset label: container + QR only
-        elif mode in ("asset", "both"):
-            labels.append({
-                "type": "asset",
-                "code": c,
-                "qr": qr_base64(f"{BASE_URL}/containers/{c}")
-            })
-            # Content label: container + free text entered in selection UI
-            if mode == "both":
+    # Container labels
+    else:
+        for c in code:
+            text = (form.get(f"text_{c}") or "").strip()
+
+            # Combo label: QR + optional text on a single label
+            if mode == "combo":
+                labels.append({
+                    "type": "combo",
+                    "code": c,
+                    "qr": qr_base64(f"{BASE_URL}/containers/{c}"),
+                    "text": text
+                })
+
+            # Asset label: container + QR only
+            elif mode in ("asset", "both"):
+                labels.append({
+                    "type": "asset",
+                    "code": c,
+                    "qr": qr_base64(f"{BASE_URL}/containers/{c}")
+                })
+                # Content label: container + free text entered in selection UI
+                if mode == "both":
+                    labels.append({
+                        "type": "content",
+                        "code": c,
+                        "text": text
+                    })
+
+            # Content label only
+            elif mode == "content":
                 labels.append({
                     "type": "content",
                     "code": c,
                     "text": text
                 })
 
-        # Content label only
-        elif mode == "content":
-            labels.append({
-                "type": "content",
-                "code": c,
-                "text": text
-            })
+    return render(
+        "labels_print.html",
+        request=request,
+        title=f"{APP_TITLE}",
+        labels=labels,
+        preset=preset,
+        show_outline=bool(outline),
+    )
 
     return render(
         "labels_print.html",

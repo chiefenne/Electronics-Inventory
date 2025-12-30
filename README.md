@@ -169,12 +169,32 @@ export INVENTORY_BASE_URL="https://inventory.reverseproxy.com"
 
 ## Label printing layouts
 
-Label printing supports multiple modes:
+The app supports two types of labels:
+
+### Container labels
 
 - **Asset (QR only)** – container code + QR code
 - **Asset + text (combined)** – container code + QR code + optional text on one label
 - **Content (text only)** – container code + descriptive text
 - **Separate labels (QR + text)** – creates two labels per container
+
+### Part labels
+
+Part labels are designed for Gridfinity bins or other small compartments inside containers. Each label shows:
+
+- **Container** – which container the part is in (top, small)
+- **Description** – part name/description (large, prominent)
+- **Notes** – additional details (smaller)
+- **Subcategory** – part classification (bottom, italic)
+
+To print part labels:
+1. Go to **Labels** in the navigation
+2. Select **Part Labels** (mutually exclusive with container labels)
+3. Filter parts by search text, category, or container
+4. Check the parts you want to label
+5. Select a preset and print
+
+Note: Part label text sizes automatically scale down for smaller presets (like Avery 3666) via CSS custom properties.
 
 ### Starting position (skip used labels)
 

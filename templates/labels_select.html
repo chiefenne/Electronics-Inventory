@@ -9,20 +9,61 @@
 
     <form method="post" action="/print/labels" class="labels-select" id="label-form">
 
-        <fieldset>
-            <legend>Containers</legend>
-
-            {% for c in containers %}
-            <div class="label-row">
-                <label class="checkbox">
-                    <input type="checkbox" name="code" value="{{ c }}">
-                    <span class="mono">{{ c }}</span>
+        <!-- Container Labels Section -->
+        <fieldset id="containers-fieldset">
+            <legend>
+                <label class="radio section-toggle">
+                    <input type="radio" name="label_type" value="container" checked>
+                    Container Labels
                 </label>
+            </legend>
 
-                <input type="text" name="text_{{ c }}" placeholder="Optional text (for combined/content modes)"
-                    class="labeltext" />
+            <div class="section-content" id="containers-content">
+                {% for c in containers %}
+                <div class="label-row">
+                    <label class="checkbox">
+                        <input type="checkbox" name="code" value="{{ c }}">
+                        <span class="mono">{{ c }}</span>
+                    </label>
+
+                    <input type="text" name="text_{{ c }}" placeholder="Optional text (for combined/content modes)"
+                        class="labeltext" />
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </fieldset>
+
+        <!-- Part Labels Section -->
+        <fieldset id="parts-fieldset" class="disabled-section">
+            <legend>
+                <label class="radio section-toggle">
+                    <input type="radio" name="label_type" value="part">
+                    Part Labels
+                </label>
+            </legend>
+
+            <div class="section-content" id="parts-content">
+                <div class="parts-filters">
+                    <input type="text" name="parts_q" id="parts-q" placeholder="Search parts...">
+                    <select name="parts_category" id="parts-category">
+                        <option value="">All categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}">{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="parts_container" id="parts-container">
+                        <option value="">All containers</option>
+                        {% for c in containers %}
+                        <option value="{{ c }}">{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="button" class="btn btn-small" id="parts-filter-btn">Filter</button>
+                </div>
+
+                <div class="parts-list" id="parts-list">
+                    <div class="muted">Use filters above to find parts</div>
+                </div>
+            </div>
         </fieldset>
 
         <fieldset class="label-format">
@@ -38,10 +79,8 @@
             </select>
             <span class="preset-info muted" id="preset-info"></span>
 
-            <select name="mode" required>
-                {% for v, label in modes %}
-                <option value="{{ v }}">{{ label }}</option>
-                {% endfor %}
+            <select name="mode" required id="mode-select">
+                <!-- Populated by JS based on label_type -->
             </select>
 
             <label class="start-position">
@@ -69,14 +108,50 @@
         const form = document.getElementById("label-form");
         const btn = document.getElementById("print-btn");
         const preset = form?.querySelector('select[name="preset"]');
-        const mode = form?.querySelector('select[name="mode"]');
+        const modeSelect = document.getElementById("mode-select");
         const outline = form?.querySelector('input[name="outline"]');
         const startPos = form?.querySelector('input[name="start_position"]');
         const presetInfo = document.getElementById("preset-info");
         const positionHint = document.getElementById("position-hint");
+
+        const labelTypeRadios = form?.querySelectorAll('input[name="label_type"]');
+        const containersFieldset = document.getElementById("containers-fieldset");
+        const partsFieldset = document.getElementById("parts-fieldset");
+        const containersContent = document.getElementById("containers-content");
+        const partsContent = document.getElementById("parts-content");
+        const partsList = document.getElementById("parts-list");
+
+        // Parts filter elements
+        const partsQ = document.getElementById("parts-q");
+        const partsCat = document.getElementById("parts-category");
+        const partsCont = document.getElementById("parts-container");
+        const partsFilterBtn = document.getElementById("parts-filter-btn");
+
         if (!form || !btn) return;
 
         const KEY = "labels.print.settings";
+
+        // Mode options
+        const containerModes = [
+            {% for v, label in container_modes %}
+            { value: "{{ v }}", label: "{{ label }}" },
+            {% endfor %}
+        ];
+        const partModes = [
+            {% for v, label in part_modes %}
+            { value: "{{ v }}", label: "{{ label }}" },
+            {% endfor %}
+        ];
+
+        const populateModes = (modes) => {
+            modeSelect.innerHTML = "";
+            modes.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m.value;
+                opt.textContent = m.label;
+                modeSelect.appendChild(opt);
+            });
+        };
 
         const updatePresetInfo = () => {
             if (!preset || !presetInfo) return;
@@ -86,9 +161,40 @@
             const size = opt?.dataset.size || "?";
             presetInfo.textContent = `(${cols}×${rows} = ${cols * rows} labels, ${size})`;
 
-            // Update position hint with column info
             if (positionHint && cols !== "?") {
                 positionHint.textContent = `(${cols} per row, left→right)`;
+            }
+        };
+
+        const getLabelType = () => {
+            const checked = form.querySelector('input[name="label_type"]:checked');
+            return checked?.value || "container";
+        };
+
+        const updateSections = () => {
+            const type = getLabelType();
+            if (type === "container") {
+                containersFieldset.classList.remove("disabled-section");
+                partsFieldset.classList.add("disabled-section");
+                containersContent.querySelectorAll("input").forEach(el => el.disabled = false);
+                partsContent.querySelectorAll("input, select, button").forEach(el => el.disabled = true);
+                populateModes(containerModes);
+            } else {
+                containersFieldset.classList.add("disabled-section");
+                partsFieldset.classList.remove("disabled-section");
+                containersContent.querySelectorAll("input").forEach(el => el.disabled = true);
+                partsContent.querySelectorAll("input, select, button").forEach(el => el.disabled = false);
+                populateModes(partModes);
+            }
+            updateButtonState();
+        };
+
+        const updateButtonState = () => {
+            const type = getLabelType();
+            if (type === "container") {
+                btn.disabled = form.querySelectorAll('input[name="code"]:checked').length === 0;
+            } else {
+                btn.disabled = form.querySelectorAll('input[name="part_uuid[]"]:checked').length === 0;
             }
         };
 
@@ -98,9 +204,7 @@
                 if (!raw) return;
                 const s = JSON.parse(raw);
                 if (preset && typeof s?.preset === "string") preset.value = s.preset;
-                if (mode && typeof s?.mode === "string") mode.value = s.mode;
                 if (outline && typeof s?.outline === "boolean") outline.checked = s.outline;
-                // Don't restore start_position - user should set it fresh each time
             } catch {
                 // ignore
             }
@@ -112,7 +216,6 @@
                     KEY,
                     JSON.stringify({
                         preset: preset?.value || "",
-                        mode: mode?.value || "",
                         outline: !!outline?.checked,
                     })
                 );
@@ -121,19 +224,66 @@
             }
         };
 
-        const update = () => {
-            btn.disabled = form.querySelectorAll('input[name="code"]:checked').length === 0;
+        // Parts filter functionality
+        const filterParts = () => {
+            const q = partsQ.value.trim();
+            const cat = partsCat.value;
+            const cont = partsCont.value;
+
+            if (!q && !cat && !cont) {
+                partsList.innerHTML = '<div class="muted">Use filters above to find parts</div>';
+                return;
+            }
+
+            const params = new URLSearchParams();
+            if (q) params.set("q", q);
+            if (cat) params.set("category", cat);
+            if (cont) params.set("container_id", cont);
+
+            partsList.innerHTML = '<div class="muted">Loading...</div>';
+
+            fetch(`/labels/parts?${params.toString()}`)
+                .then(r => r.text())
+                .then(html => {
+                    partsList.innerHTML = html;
+                    updateButtonState();
+                })
+                .catch(() => {
+                    partsList.innerHTML = '<div class="error">Error loading parts</div>';
+                });
         };
 
-        form.addEventListener("change", (e) => {
-            if (e.target && e.target.matches('input[name="code"]')) update();
-            if (e.target && (e.target === preset || e.target === mode || e.target === outline || e.target === startPos)) saveSettings();
-            if (e.target === preset) updatePresetInfo();
+        // Event listeners
+        labelTypeRadios.forEach(radio => {
+            radio.addEventListener("change", updateSections);
         });
 
+        form.addEventListener("change", (e) => {
+            if (e.target.matches('input[name="code"]') || e.target.matches('input[name="part_uuid[]"]')) {
+                updateButtonState();
+            }
+            if (e.target === preset || e.target === outline || e.target === startPos) {
+                saveSettings();
+            }
+            if (e.target === preset) {
+                updatePresetInfo();
+            }
+        });
+
+        partsFilterBtn.addEventListener("click", filterParts);
+
+        // Allow Enter in search field
+        partsQ.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                filterParts();
+            }
+        });
+
+        // Initialize
         loadSettings();
         updatePresetInfo();
-        update();
+        updateSections();
     })();
 </script>
 

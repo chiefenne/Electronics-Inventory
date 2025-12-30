@@ -97,4 +97,62 @@
     {% include "_table.html" %}
 </section>
 
+<script>
+(() => {
+    const FORM_KEY = "inventory.add.draft";
+    const form = document.querySelector("form.add");
+    if (!form) return;
+
+    const fields = ["description", "notes", "package", "container_id", "quantity", "category", "subcategory"];
+
+    // Restore saved draft on page load
+    const restoreDraft = () => {
+        try {
+            const raw = sessionStorage.getItem(FORM_KEY);
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            for (const f of fields) {
+                const input = form.querySelector(`[name="${f}"]`);
+                if (input && data[f] !== undefined && data[f] !== "") {
+                    input.value = data[f];
+                }
+            }
+            // Clear after restore so it doesn't persist forever
+            sessionStorage.removeItem(FORM_KEY);
+        } catch { /* ignore */ }
+    };
+
+    // Save draft before form submission (in case session expired)
+    const saveDraft = () => {
+        try {
+            const data = {};
+            for (const f of fields) {
+                const input = form.querySelector(`[name="${f}"]`);
+                if (input) data[f] = input.value;
+            }
+            sessionStorage.setItem(FORM_KEY, JSON.stringify(data));
+        } catch { /* ignore */ }
+    };
+
+    // Clear draft on successful submission
+    const clearDraft = () => {
+        try { sessionStorage.removeItem(FORM_KEY); } catch { /* ignore */ }
+    };
+
+    // Save before HTMX sends (covers session expiry redirect)
+    form.addEventListener("htmx:beforeRequest", saveDraft);
+
+    // Clear on successful response (part added)
+    form.addEventListener("htmx:afterOnLoad", (e) => {
+        if (e.detail.successful) {
+            clearDraft();
+            form.reset();
+        }
+    });
+
+    // Restore on page load
+    restoreDraft();
+})();
+</script>
+
 {% endblock %}
