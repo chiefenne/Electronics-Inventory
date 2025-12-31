@@ -92,6 +92,12 @@ Do not use `INVENTORY_DISABLE_AUTH` on an internet-exposed instance.
 
 If you run behind a reverse proxy (recommended for HTTPS), also set `INVENTORY_BASE_URL` so label QR codes point to the correct external hostname.
 
+Example (behind reverse proxy + HTTPS):
+
+```bash
+export INVENTORY_BASE_URL="https://inventory.reverseproxy.com"
+```
+
 Dev (auto-reload on code changes):
 
 ```bash
@@ -161,12 +167,6 @@ On touch devices (mobile/tablet), previews are shown by tapping the icon (instea
 Container label QR codes are generated using `BASE_URL` in `app.py`.
 
 - Configure the external base URL via `INVENTORY_BASE_URL` so QR codes point to a reachable URL (LAN IP or public HTTPS hostname).
-
-Example (behind reverse proxy + HTTPS):
-
-```bash
-export INVENTORY_BASE_URL="https://inventory.reverseproxy.com"
-```
 
 ## Label printing layouts
 
