@@ -181,7 +181,7 @@ The app supports two types of labels:
 
 ### Part labels
 
-Part labels are designed for Gridfinity bins or other small compartments inside containers. Each label shows:
+Part labels are designed for small compartments inside containers, e.e.g, Gridfinity bins or other. Each label shows:
 
 - **Container** – which container the part is in (top, small)
 - **Description** – part name/description (large, prominent)
