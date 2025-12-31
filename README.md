@@ -8,6 +8,7 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 ## Features
 
 - Add, inline-edit, and delete parts
+- Duplicate parts (pre-fills add form for quick variations)
 - Search + filter by category and container (free-text search also matches container codes like `BX-50`)
 - Click a container chip in the table to open the container page
 - CSV export

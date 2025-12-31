@@ -211,6 +211,17 @@
             </span>
         </span>
 
+        <button class="btn secondary icon" type="button" title="Duplicate" aria-label="Duplicate"
+            data-duplicate
+            data-description="{{ part.description or '' }}"
+            data-notes="{{ part.notes or '' }}"
+            data-package="{{ part.package or '' }}"
+            data-container="{{ part.container_id or '' }}"
+            data-category="{{ part.category or '' }}"
+            data-subcategory="{{ part.subcategory or '' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" aria-hidden="true"><path fill="currentColor" d="M4 2a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V2Zm2-1a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6ZM2 5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.5a.5.5 0 0 1 1 0v.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h.5a.5.5 0 0 1 0 1H2Z"/></svg>
+        </button>
+
         <form hx-post="/parts/{{ part.uuid }}/delete" hx-target="#table" hx-swap="innerHTML"
             hx-confirm="Delete this part?">
                 <button class="btn secondary icon danger-outline" type="submit" title="Delete" aria-label="Delete">

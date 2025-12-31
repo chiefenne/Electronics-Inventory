@@ -152,6 +152,25 @@
 
     // Restore on page load
     restoreDraft();
+
+    // Duplicate button handler
+    document.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-duplicate]");
+        if (!btn) return;
+
+        // Fill the add form with the part data
+        form.querySelector('[name="description"]').value = btn.dataset.description || "";
+        form.querySelector('[name="notes"]').value = btn.dataset.notes || "";
+        form.querySelector('[name="package"]').value = btn.dataset.package || "";
+        form.querySelector('[name="container_id"]').value = btn.dataset.container || "";
+        form.querySelector('[name="category"]').value = btn.dataset.category || "";
+        form.querySelector('[name="subcategory"]').value = btn.dataset.subcategory || "";
+        form.querySelector('[name="quantity"]').value = "0"; // Reset quantity for new entry
+
+        // Scroll to and focus the form
+        form.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => form.querySelector('[name="description"]').focus(), 300);
+    });
 })();
 </script>
 
