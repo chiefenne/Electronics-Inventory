@@ -51,6 +51,58 @@ def _auth_disabled() -> bool:
     # Intended for fully-local setups only. Do NOT use on internet-exposed deployments.
     return _env_truthy("INVENTORY_DISABLE_AUTH")
 
+
+def _is_home_network(client_ip: str) -> bool:
+    """
+    Check if the client IP address is from a home/private network.
+
+    This allows skipping password authentication when accessing from your local network,
+    without needing to set environment variables.
+
+    Returns True for:
+    - 127.0.0.0/8 (localhost, e.g., 127.0.0.1)
+    - 10.0.0.0/8 (Class A private network)
+    - 172.16.0.0/12 (Class B private network, 172.16-172.31)
+    - 192.168.0.0/16 (Class C private network)
+    - ::1 (IPv6 localhost)
+    - fe80::/10 (IPv6 link-local addresses)
+    """
+    if not client_ip:
+        return False
+
+    # Check for IPv6 localhost and link-local
+    if client_ip == "::1" or client_ip.startswith("fe80:"):
+        return True
+
+    # Check for IPv4 private ranges
+    try:
+        parts = client_ip.split(".")
+        if len(parts) != 4:
+            return False
+
+        octets = [int(p) for p in parts]
+
+        # 127.0.0.0/8 - Localhost
+        if octets[0] == 127:
+            return True
+
+        # 10.0.0.0/8 - Private Class A
+        if octets[0] == 10:
+            return True
+
+        # 172.16.0.0/12 - Private Class B (172.16-172.31)
+        if octets[0] == 172 and 16 <= octets[1] <= 31:
+            return True
+
+        # 192.168.0.0/16 - Private Class C
+        if octets[0] == 192 and octets[1] == 168:
+            return True
+
+    except (ValueError, IndexError):
+        return False
+
+    return False
+
 ALLOWED_EDIT_FIELDS = {
     "category",
     "subcategory",
@@ -269,13 +321,21 @@ app = FastAPI()
 
 @app.middleware("http")
 async def session_auth_middleware(request: Request, call_next):
+    # Skip all authentication if globally disabled via environment variable
     if _auth_disabled():
         request.state.user = "local"
         return await call_next(request)
 
+    # Check if the request is coming from the home network
+    # If so, automatically authenticate without requiring password
+    client_host = request.client.host if request.client else None
+    if client_host and _is_home_network(client_host):
+        request.state.user = "home_network_user"
+        return await call_next(request)
+
     path = request.url.path
 
-    # Allow unauthenticated access
+    # Allow unauthenticated access to login page, static files, and favicon
     if path == "/login" or path == "/favicon.ico" or path.startswith("/static/"):
         return await call_next(request)
 
@@ -319,8 +379,16 @@ def _startup() -> None:
 
 @app.get("/login", response_class=HTMLResponse)
 def login_get(request: Request) -> HTMLResponse:
+    # If authentication is globally disabled, redirect to main page
     if _auth_disabled():
         return RedirectResponse(url="/", status_code=303)
+
+    # If accessing from home network, automatically redirect to main page
+    # No password required when on local network
+    client_host = request.client.host if request.client else None
+    if client_host and _is_home_network(client_host):
+        return RedirectResponse(url="/", status_code=303)
+
     return render("login.html", request=request, title=f"{APP_TITLE} – Login", error="")
 
 
@@ -330,7 +398,14 @@ def login_post(
     username: str = Form(""),
     password: str = Form(""),
 ):
+    # If authentication is globally disabled, redirect to main page
     if _auth_disabled():
+        return RedirectResponse(url="/", status_code=303)
+
+    # If accessing from home network, automatically authenticate
+    # without checking credentials
+    client_host = request.client.host if request.client else None
+    if client_host and _is_home_network(client_host):
         return RedirectResponse(url="/", status_code=303)
 
     auth_user, auth_pass_hash = _auth_config()
