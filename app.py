@@ -5,6 +5,7 @@ import os
 import re
 import secrets
 import time
+import ipaddress
 from datetime import datetime, timedelta, timezone
 import uuid
 from pathlib import Path
@@ -47,9 +48,54 @@ def _env_truthy(name: str) -> bool:
     return os.environ.get(name, "").strip().lower() in ("1", "true", "yes", "y", "on")
 
 
+def _debug_auth(msg: str) -> None:
+    if _env_truthy("INVENTORY_DEBUG_AUTH"):
+        print(f"[auth] {msg}")
+
+
+def _client_ip_from_headers(request: Request) -> str:
+    """Best-effort client IP extraction.
+
+    Uses standard proxy headers when present. This is important for the
+    home-network auto-login feature when running behind a reverse proxy.
+    """
+
+    xff = (request.headers.get("x-forwarded-for") or "").strip()
+    if xff:
+        # First IP is the original client.
+        ip = xff.split(",", 1)[0].strip()
+        if ip:
+            return ip
+
+    forwarded = (request.headers.get("forwarded") or "").strip()
+    if forwarded:
+        # Very small parser for RFC 7239: Forwarded: for=1.2.3.4;proto=https
+        m = re.search(r"(?:^|[;,\s])for=(?P<val>\"[^\"]+\"|\[[^\]]+\]|[^;\s,]+)", forwarded, re.IGNORECASE)
+        if m:
+            val = m.group("val").strip().strip('"')
+            if val.startswith("[") and "]" in val:
+                val = val[1:val.find("]")]
+            if val:
+                return val
+
+    return request.client.host if request.client else ""
+
+
 def _auth_disabled() -> bool:
     # Intended for fully-local setups only. Do NOT use on internet-exposed deployments.
     return _env_truthy("INVENTORY_DISABLE_AUTH")
+
+
+def _trusted_home_ips() -> set:
+    """Return set of IPs/networks from INVENTORY_HOME_IPS env var.
+
+    Comma-separated list of IPs or CIDR ranges that should be treated as "home network".
+    Example: INVENTORY_HOME_IPS="80.123.70.54,203.0.113.0/24"
+    """
+    raw = os.environ.get("INVENTORY_HOME_IPS", "").strip()
+    if not raw:
+        return set()
+    return {ip.strip() for ip in raw.split(",") if ip.strip()}
 
 
 def _is_home_network(client_ip: str) -> bool:
@@ -66,42 +112,77 @@ def _is_home_network(client_ip: str) -> bool:
     - 192.168.0.0/16 (Class C private network)
     - ::1 (IPv6 localhost)
     - fe80::/10 (IPv6 link-local addresses)
+    - Any IP listed in INVENTORY_HOME_IPS env var
     """
-    if not client_ip:
+    raw = (client_ip or "").strip()
+    if not raw:
         return False
 
-    # Check for IPv6 localhost and link-local
-    if client_ip == "::1" or client_ip.startswith("fe80:"):
+    # Be defensive: sometimes values can be comma-separated (e.g. from X-Forwarded-For).
+    raw = raw.split(",", 1)[0].strip()
+
+    # Strip IPv6 zone index (e.g. fe80::1%en0)
+    raw = raw.split("%", 1)[0].strip()
+
+    # Strip brackets and optional port (e.g. [::1]:1234)
+    if raw.startswith("["):
+        end = raw.find("]")
+        if end != -1:
+            raw = raw[1:end]
+
+    # Strip port from IPv4 (e.g. 192.168.1.10:54321)
+    if ":" in raw and raw.count(":") == 1 and "." in raw:
+        host, maybe_port = raw.rsplit(":", 1)
+        if maybe_port.isdigit():
+            raw = host
+
+    # Check against explicit whitelist first (supports public IPs behind reverse proxy)
+    trusted = _trusted_home_ips()
+    if raw in trusted:
+        _debug_auth(f"IP {raw} matches INVENTORY_HOME_IPS whitelist")
         return True
 
-    # Check for IPv4 private ranges
+    # Check if IP falls within any CIDR range in the whitelist
     try:
-        parts = client_ip.split(".")
-        if len(parts) != 4:
-            return False
-
-        octets = [int(p) for p in parts]
-
-        # 127.0.0.0/8 - Localhost
-        if octets[0] == 127:
-            return True
-
-        # 10.0.0.0/8 - Private Class A
-        if octets[0] == 10:
-            return True
-
-        # 172.16.0.0/12 - Private Class B (172.16-172.31)
-        if octets[0] == 172 and 16 <= octets[1] <= 31:
-            return True
-
-        # 192.168.0.0/16 - Private Class C
-        if octets[0] == 192 and octets[1] == 168:
-            return True
-
-    except (ValueError, IndexError):
+        ip_obj = ipaddress.ip_address(raw)
+        for entry in trusted:
+            if "/" in entry:
+                try:
+                    if ip_obj in ipaddress.ip_network(entry, strict=False):
+                        _debug_auth(f"IP {raw} matches CIDR {entry} in INVENTORY_HOME_IPS")
+                        return True
+                except ValueError:
+                    pass
+    except ValueError:
         return False
 
-    return False
+    return bool(ip_obj.is_loopback or ip_obj.is_private or ip_obj.is_link_local)
+
+
+def _normalize_pass_hash(auth_pass_hash: str) -> str:
+    """Normalize legacy/mis-copied pbkdf2 hashes into passlib format.
+
+    Accepts variants seen in shell/env contexts where '$' is lost or replaced.
+    Example legacy value: '-sha256.<salt>.<checksum>'
+    """
+    raw = (auth_pass_hash or "").strip()
+    if raw == "" or raw.startswith("$"):
+        return raw
+
+    # Common legacy formats where '$' got replaced with '.'
+    m = re.fullmatch(r"(?:pbkdf2)?-?sha256\.(\d+)\.([A-Za-z0-9./]+)\.([A-Za-z0-9./]+)", raw)
+    if m:
+        rounds, salt, chk = m.group(1), m.group(2), m.group(3)
+        return f"$pbkdf2-sha256${rounds}${salt}${chk}"
+
+    # Legacy format missing rounds: '-sha256.<salt>.<checksum>'
+    m = re.fullmatch(r"-?sha256\.([A-Za-z0-9./]+)\.([A-Za-z0-9./]+)", raw)
+    if m:
+        salt, chk = m.group(1), m.group(2)
+        rounds = getattr(pbkdf2_sha256, "default_rounds", 29000)
+        return f"$pbkdf2-sha256${rounds}${salt}${chk}"
+
+    return raw
 
 ALLOWED_EDIT_FIELDS = {
     "category",
@@ -328,8 +409,10 @@ async def session_auth_middleware(request: Request, call_next):
 
     # Check if the request is coming from the home network
     # If so, automatically authenticate without requiring password
-    client_host = request.client.host if request.client else None
+    client_host = _client_ip_from_headers(request)
+    _debug_auth(f"middleware path={request.url.path} client_ip={client_host or '<none>'}")
     if client_host and _is_home_network(client_host):
+        _debug_auth("home network detected -> allow without session")
         request.state.user = "home_network_user"
         return await call_next(request)
 
@@ -385,8 +468,10 @@ def login_get(request: Request) -> HTMLResponse:
 
     # If accessing from home network, automatically redirect to main page
     # No password required when on local network
-    client_host = request.client.host if request.client else None
+    client_host = _client_ip_from_headers(request)
+    _debug_auth(f"GET /login client_ip={client_host or '<none>'}")
     if client_host and _is_home_network(client_host):
+        _debug_auth("home network detected -> redirect to /")
         return RedirectResponse(url="/", status_code=303)
 
     return render("login.html", request=request, title=f"{APP_TITLE} – Login", error="")
@@ -404,8 +489,10 @@ def login_post(
 
     # If accessing from home network, automatically authenticate
     # without checking credentials
-    client_host = request.client.host if request.client else None
+    client_host = _client_ip_from_headers(request)
+    _debug_auth(f"POST /login client_ip={client_host or '<none>'}")
     if client_host and _is_home_network(client_host):
+        _debug_auth("home network detected -> redirect to /")
         return RedirectResponse(url="/", status_code=303)
 
     auth_user, auth_pass_hash = _auth_config()
@@ -419,7 +506,18 @@ def login_post(
         )
 
     user_ok = secrets.compare_digest((username or ""), auth_user)
-    pass_ok = pbkdf2_sha256.verify((password or ""), auth_pass_hash)
+
+    # Try pbkdf2 hash verification first; fall back to plaintext comparison for dev setups
+    norm_hash = _normalize_pass_hash(auth_pass_hash)
+    if norm_hash.startswith("$pbkdf2-sha256$"):
+        try:
+            pass_ok = pbkdf2_sha256.verify((password or ""), norm_hash)
+        except ValueError:
+            pass_ok = False
+    else:
+        # Plaintext fallback (for local dev only – not recommended for production)
+        _debug_auth("INVENTORY_PASS_HASH is not a pbkdf2 hash; using plaintext comparison")
+        pass_ok = secrets.compare_digest((password or ""), auth_pass_hash)
 
     if not (user_ok and pass_ok):
         return render(
