@@ -34,7 +34,7 @@ from db import get_conn, init_db, \
 
 APP_TITLE = "Electronics Inventory"
 
-APP_VERSION = "2.4"
+APP_VERSION = "2.5"
 
 BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
 
@@ -956,6 +956,81 @@ def get_row(part_uuid: str) -> HTMLResponse:
         return HTMLResponse("Not found", status_code=404)
 
     return render("_row.html", part=dict(row))
+
+
+@app.get("/parts/{part_uuid}/view", response_class=HTMLResponse)
+def view_part(request: Request, part_uuid: str) -> HTMLResponse:
+    with get_conn() as conn:
+        row = conn.execute(
+            """
+            SELECT *,
+                   datetime(created_at, 'localtime') AS created_at_local,
+                   datetime(updated_at, 'localtime') AS updated_at_local
+            FROM parts
+            WHERE uuid = ?
+            """,
+            (part_uuid,),
+        ).fetchone()
+
+    if row is None:
+        return HTMLResponse("Not found", status_code=404)
+
+    return render("part_detail.html", part=dict(row), request=request, title=f"{APP_TITLE} – Part Details")
+
+
+@app.post("/parts/{part_uuid}/detail/quantity", response_class=HTMLResponse)
+def save_detail_quantity(
+    part_uuid: str,
+    quantity: int = Form(...),
+    stock_ok_min: str = Form(""),
+    stock_warn_min: str = Form(""),
+) -> HTMLResponse:
+    """Save quantity from detail page - returns updated metadata section"""
+    q_int = max(quantity, 0)
+
+    # Parse stock levels
+    ok_min: int | None = None
+    warn_min: int | None = None
+
+    if stock_ok_min.strip():
+        try:
+            ok_min = int(stock_ok_min)
+        except ValueError:
+            pass
+
+    if stock_warn_min.strip():
+        try:
+            warn_min = int(stock_warn_min)
+        except ValueError:
+            pass
+
+    with get_conn() as conn:
+        conn.execute(
+            """
+            UPDATE parts
+            SET quantity = ?, stock_ok_min = ?, stock_warn_min = ?, updated_at = datetime('now')
+            WHERE uuid = ?
+            """,
+            (q_int, ok_min, warn_min, part_uuid),
+        )
+
+        row = conn.execute(
+            """
+            SELECT *,
+                   datetime(created_at, 'localtime') AS created_at_local,
+                   datetime(updated_at, 'localtime') AS updated_at_local
+            FROM parts
+            WHERE uuid = ?
+            """,
+            (part_uuid,),
+        ).fetchone()
+
+    if row is None:
+        return HTMLResponse("Not found", status_code=404)
+
+    # Return just the metadata section for the detail page
+    part = dict(row)
+    return render("_part_detail_meta.html", part=part)
 
 
 @app.post("/parts/{part_uuid}/quantity_delta", response_class=HTMLResponse)
