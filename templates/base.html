@@ -119,6 +119,46 @@
 
     <script src="/static/qty_optimistic.js"></script>
 
+    <script>
+        // Inline edit for detail page quantity
+        function editQtyInline(uuid, currentQty, stockLevels) {
+            const container = document.getElementById('meta-qty-item-' + uuid);
+            if (!container) return;
+
+            // Parse stock levels
+            let okMin = '', warnMin = '';
+            if (stockLevels) {
+                const parts = stockLevels.split(':');
+                okMin = parts[0] || '';
+                warnMin = parts[1] || '';
+            }
+
+            // Replace with edit form
+            container.innerHTML = `
+                <span class="meta-label">Quantity:</span>
+                <form hx-post="/parts/${uuid}/detail/quantity"
+                      hx-target="#meta-qty-section-${uuid}"
+                      hx-swap="outerHTML"
+                      style="display: flex; gap: 8px; align-items: center;">
+                    <input type="number" name="quantity" value="${currentQty}"
+                           style="width: 60px; padding: 4px 6px; font-size: 14px;" required />
+                    <input type="number" name="stock_ok_min" value="${okMin}"
+                           placeholder="OK" style="width: 50px; padding: 4px 6px; font-size: 14px;" />
+                    <input type="number" name="stock_warn_min" value="${warnMin}"
+                           placeholder="Warn" style="width: 50px; padding: 4px 6px; font-size: 14px;" />
+                    <button class="btn secondary icon icon-lg" type="submit" title="Save" aria-label="Save">
+                        <img src="/static/icons/Green_Checkmark_Circle.svg" alt="" aria-hidden="true" />
+                    </button>
+                    <button class="btn secondary icon icon-lg" type="button" onclick="location.reload()" title="Cancel" aria-label="Cancel">
+                        <img src="/static/icons/Red_Cancel_Circle.svg" alt="" aria-hidden="true" />
+                    </button>
+                </form>
+            `;
+            htmx.process(container);
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+
 </body>
 
 

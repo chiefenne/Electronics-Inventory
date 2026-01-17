@@ -15,41 +15,43 @@
 
     <td class="cell mono col-qty" data-label="Qty" hx-get="/parts/{{ part.uuid }}/edit/quantity" hx-target="#row-{{ part.uuid }}"
         hx-swap="outerHTML">
-        <button
-            class="btn secondary icon qty-step"
-            type="button"
-            data-qty-uuid="{{ part.uuid }}"
-            data-qty-delta="1"
-            onclick="event.stopPropagation();"
-            title="Increase quantity"
-            aria-label="Increase quantity">+</button>
+        <div class="qty-controls-wrapper">
+            <button
+                class="btn secondary icon qty-step"
+                type="button"
+                data-qty-uuid="{{ part.uuid }}"
+                data-qty-delta="1"
+                onclick="event.stopPropagation();"
+                title="Increase quantity"
+                aria-label="Increase quantity">+</button>
 
-        {% set ok_min = part.get('stock_ok_min') %}
-        {% set warn_min = part.get('stock_warn_min') %}
-        {% set qv = (part.quantity or 0) | int %}
-        {% if warn_min is not none %}
-            {% set okv = ok_min | int %}
-            {% set warnv = warn_min | int %}
-            {% if qv < warnv %}
-                {% set qty_class = 'qty-low' %}
-            {% elif qv < okv %}
-                {% set qty_class = 'qty-warn' %}
+            {% set ok_min = part.get('stock_ok_min') %}
+            {% set warn_min = part.get('stock_warn_min') %}
+            {% set qv = (part.quantity or 0) | int %}
+            {% if warn_min is not none %}
+                {% set okv = ok_min | int %}
+                {% set warnv = warn_min | int %}
+                {% if qv < warnv %}
+                    {% set qty_class = 'qty-low' %}
+                {% elif qv < okv %}
+                    {% set qty_class = 'qty-warn' %}
+                {% else %}
+                    {% set qty_class = 'qty-ok' %}
+                {% endif %}
+                <span class="qty-chip {{ qty_class }}" data-qty-chip="1" data-ok-min="{{ okv }}" data-warn-min="{{ warnv }}" title="Stock levels {{ okv }}:{{ warnv }}">{{ qv }}</span>
             {% else %}
-                {% set qty_class = 'qty-ok' %}
+                <span class="qty-chip qty-none" data-qty-chip="1" data-ok-min="" data-warn-min="" title="No stock levels set">{{ qv }}</span>
             {% endif %}
-            <span class="qty-chip {{ qty_class }}" data-qty-chip="1" data-ok-min="{{ okv }}" data-warn-min="{{ warnv }}" title="Stock levels {{ okv }}:{{ warnv }}">{{ qv }}</span>
-        {% else %}
-            <span class="qty-chip qty-none" data-qty-chip="1" data-ok-min="" data-warn-min="" title="No stock levels set">{{ qv }}</span>
-        {% endif %}
 
-        <button
-            class="btn secondary icon qty-step"
-            type="button"
-            data-qty-uuid="{{ part.uuid }}"
-            data-qty-delta="-1"
-            onclick="event.stopPropagation();"
-            title="Decrease quantity"
-            aria-label="Decrease quantity">−</button>
+            <button
+                class="btn secondary icon qty-step"
+                type="button"
+                data-qty-uuid="{{ part.uuid }}"
+                data-qty-delta="-1"
+                onclick="event.stopPropagation();"
+                title="Decrease quantity"
+                aria-label="Decrease quantity">−</button>
+        </div>
     </td>
 
     <td class="cell notes" data-label="Notes" hx-get="/parts/{{ part.uuid }}/edit/notes" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">{{
@@ -62,6 +64,13 @@
         {{ part.subcategory }}</td>
 
     <td class="actions" data-label="Actions">
+        {# View button #}
+        <a href="/parts/{{ part.uuid }}/view" class="btn secondary icon" title="View part details" aria-label="View part details" onclick="event.stopPropagation();">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"/>
+            </svg>
+        </a>
+
         {# Device image (photo) #}
         {% set image_url = part.get("image_url", "") %}
         {% if image_url and image_url|trim %}

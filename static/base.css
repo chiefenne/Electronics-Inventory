@@ -142,7 +142,7 @@ body {
     /* Extra bottom space so hover previews on the last rows can be viewed
        without the browser briefly extending the scroll area and snapping back. */
     padding: 16px 12px calc(16px + 45vh);
-    max-width: 1400px;
+    max-width: 1800px;
     margin: 0 auto;
 }
 
@@ -305,7 +305,7 @@ select:focus {
 .tbl td {
     border-bottom: 1px solid #eef0f3;
     padding: 10px 8px;
-    vertical-align: top;
+    vertical-align: middle;
 }
 
 .tbl th {
@@ -319,6 +319,20 @@ select:focus {
 .tbl th.col-qty,
 .tbl td.col-qty {
     text-align: center;
+    white-space: nowrap !important;
+    vertical-align: middle;
+}
+
+.tbl th.col-notes {
+    min-width: 350px;
+    width: 25%;
+}
+
+/* Wrapper for quantity controls inside table cell */
+.qty-controls-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .tbl td {
@@ -537,8 +551,12 @@ select:focus {
 
 .btn.icon {
     width: 34px;
-    padding: 6px 0;
+    height: 34px;
+    padding: 0;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Inline SVG icons: consistent sizing and alignment */
@@ -578,11 +596,14 @@ select:focus {
 
 /* Table action buttons: keep in one row on desktop, stack on small screens */
 .tbl td.actions {
-    display: flex;
+    white-space: nowrap;
+    vertical-align: top !important;
+}
+
+.tbl td.actions > * {
+    display: inline-flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 8px;
-    flex-wrap: nowrap;
 }
 
 .tbl td.actions form {
@@ -776,4 +797,246 @@ select:focus {
 
 .cell:hover:after {
     color: #777;
+}
+
+/* =========================
+   Part Detail View
+   ========================= */
+
+.part-detail-panel {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.part-detail-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border-soft);
+}
+
+.part-detail-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.part-detail-meta {
+    background: #fff;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.meta-item-full {
+    grid-column: 1 / -1;
+}
+
+.meta-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.meta-value {
+    font-size: 15px;
+    color: var(--text-main);
+    word-break: break-word;
+}
+
+.meta-sublabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-left: 8px;
+}
+
+.part-detail-section {
+    background: #fff;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.part-detail-section h3 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 8px;
+}
+
+.part-detail-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.part-detail-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.part-detail-image-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.part-detail-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: contain;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    padding: 8px;
+    background: #fafafa;
+    transition: transform 0.2s ease;
+}
+
+.part-detail-image:hover {
+    transform: scale(1.02);
+}
+
+.part-detail-doc-container {
+    width: 100%;
+    height: 70vh;
+    min-height: 500px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fafafa;
+    resize: vertical;
+    position: relative;
+}
+
+.part-detail-doc-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.part-detail-doc-link {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.part-view-btn {
+    margin-right: 8px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+/* Increase description column width */
+.tbl td.cell[data-label="Description"] {
+    min-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .part-detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .part-detail-title {
+        font-size: 22px;
+    }
+
+    .meta-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .part-detail-images {
+        grid-template-columns: 1fr;
+    }
+
+    .part-detail-doc-container {
+        height: 60vh;
+        min-height: 400px;
+    }
+}
+
+.part-detail-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    border: 2px dashed var(--border-soft);
+    border-radius: 8px;
+    background: #fafafa;
+    color: var(--text-muted);
+    gap: 12px;
+}
+
+.placeholder-text {
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.part-detail-doc-link-box {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.datasheet-url-display {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-muted);
+    word-break: break-all;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid var(--border-soft);
+    border-radius: 6px;
+    font-family: monospace;
+}
+
+
+
+.meta-qty-controls .qty-chip {
+    cursor: pointer;
+}
+
+.meta-qty-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.meta-qty-controls .qty-chip {
+    cursor: pointer;
 }

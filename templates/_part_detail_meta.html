@@ -1,0 +1,68 @@
+<div class="meta-grid" id="meta-qty-section-{{ part.uuid }}">
+    <div class="meta-item">
+        <span class="meta-label">Description:</span>
+        <span class="meta-value">{{ part.description }}</span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-label">Package:</span>
+        <span class="meta-value">{{ part.package or '—' }}</span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-label">Category:</span>
+        <span class="meta-value">{{ part.category }}</span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-label">Subcategory:</span>
+        <span class="meta-value">{{ part.subcategory or '—' }}</span>
+    </div>
+    <div class="meta-item">
+        <span class="meta-label">Container:</span>
+        <span class="meta-value">
+            {% if part.container_id and part.container_id|trim %}
+                <a class="chip chip-link" href="/containers/{{ part.container_id|urlencode }}">{{ part.container_id }}</a>
+            {% else %}
+                <span class="chip muted">—</span>
+            {% endif %}
+        </span>
+    </div>
+    <div class="meta-item" id="meta-qty-item-{{ part.uuid }}">
+        <span class="meta-label">Quantity:</span>
+        <div class="meta-qty-controls" id="row-{{ part.uuid }}">
+            <button
+                class="btn secondary icon qty-step"
+                type="button"
+                data-qty-uuid="{{ part.uuid }}"
+                data-qty-delta="1"
+                onclick="event.stopPropagation();"
+                title="Increase quantity"
+                aria-label="Increase quantity">+</button>
+
+            {% set ok_min = part.get('stock_ok_min') %}
+            {% set warn_min = part.get('stock_warn_min') %}
+            {% set qv = (part.quantity or 0) | int %}
+            {% if warn_min is not none %}
+                {% set okv = ok_min | int %}
+                {% set warnv = warn_min | int %}
+                {% if qv < warnv %}
+                    {% set qty_class = 'qty-low' %}
+                {% elif qv < okv %}
+                    {% set qty_class = 'qty-warn' %}
+                {% else %}
+                    {% set qty_class = 'qty-ok' %}
+                {% endif %}
+                <span class="qty-chip {{ qty_class }}" data-qty-chip="1" data-ok-min="{{ okv }}" data-warn-min="{{ warnv }}" title="Stock levels {{ okv }}:{{ warnv }}" onclick="editQtyInline('{{ part.uuid }}', {{ qv }}, '{{ okv }}:{{ warnv }}')">{{ qv }}</span>
+            {% else %}
+                <span class="qty-chip qty-none" data-qty-chip="1" data-ok-min="" data-warn-min="" title="No stock levels set" onclick="editQtyInline('{{ part.uuid }}', {{ qv }}, '')">{{ qv }}</span>
+            {% endif %}
+
+            <button
+                class="btn secondary icon qty-step"
+                type="button"
+                data-qty-uuid="{{ part.uuid }}"
+                data-qty-delta="-1"
+                onclick="event.stopPropagation();"
+                title="Decrease quantity"
+                aria-label="Decrease quantity">−</button>
+        </div>
+    </div>
+</div>

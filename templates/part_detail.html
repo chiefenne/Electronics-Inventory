@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="panel part-detail-panel">
+    <div class="part-detail-header">
+        <a href="/" class="btn secondary" title="Back to inventory">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 18px; height: 18px; margin-right: 6px;">
+                <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8l8 8l1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+            Back to Inventory
+        </a>
+        <h2 class="part-detail-title">Part Details</h2>
+    </div>
+
+    {# Section 1: Part Metadata #}
+    <div class="part-detail-meta">
+        <div class="meta-grid" id="meta-qty-section-{{ part.uuid }}">
+            <div class="meta-item">
+                <span class="meta-label">Description:</span>
+                <span class="meta-value">{{ part.description }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Package:</span>
+                <span class="meta-value">{{ part.package or '—' }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Category:</span>
+                <span class="meta-value">{{ part.category }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Subcategory:</span>
+                <span class="meta-value">{{ part.subcategory or '—' }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Container:</span>
+                <span class="meta-value">
+                    {% if part.container_id and part.container_id|trim %}
+                        <a class="chip chip-link" href="/containers/{{ part.container_id|urlencode }}">{{ part.container_id }}</a>
+                    {% else %}
+                        <span class="chip muted">—</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="meta-item" id="meta-qty-item-{{ part.uuid }}">
+                <span class="meta-label">Quantity:</span>
+                <div class="meta-qty-controls" id="row-{{ part.uuid }}">
+                    <button
+                        class="btn secondary icon qty-step"
+                        type="button"
+                        data-qty-uuid="{{ part.uuid }}"
+                        data-qty-delta="1"
+                        onclick="event.stopPropagation();"
+                        title="Increase quantity"
+                        aria-label="Increase quantity">+</button>
+
+                    {% set ok_min = part.get('stock_ok_min') %}
+                    {% set warn_min = part.get('stock_warn_min') %}
+                    {% set qv = (part.quantity or 0) | int %}
+                    {% if warn_min is not none %}
+                        {% set okv = ok_min | int %}
+                        {% set warnv = warn_min | int %}
+                        {% if qv < warnv %}
+                            {% set qty_class = 'qty-low' %}
+                        {% elif qv < okv %}
+                            {% set qty_class = 'qty-warn' %}
+                        {% else %}
+                            {% set qty_class = 'qty-ok' %}
+                        {% endif %}
+                        <span class="qty-chip {{ qty_class }}" data-qty-chip="1" data-ok-min="{{ okv }}" data-warn-min="{{ warnv }}" title="Stock levels {{ okv }}:{{ warnv }}" onclick="editQtyInline('{{ part.uuid }}', {{ qv }}, '{{ okv }}:{{ warnv }}')">{{ qv }}</span>
+                    {% else %}
+                        <span class="qty-chip qty-none" data-qty-chip="1" data-ok-min="" data-warn-min="" title="No stock levels set" onclick="editQtyInline('{{ part.uuid }}', {{ qv }}, '')">{{ qv }}</span>
+                    {% endif %}
+
+                    <button
+                        class="btn secondary icon qty-step"
+                        type="button"
+                        data-qty-uuid="{{ part.uuid }}"
+                        data-qty-delta="-1"
+                        onclick="event.stopPropagation();"
+                        title="Decrease quantity"
+                        aria-label="Decrease quantity">−</button>
+                </div>
+            </div>
+            <div class="meta-item meta-item-full">
+                <span class="meta-label">Notes:</span>
+                <span class="meta-value">{{ part.notes or '—' }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Created:</span>
+                <span class="meta-value mono">{{ part.get('created_at_local') or part.get('created_at') or '—' }}</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Updated:</span>
+                <span class="meta-value mono">{{ part.get('updated_at_local') or part.get('updated_at') or '—' }}</span>
+            </div>
+        </div>
+    </div>
+
+    {# Section 2: Images side-by-side - Always show placeholders #}
+    {% set image_url = part.get("image_url", "") %}
+    {% set pinout_url = part.get("pinout_url", "") %}
+    {% set has_image = image_url and image_url|trim %}
+    {% set has_pinout = pinout_url and pinout_url|trim %}
+
+    <div class="part-detail-section">
+        <h3>Images</h3>
+        <div class="part-detail-images">
+            <div class="part-detail-image-box">
+                <h4>Device Image</h4>
+                {% if has_image %}
+                    {% set image_url_l = image_url|lower %}
+                    {% if image_url_l.endswith('.png')
+                          or image_url_l.endswith('.jpg')
+                          or image_url_l.endswith('.jpeg')
+                          or image_url_l.endswith('.gif')
+                          or image_url_l.endswith('.webp')
+                          or image_url_l.endswith('.svg') %}
+                        <a href="{{ image_url }}" target="_blank" rel="noopener" title="Open full size">
+                            <img src="{{ image_url }}" alt="Device image" class="part-detail-image" loading="lazy" />
+                        </a>
+                    {% else %}
+                        <a href="{{ image_url }}" target="_blank" rel="noopener" class="btn secondary">Open Device Image</a>
+                    {% endif %}
+                {% else %}
+                    <div class="part-detail-image-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
+                            <path fill="currentColor" d="M8.5 13.5l2.5 3l3.5-4.5l4.5 6H5m16 1V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/>
+                        </svg>
+                        <span class="placeholder-text">No image</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="part-detail-image-box">
+                <h4>Pinout</h4>
+                {% if has_pinout %}
+                    {% set pinout_url_l = pinout_url|lower %}
+                    {% if pinout_url_l.endswith('.png')
+                          or pinout_url_l.endswith('.jpg')
+                          or pinout_url_l.endswith('.jpeg')
+                          or pinout_url_l.endswith('.gif')
+                          or pinout_url_l.endswith('.webp')
+                          or pinout_url_l.endswith('.svg') %}
+                        <a href="{{ pinout_url }}" target="_blank" rel="noopener" title="Open full size">
+                            <img src="{{ pinout_url }}" alt="Pinout image" class="part-detail-image" loading="lazy" />
+                        </a>
+                    {% else %}
+                        <a href="{{ pinout_url }}" target="_blank" rel="noopener" class="btn secondary">Open Pinout</a>
+                    {% endif %}
+                {% else %}
+                    <div class="part-detail-image-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
+                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                                <rect x="7" y="5" width="10" height="14" rx="1.2" />
+                                <path d="M10 5.2c.4 1.2 1.3 2 2 2s1.6-.8 2-2" />
+                                <path d="M7 8H5M7 11H5M7 14H5M7 17H5M19 8H17M19 11H17M19 14H17M19 17H17" />
+                            </g>
+                        </svg>
+                        <span class="placeholder-text">No pinout</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Section 3: Datasheet / Documentation - Always show with link when available #}
+    {% set datasheet_url = part.get("datasheet_url", "") %}
+    {% set has_datasheet = datasheet_url and datasheet_url|trim %}
+
+    <div class="part-detail-section">
+        <h3>Datasheet / Documentation</h3>
+        {% if has_datasheet %}
+            <div class="part-detail-doc-link-box">
+                <a href="{{ datasheet_url }}" target="_blank" rel="noopener" class="btn">Open Datasheet</a>
+                <div class="datasheet-url-display">{{ datasheet_url }}</div>
+            </div>
+        {% else %}
+            <div class="part-detail-image-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
+                    <path fill="currentColor" d="M13 9h5.5L13 3.5zM6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                </svg>
+                <span class="placeholder-text">No datasheet</span>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

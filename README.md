@@ -9,6 +9,7 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 
 - Add, inline-edit, and delete parts
 - Duplicate parts (pre-fills add form for quick variations)
+- **Part detail page**: click any part description to view a dedicated page with all metadata, images, and datasheet in an organized layout
 - Search + filter by category and container (free-text search also matches container codes like `BX-50`)
 - Click a container chip in the table to open the container page
 - CSV export
@@ -28,6 +29,17 @@ The Qty chip can be color-coded using optional stock levels:
   - **Red**: quantity $<$ `lo`
 - Enter a single number like `5` to use the same value for both (`5:5`).
 - Leave empty to disable levels (chip stays neutral).
+
+## Part detail page
+
+Click any part description in the main table to open its **detail page**, which shows:
+
+- **All metadata** (description, package, category, subcategory, container, notes, timestamps)
+- **Quantity controls** with +/− buttons and inline editing (same as main page)
+- **Device image** and **pinout image** side-by-side (with placeholders if missing)
+- **Datasheet/documentation link** for quick access
+
+This provides a focused view of a single part with all its information organized in one place. Use the **Back to Inventory** button to return to the main table.
 
 ## Screenshots
 
@@ -129,6 +141,7 @@ On startup, the app creates/uses a SQLite database at `inventory.db` (in the rep
 ## Useful routes
 
 - `/` – main inventory table
+- `/parts/{uuid}` – detail page for a specific part
 - `/help` – help page
 - `/export.csv` – download CSV export (respects current filters via query params)
 - `/containers/{code}` – show parts in a specific container
