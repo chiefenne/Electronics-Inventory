@@ -142,7 +142,7 @@ body {
     /* Extra bottom space so hover previews on the last rows can be viewed
        without the browser briefly extending the scroll area and snapping back. */
     padding: 16px 12px calc(16px + 45vh);
-    max-width: 1800px;
+    max-width: 1600px;
     margin: 0 auto;
 }
 
@@ -324,8 +324,26 @@ select:focus {
 }
 
 .tbl th.col-notes {
-    min-width: 350px;
-    width: 25%;
+    min-width: 500px;
+    width: 40%;
+}
+
+.tbl th.col-subcat,
+.tbl td.col-subcat {
+    min-width: 80px;
+    width: 5%;
+}
+
+.tbl th.col-category,
+.tbl td.col-category {
+    min-width: 80px;
+    width: 5%;
+}
+
+.tbl th.col-package,
+.tbl td.col-package {
+    min-width: 60px;
+    width: 6%;
 }
 
 /* Wrapper for quantity controls inside table cell */
@@ -952,9 +970,9 @@ select:focus {
     vertical-align: middle;
 }
 
-/* Increase description column width */
+/* Description column width */
 .tbl td.cell[data-label="Description"] {
-    min-width: 200px;
+    min-width: 100px;
 }
 
 @media (max-width: 768px) {
