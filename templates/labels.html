@@ -14,7 +14,7 @@
 <div class="labels">
     {% for l in labels %}
     <div class="label">
-        <div class="label-code">{{ l.code }}</div>
+        <div class="label-container">{{ l.code }}</div>
         <img class="label-qr" src="data:image/png;base64,{{ l.qr }}" alt="QR {{ l.code }}">
     </div>
     {% endfor %}

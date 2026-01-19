@@ -24,7 +24,7 @@
                         <span class="mono">{{ c }}</span>
                     </label>
 
-                    <input type="text" name="text_{{ c }}" placeholder="Optional text (for combined/content modes)"
+                    <input type="text" name="text_{{ c }}" placeholder="Optional text (for QR+text modes)"
                         class="labeltext" />
                 </div>
                 {% endfor %}
@@ -65,7 +65,7 @@
         </fieldset>
 
         <fieldset class="label-format">
-            <legend>Label format</legend>
+            <legend><span style="font-size: 1.0rem;">Label format</span></legend>
 
             <select name="preset" required id="preset-select">
                 {% for p in presets %}
@@ -90,7 +90,7 @@
             <label class="checkbox outline-toggle">
                 <input type="checkbox" name="outline" value="1" id="outline">
                 <span>Print cut outlines</span>
-                <span class="muted">(always shown on screen; printed only when enabled)</span>
+                <span class="muted">always shown in the browser; printed when enabled</span>
             </label>
         </fieldset>
 
@@ -157,10 +157,10 @@
             const cols = opt?.dataset.columns || "?";
             const rows = opt?.dataset.rows || "?";
             const size = opt?.dataset.size || "?";
-            presetInfo.textContent = `(${cols}×${rows} = ${cols * rows} labels, ${size})`;
+            presetInfo.textContent = `Page layout: ${cols}×${rows} = ${cols * rows} labels, ${size}`;
 
             if (positionHint && cols !== "?") {
-                positionHint.textContent = `(${cols} per row, left→right)`;
+                positionHint.textContent = `${cols} per row, left→right`;
             }
         };
 
@@ -202,6 +202,7 @@
                 if (!raw) return;
                 const s = JSON.parse(raw);
                 if (preset && typeof s?.preset === "string") preset.value = s.preset;
+                if (modeSelect && typeof s?.mode === "string") modeSelect.value = s.mode;
                 if (outline && typeof s?.outline === "boolean") outline.checked = s.outline;
             } catch {
                 // ignore
@@ -214,6 +215,7 @@
                     KEY,
                     JSON.stringify({
                         preset: preset?.value || "",
+                        mode: modeSelect?.value || "",
                         outline: !!outline?.checked,
                     })
                 );
@@ -260,7 +262,7 @@
             if (e.target.matches('input[name="code"]') || e.target.matches('input[name="part_uuid[]"]')) {
                 updateButtonState();
             }
-            if (e.target === preset || e.target === outline || e.target === startPos) {
+            if (e.target === preset || e.target === outline || e.target === startPos || e.target === modeSelect) {
                 saveSettings();
             }
             if (e.target === preset) {
@@ -279,9 +281,9 @@
         });
 
         // Initialize
-        loadSettings();
         updatePresetInfo();
         updateSections();
+        loadSettings();  // Load after modes are populated
     })();
 </script>
 

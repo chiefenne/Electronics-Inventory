@@ -14,31 +14,35 @@
         </div>
         {% elif l.type == "part" %}
         <div class="label part">
-            <div class="part-container">{{ l.container }}</div>
-            <div class="part-description">{{ l.description }}</div>
-            {% if l.notes %}
-            <div class="part-notes">{{ l.notes }}</div>
-            {% endif %}
-            {% if l.subcategory %}
-            <div class="part-subcategory">{{ l.subcategory }}</div>
-            {% endif %}
+            <div class="label-content">
+                <div class="part-container">{{ l.container }}</div>
+                <div class="part-description">{{ l.description }}</div>
+                {% if l.notes %}
+                <div class="part-notes">{{ l.notes }}</div>
+                {% endif %}
+                {% if l.subcategory %}
+                <div class="part-subcategory">{{ l.subcategory }}</div>
+                {% endif %}
+            </div>
         </div>
         {% else %}
         <div class="label {{ l.type }}">
-            <div class="label-code">{{ l.code }}</div>
+            <div class="label-content">
+                <div class="label-container">{{ l.code }}</div>
 
-            {% if l.type == "asset" %}
-            <img class="label-qr" src="data:image/png;base64,{{ l.qr }}" alt="QR {{ l.code }}">
-            {% elif l.type == "combo" %}
-            <div class="label-combo-content">
+                {% if l.type == "qr_only" %}
                 <img class="label-qr" src="data:image/png;base64,{{ l.qr }}" alt="QR {{ l.code }}">
-                {% if l.text %}
-                <div class="label-text">{{ l.text }}</div>
+                {% elif l.type == "qr_text" %}
+                <div class="label-combo-content">
+                    <img class="label-qr" src="data:image/png;base64,{{ l.qr }}" alt="QR {{ l.code }}">
+                    {% if l.text %}
+                    <div class="label-text">{{ l.text }}</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="label-text">{{ l.text if l.text else "—" }}</div>
                 {% endif %}
             </div>
-            {% else %}
-            <div class="label-text">{{ l.text if l.text else "—" }}</div>
-            {% endif %}
         </div>
         {% endif %}
         {% endfor %}

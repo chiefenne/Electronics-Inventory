@@ -1238,10 +1238,10 @@ def container_labels(request: Request) -> HTMLResponse:
         presets=presets,
         preset_meta=preset_meta,
         container_modes=[
-            ("asset", "Asset (QR only)"),
-            ("combo", "Asset + text (combined)"),
-            ("content", "Content (text only)"),
-            ("both", "Separate labels (QR + text)"),
+            ("qr_only", "QR only (1 label)"),
+            ("text_only", "Text only (1 label)"),
+            ("qr_text", "QR + text (1 label)"),
+            ("qr_text_2labels", "QR + text (2 labels)"),
         ],
         part_modes=[
             ("part", "Part label"),
@@ -1269,7 +1269,7 @@ def labels_parts_list(
 async def print_labels(
     request: Request,
     preset: str = Form("3348"),
-    mode: str = Form("asset"),
+    mode: str = Form("qr_only"),
     code: list[str] = Form([]),
     outline: str = Form(""),
     start_position: int = Form(1),
@@ -1318,34 +1318,34 @@ async def print_labels(
         for c in code:
             text = (form.get(f"text_{c}") or "").strip()
 
-            # Combo label: QR + optional text on a single label
-            if mode == "combo":
+            # QR + text label: QR + optional text on a single label
+            if mode == "qr_text":
                 labels.append({
-                    "type": "combo",
+                    "type": "qr_text",
                     "code": c,
                     "qr": qr_base64(f"{BASE_URL}/containers/{c}"),
                     "text": text
                 })
 
-            # Asset label: container + QR only
-            elif mode in ("asset", "both"):
+            # QR-only label: container + QR only
+            elif mode in ("qr_only", "qr_text_2labels"):
                 labels.append({
-                    "type": "asset",
+                    "type": "qr_only",
                     "code": c,
                     "qr": qr_base64(f"{BASE_URL}/containers/{c}")
                 })
-                # Content label: container + free text entered in selection UI
-                if mode == "both":
+                # Text-only label: container + free text entered in selection UI
+                if mode == "qr_text_2labels":
                     labels.append({
-                        "type": "content",
+                        "type": "text_only",
                         "code": c,
                         "text": text
                     })
 
-            # Content label only
-            elif mode == "content":
+            # Text-only label only
+            elif mode == "text_only":
                 labels.append({
-                    "type": "content",
+                    "type": "text_only",
                     "code": c,
                     "text": text
                 })
