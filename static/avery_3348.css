@@ -5,8 +5,8 @@
    Use negative values to move content up/left, positive to move down/right. */
 :root {
   --label_offset_x: 0mm;
-  --label_offset_y: 0mm;
-  --label_gap_x: 6mm;
+  --label_offset_y: 11mm;
+  --label_gap_x: 2mm;
   --label_gap_y: 0mm;
 }
 
