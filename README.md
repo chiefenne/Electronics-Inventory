@@ -187,10 +187,10 @@ The app supports two types of labels:
 
 ### Container labels
 
-- **Asset (QR only)** – container code + QR code
-- **Asset + text (combined)** – container code + QR code + optional text on one label
-- **Content (text only)** – container code + descriptive text
-- **Separate labels (QR + text)** – creates two labels per container
+- **QR only (1 label)** – container code + QR code
+- **Text only (1 label)** – container code + descriptive text
+- **QR + text (1 label)** – container code + QR code + optional text on one label
+- **QR + text (2 labels)** – creates two labels per container
 
 ### Part labels
 
