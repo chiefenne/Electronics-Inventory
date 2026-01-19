@@ -31,26 +31,26 @@
   padding: 4mm;
 }
 
-.preset-3348 .label-code {
+.preset-3348 .label-container {
   font-size: 22px;
 }
 
-.preset-3348 .label.asset .label-qr {
+.preset-3348 .label.qr_only .label-qr {
   width: 24mm;
   height: 24mm;
 }
 
-.preset-3348 .label.combo .label-qr {
+.preset-3348 .label.qr_text .label-qr {
   width: 20mm;
   height: 20mm;
 }
 
-.preset-3348 .label.combo .label-text {
+.preset-3348 .label.qr_text .label-text {
   font-size: 16px;
   padding: 0 2mm;
 }
 
-.preset-3348 .label.content .label-text {
+.preset-3348 .label.text_only .label-text {
   font-size: 18px;
   padding: 0 3mm;
 }

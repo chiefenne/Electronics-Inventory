@@ -65,8 +65,12 @@
 
 /* Outline toggle: keep checkbox + text together, no wrapping */
 .labels-select .outline-toggle {
-    flex: 0 0 auto;
+    flex: 1 0 100%;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     white-space: nowrap;
+    margin-top: 4px;
 }
 
 .labels-select .outline-toggle span {
@@ -75,6 +79,22 @@
 
 .labels-select .outline-toggle .muted {
     font-size: 12px;
+}
+
+.labels-select label.checkbox.outline-toggle input[type="checkbox"] {
+    order: 2;
+    margin: 0 4px;
+    width: 16px;
+    height: 16px;
+    transform: none;
+}
+
+.labels-select .outline-toggle span {
+    order: 1;
+}
+
+.labels-select .outline-toggle .muted {
+    order: 3;
 }
 
 /* Start position input */
@@ -176,6 +196,14 @@
     align-items: center;
 }
 
+.label-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 /* Skip label: placeholder for skipped positions */
 .label.skip {
     border: 1px dashed #ccc;
@@ -209,23 +237,23 @@
     }
 }
 
-/* Code line */
-.label-code {
+/* Container code line */
+.label-container {
     font-weight: 800;
     letter-spacing: 0.6px;
 }
 
-/* Asset label: code + QR */
-.label.asset {
+/* QR-only label: code + QR */
+.label.qr_only .label-content {
     justify-content: space-between;
 }
 
-/* Content label: code + centered text */
-.label.content {
+/* Text-only label: code + centered text */
+.label.text_only .label-content {
     justify-content: flex-start;
 }
 
-.label.content .label-text {
+.label.text_only .label-text {
     flex: 1;
     width: 100%;
     display: flex;
@@ -237,27 +265,27 @@
     line-height: 1.1;
 }
 
-/* Combo label: code at top, QR left + text right below */
-.label.combo {
+/* QR+text label: code at top, QR left + text right below */
+.label.qr_text .label-content {
     justify-content: flex-start;
 }
 
-.label.combo .label-combo-content {
+.label.qr_text .label-combo-content {
     flex: 1;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    gap: 3mm;
+    gap: 1mm;
     width: 100%;
 }
 
-.label.combo .label-qr {
+.label.qr_text .label-qr {
     display: block;
     flex-shrink: 0;
 }
 
-.label.combo .label-text {
+.label.qr_text .label-text {
     flex: 1;
     display: flex;
     align-items: center;
@@ -270,7 +298,7 @@
 }
 
 /* QR image (sized per preset below) */
-.label.asset .label-qr {
+.label.qr_only .label-qr {
     display: block;
 }
 
@@ -287,12 +315,15 @@
     --part-notes-size: 2.2mm;
     --part-subcategory-size: 2mm;
 
+    overflow: hidden;
+}
+
+.label.part .label-content {
     justify-content: flex-start;
     align-items: flex-start;
     text-align: left;
     padding: var(--part-padding);
     gap: var(--part-gap);
-    overflow: hidden;
 }
 
 .label.part .part-container {

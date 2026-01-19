@@ -1,0 +1,108 @@
+/* Avery 35x125-R preset */
+/* Meta: columns=5, rows=2, label_size=35x125mm */
+
+/* Printer calibration knobs (apply to print only)
+   Use negative values to move content up/left, positive to move down/right. */
+:root {
+  --label_offset_x: 10mm;
+  --label_offset_y: 17mm;
+  --label_gap_x: 3mm;
+  --label_gap_y: 0mm;
+}
+
+@media print {
+  @page {
+    margin: 0;
+  }
+
+  .preset-35x125-R .labels {
+    margin-left: var(--label_offset_x);
+    margin-top: var(--label_offset_y);
+  }
+}
+
+.preset-35x125-R .labels {
+  grid-template-columns: repeat(5, 35mm);
+}
+
+.preset-35x125-R .label {
+  width: 35mm;
+  height: 125mm;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.preset-35x125-R .label .label-content {
+  width: 125mm;
+  height: 35mm;
+  padding: 4mm;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  transform: rotate(-90deg);
+  transform-origin: top left;
+}
+
+.preset-35x125-R .label.part .label-content {
+  padding: var(--part-padding);
+}
+
+.preset-35x125-R .label.qr_only .label-content {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 20mm;
+  margin-left: -4mm;
+}
+
+.preset-35x125-R .label.qr_only .label-container {
+  margin-left: 20mm;
+}
+
+.preset-35x125-R .label.text_only .label-content {
+  align-items: center;
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+  gap: 1mm;
+}
+
+.preset-35x125-R .label.text_only .label-text {
+  align-items: flex-start;
+  padding-top: 5mm;
+  font-size: 18px;
+}
+
+.preset-35x125-R .label.qr_text .label-content {
+  justify-content: flex-start;
+  gap: 1mm;
+}
+
+.preset-35x125-R .label.qr_text .label-combo-content {
+  margin-top: -10mm;
+  margin-right: 8mm;
+  width: 100%;
+  flex: 1;
+  text-align: center;
+}
+
+.preset-35x125-R .label-container {
+  font-size: 22px;
+}
+
+.preset-35x125-R .label.qr_only .label-qr {
+  width: 24mm;
+  height: 24mm;
+}
+
+.preset-35x125-R .label.qr_text .label-qr {
+  width: 20mm;
+  height: 20mm;
+  margin-left: 5mm;
+}
+
+.preset-35x125-R .label.qr_text .label-text {
+  font-size: 16px;
+  padding: 0 2mm;
+}
