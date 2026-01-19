@@ -37,6 +37,7 @@ APP_TITLE = "Electronics Inventory"
 APP_VERSION = "2.5"
 
 BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
+print(f"[startup] BASE_URL = {BASE_URL}")
 
 SESSION_COOKIE_NAME = "inventory_session"
 SESSION_TTL_SECONDS = 24 * 60 * 60
