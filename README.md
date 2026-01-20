@@ -192,6 +192,11 @@ The app supports two types of labels:
 - **QR + text (1 label)** – container code + QR code + optional text on one label
 - **QR + text (2 labels)** – creates two labels per container
 
+Container label selection also supports:
+
+- **Quantity per container** – set how many copies to print for each selected container.
+- **Multiple containers per sheet** – when selecting multiple containers, labels fill the sheet left→right and wrap to the next row based on the chosen preset.
+
 ### Part labels
 
 Part labels are designed for small compartments inside containers, e.g, Gridfinity bins or other. Each label shows:

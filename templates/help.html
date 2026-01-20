@@ -274,8 +274,7 @@
         Note: Part label text sizes automatically scale down for smaller presets (like Avery 3666).
         Each preset can define its own sizing via CSS custom properties.
     </p>
-        Tip: use "Asset + text (combined)" for larger labels (like Avery 3425) to fit both QR and description on one label.
-    </p>
+
 
     <h4>Starting position (skip used labels)</h4>
     <p>
@@ -298,6 +297,8 @@
     <h4>Printing labels</h4>
     <ul>
         <li>Go to <span class="mono">Labels</span> in the navigation, select containers and a preset, then print.</li>
+        <li><b>Quantity:</b> next to the optional container text field, set how many copies to print for that container.</li>
+        <li>If you select multiple containers, labels fill the sheet left→right and wrap to the next row based on the preset.</li>
         <li>Presets come from the available layout files in <span class="mono">static/avery_*.css</span>.
             The UI shows grid info (columns × rows) read from each preset's metadata comment.</li>
         <li>For best results, use print settings: <b>Scale 100%</b>, <b>Margins: none</b>, and disable browser
