@@ -51,7 +51,7 @@ This provides a focused view of a single part with all its information organized
 
 ![Container label with QR code and text](docs/screenshots/Example_01.jpg) ![Container label with QR code and text](docs/screenshots/Example_02.jpg)
 
-**Fig. 4:** Container page showing contents of box BX-41 in Gridfinity bins.
+**Fig. 4:** Contents of box BX-41 in Gridfinity bins with part labels.
 
 ![Container BX-41 contents](docs/screenshots/Example_03.jpg)
 
