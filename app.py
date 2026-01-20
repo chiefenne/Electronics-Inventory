@@ -34,7 +34,7 @@ from db import get_conn, init_db, \
 
 APP_TITLE = "Electronics Inventory"
 
-APP_VERSION = "2.5"
+APP_VERSION = "2.6"
 
 BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
 print(f"[startup] BASE_URL = {BASE_URL}")
@@ -1319,9 +1319,18 @@ async def print_labels(
         for c in code:
             text = (form.get(f"text_{c}") or "").strip()
 
+            raw_qty = (form.get(f"qty_{c}") or "1").strip()
+            try:
+                qty = int(raw_qty)
+            except (TypeError, ValueError):
+                qty = 1
+            qty = max(1, min(qty, 100))
+
+            label_batch = []
+
             # QR + text label: QR + optional text on a single label
             if mode == "qr_text":
-                labels.append({
+                label_batch.append({
                     "type": "qr_text",
                     "code": c,
                     "qr": qr_base64(f"{BASE_URL}/containers/{c}"),
@@ -1330,14 +1339,14 @@ async def print_labels(
 
             # QR-only label: container + QR only
             elif mode in ("qr_only", "qr_text_2labels"):
-                labels.append({
+                label_batch.append({
                     "type": "qr_only",
                     "code": c,
                     "qr": qr_base64(f"{BASE_URL}/containers/{c}")
                 })
                 # Text-only label: container + free text entered in selection UI
                 if mode == "qr_text_2labels":
-                    labels.append({
+                    label_batch.append({
                         "type": "text_only",
                         "code": c,
                         "text": text
@@ -1345,20 +1354,14 @@ async def print_labels(
 
             # Text-only label only
             elif mode == "text_only":
-                labels.append({
+                label_batch.append({
                     "type": "text_only",
                     "code": c,
                     "text": text
                 })
 
-    return render(
-        "labels_print.html",
-        request=request,
-        title=f"{APP_TITLE}",
-        labels=labels,
-        preset=preset,
-        show_outline=bool(outline),
-    )
+            for _ in range(qty):
+                labels.extend(label_batch)
 
     return render(
         "labels_print.html",

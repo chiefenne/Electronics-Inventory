@@ -127,6 +127,13 @@
     max-width: 100%;
 }
 
+.label-row .labelqty {
+    flex: 0 0 auto;
+    width: 60px;
+    text-align: center;
+    padding: 0 8px;
+}
+
 /* =========================
    Print area
    ========================= */

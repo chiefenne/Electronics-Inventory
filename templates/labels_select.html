@@ -26,6 +26,9 @@
 
                     <input type="text" name="text_{{ c }}" placeholder="Optional text (for QR+text modes)"
                         class="labeltext" />
+
+                    <input type="number" name="qty_{{ c }}" value="1" min="1" max="100" step="1"
+                        class="labelqty" aria-label="Quantity for {{ c }}" />
                 </div>
                 {% endfor %}
             </div>
