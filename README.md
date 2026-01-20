@@ -49,11 +49,9 @@ This provides a focused view of a single part with all its information organized
 
 **Fig. 2 & 3:** Printable container labels – combined QR + text.
 
-| ![Container label with QR code and text](docs/screenshots/Example_01.jpg) | ![Container label with QR code and text](docs/screenshots/Example_02.jpg) |
-|:--:|:--:|
-| QR code + description | Box contents |
+![Container label with QR code and text](docs/screenshots/Example_01.jpg) ![Container label with QR code and text](docs/screenshots/Example_02.jpg)
 
-**Fig. 4:** Container page showing contents of box BX-50 (accessed by clicking the chip or scanning the QR code).
+**Fig. 4:** Container page showing contents of box BX-41 (accessed by clicking the chip or scanning the QR code).
 
 ![Container BX-41 contents](docs/screenshots/Example_03.jpg)
 
