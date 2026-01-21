@@ -58,10 +58,9 @@
 
 /* Part labels: smaller sizes for 38x21mm labels */
 .preset-3666 .label.part {
-  --part-padding: 1mm;
+  --part-padding: 0mm;
   --part-gap: 0.2mm;
-  --part-container-size: 4.0mm;
-  --part-description-size: 3.0mm;
-  --part-notes-size: 2.0mm;
-  --part-subcategory-size: 2.5mm;
+  --part-container-size: 2.3mm;
+  --part-description-size: 2.5mm;
+  --part-notes-size: 2.5mm;
 }

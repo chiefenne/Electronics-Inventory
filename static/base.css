@@ -208,23 +208,26 @@ body {
 
 /* Add-form layout (desktop):
    Row 1: Description | Notes
-   Row 2: Package (full width)
-   Row 3: Container | Qty
-   Row 4: Category | Subcategory
-   Row 5: Add button (full row)
+   Row 2: Package | Part Image | Pinout Image
+   Row 3: Category | Subcategory
+   Row 4: Datasheet | Container
+   Row 5: Qty | Add button
 */
 .add .f-desc { grid-column: 1 / span 6; grid-row: 1; }
 .add .f-notes { grid-column: 7 / span 10; grid-row: 1; }
-.add .f-package { grid-column: 1 / span 6; grid-row: 2; }
+.add .f-package { grid-column: 1 / span 5; grid-row: 2; }
+.add .f-part-img { grid-column: 6 / span 3; grid-row: 2; }
+.add .f-pinout-img { grid-column: 9 / span 3; grid-row: 2; }
 
-.add .f-container { grid-column: 1 / span 6; grid-row: 3; }
-.add .f-qty { grid-column: 7 / span 3; grid-row: 3; }
+.add .f-category { grid-column: 1 / span 4; grid-row: 3; }
+.add .f-subcat { grid-column: 5 / span 4; grid-row: 3; }
 
-.add .f-category { grid-column: 1 / span 5; grid-row: 4; }
-.add .f-subcat { grid-column: 6 / span 5; grid-row: 4; }
+.add .f-datasheet { grid-column: 1 / span 4; grid-row: 4; }
+.add .f-container { grid-column: 5 / span 4; grid-row: 4; }
 
+.add .f-qty { grid-column: 1 / span 1; grid-row: 5; }
 .add .f-submit {
-    grid-column: 1 / -1;
+    grid-column: 2 / span 2;
     grid-row: 5;
     justify-self: start;
 }
@@ -251,9 +254,12 @@ body {
     .add .f-subcat,
     .add .f-desc,
     .add .f-package,
+    .add .f-part-img,
+    .add .f-pinout-img,
     .add .f-container,
     .add .f-qty,
     .add .f-notes,
+    .add .f-datasheet,
     .add .f-submit {
         grid-column: span 1;
         justify-self: stretch;
@@ -785,9 +791,12 @@ select:focus {
     .add .f-subcat,
     .add .f-desc,
     .add .f-package,
+    .add .f-part-img,
+    .add .f-pinout-img,
     .add .f-container,
     .add .f-qty,
     .add .f-notes,
+    .add .f-datasheet,
     .add .f-submit {
         grid-column: 1 / -1;
         grid-row: auto;

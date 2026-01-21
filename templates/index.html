@@ -41,12 +41,13 @@
                placeholder="Package (DIP, SOIC, Module…)"
                title="Physical form factor (DIP, SOIC, 0603, Module)." />
 
-     <input class="f-container" name="container_id"
-               placeholder="Container (BX-03, DR-01…)"
-               list="dl-containers"
-               autocomplete="off"
-               spellcheck="false"
-               title="Physical storage location (box, drawer, compartment)." />
+     <input class="f-part-img" name="part_image"
+               placeholder="Part image"
+               title="Filename or URL of the part image." />
+
+     <input class="f-pinout-img" name="pinout_image"
+               placeholder="Pinout image"
+               title="Filename or URL of the pinout diagram." />
 
      <input class="f-qty" name="quantity"
                type="number"
@@ -70,6 +71,17 @@
          title="Optional technical role or family (MCU, OpAmp, DC/DC, Encoder)." />
 
      <button class="btn f-submit" type="submit">Add</button>
+
+     <input class="f-datasheet" name="datasheet"
+               placeholder="Datasheet URL"
+               title="Link to the datasheet (URL)." />
+
+     <input class="f-container" name="container_id"
+               placeholder="Container (BX-03, DR-01…)"
+               list="dl-containers"
+               autocomplete="off"
+               spellcheck="false"
+               title="Physical storage location (box, drawer, compartment)." />
     </form>
 
     <!-- Suggestions -->
@@ -103,7 +115,7 @@
     const form = document.querySelector("form.add");
     if (!form) return;
 
-    const fields = ["description", "notes", "package", "container_id", "quantity", "category", "subcategory"];
+    const fields = ["description", "notes", "package", "part_image", "pinout_image", "container_id", "quantity", "category", "subcategory", "datasheet"];
 
     // Restore saved draft on page load
     const restoreDraft = () => {

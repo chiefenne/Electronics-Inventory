@@ -320,7 +320,6 @@
     --part-container-size: 2.5mm;
     --part-description-size: 3.5mm;
     --part-notes-size: 2.2mm;
-    --part-subcategory-size: 2mm;
 
     overflow: hidden;
 }
@@ -359,15 +358,6 @@
     overflow-wrap: break-word;
     flex: 1;
     overflow: hidden;
-}
-
-.label.part .part-subcategory {
-    font-size: var(--part-subcategory-size);
-    font-weight: 700;
-    color: #666;
-    font-style: italic;
-    margin-top: auto;
-    flex-shrink: 0;
 }
 
 /* =========================
