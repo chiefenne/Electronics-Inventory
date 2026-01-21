@@ -2,6 +2,7 @@
 {% block content %}
 
 <section class="panel">
+    <h3 class="panel-title">Search parts</h3>
     <form class="filters" hx-get="/partials/table" hx-target="#table" hx-trigger="keyup changed delay:300ms, change"
         onsubmit="return false;">
         <input type="text" name="q" placeholder="Search (LM358, ADS1115, BX-03…)" value="{{ q }}" />
@@ -13,20 +14,25 @@
             {% endfor %}
         </select>
 
+        <select name="subcategory">
+            <option value="">All subcategories</option>
+            {% for s in subcategories_in_use %}
+            <option value="{{ s }}" {% if s==subcategory %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+        </select>
+
         <select name="container_id">
             <option value="">All containers</option>
             {% for c in containers %}
             <option value="{{ c }}" {% if c==container_id %}selected{% endif %}>{{ c }}</option>
             {% endfor %}
         </select>
-
-        <a class="btn"
-            href="/export.csv?q={{ q|urlencode }}&category={{ category|urlencode }}&container_id={{ container_id|urlencode }}">Export
-            CSV</a>
     </form>
 </section>
 
 <section class="panel">
+    <h3 class="panel-title">Enter new part</h3>
+
     <form class="add" hx-post="/parts" hx-target="#table" hx-swap="innerHTML">
      <input class="f-desc" name="description"
                placeholder="Description (LM358 DIP, ADS1115 board…)"
@@ -41,11 +47,11 @@
                placeholder="Package (DIP, SOIC, Module…)"
                title="Physical form factor (DIP, SOIC, 0603, Module)." />
 
-     <input class="f-part-img" name="part_image"
+     <input class="f-part-img" name="image_url"
                placeholder="Part image"
                title="Filename or URL of the part image." />
 
-     <input class="f-pinout-img" name="pinout_image"
+     <input class="f-pinout-img" name="pinout_url"
                placeholder="Pinout image"
                title="Filename or URL of the pinout diagram." />
 
@@ -72,7 +78,7 @@
 
      <button class="btn f-submit" type="submit">Add</button>
 
-     <input class="f-datasheet" name="datasheet"
+     <input class="f-datasheet" name="datasheet_url"
                placeholder="Datasheet URL"
                title="Link to the datasheet (URL)." />
 
@@ -115,7 +121,7 @@
     const form = document.querySelector("form.add");
     if (!form) return;
 
-    const fields = ["description", "notes", "package", "part_image", "pinout_image", "container_id", "quantity", "category", "subcategory", "datasheet"];
+    const fields = ["description", "notes", "package", "image_url", "pinout_url", "container_id", "quantity", "category", "subcategory", "datasheet_url"];
 
     // Restore saved draft on page load
     const restoreDraft = () => {

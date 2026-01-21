@@ -29,6 +29,17 @@
             <a href="/containers/labels" class="navlink{% if labels_active %} active{% endif %}"{% if labels_active %} aria-current="page"{% endif %}>Labels</a>
             <a href="/restore" class="navlink{% if current_path.startswith('/restore') %} active{% endif %}"{% if current_path.startswith('/restore') %} aria-current="page"{% endif %}>Restore</a>
             <a href="/help" class="navlink{% if current_path.startswith('/help') %} active{% endif %}"{% if current_path.startswith('/help') %} aria-current="page"{% endif %}>Usage</a>
+
+            <div class="nav-dropdown">
+                <button class="navlink nav-dropdown__trigger" type="button" aria-haspopup="true" aria-expanded="false">
+                    Actions ▾
+                </button>
+                <div class="nav-dropdown__menu">
+                    <a href="/export.csv" class="nav-dropdown__item">Export CSV (all)</a>
+                    <a href="/export.csv?q={{ q|default('', true)|urlencode }}&category={{ category|default('', true)|urlencode }}&subcategory={{ subcategory|default('', true)|urlencode }}&container_id={{ container_id|default('', true)|urlencode }}" class="nav-dropdown__item">Export CSV (filtered)</a>
+                    <span class="nav-dropdown__item nav-dropdown__item--disabled">Import CSV</span>
+                </div>
+            </div>
         </nav>
     </header>
 

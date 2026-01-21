@@ -561,6 +561,7 @@ async def favicon():
 def fetch_parts(
     q: str = "",
     category: str = "",
+    subcategory: str = "",
     container_id: str = "",
     limit: int = 500,
 ) -> List[Dict[str, Any]]:
@@ -580,6 +581,10 @@ def fetch_parts(
     if category.strip():
         sql += " AND category = ?"
         params.append(category.strip())
+
+    if subcategory.strip():
+        sql += " AND subcategory = ?"
+        params.append(subcategory.strip())
 
     if container_id.strip():
         sql += " AND container_id = ?"
@@ -691,6 +696,18 @@ def list_containers_in_use():
     return [r["code"] if hasattr(r, "keys") else r[0] for r in rows]
 
 
+def list_subcategories_in_use():
+    with get_conn() as conn:
+        rows = conn.execute(
+            """
+            SELECT DISTINCT TRIM(subcategory) AS name
+            FROM parts
+            WHERE subcategory IS NOT NULL AND TRIM(subcategory) <> ''
+            ORDER BY name
+            """
+        ).fetchall()
+    return [r["name"] if hasattr(r, "keys") else r[0] for r in rows]
+
 
 def qr_base64(text: str) -> str:
     img = qrcode.make(text)
@@ -705,17 +722,19 @@ def index(
     request: Request,
     q: str = "",
     category: str = "",
+    subcategory: str = "",
     container_id: str = ""
 ) -> HTMLResponse:
 
-    parts = fetch_parts(q=q, category=category, container_id=container_id)
+    parts = fetch_parts(q=q, category=category, subcategory=subcategory, container_id=container_id)
 
     # IMPORTANT:
     # Search filters must reflect real inventory, not lookup tables
     categories = list_categories_in_use()
     containers = list_containers_in_use()
 
-    # Keep subcategories for datalist suggestions if you already had this
+    # Subcategories for both filter dropdown and datalist suggestions
+    subcategories_in_use = list_subcategories_in_use()
     subcategories = list_subcategories() if "list_subcategories" in globals() else []
 
     return render(
@@ -725,16 +744,18 @@ def index(
         parts=parts,
         q=q,
         category=category,
+        subcategory=subcategory,
         container_id=container_id,
         categories=categories,
         containers=containers,
+        subcategories_in_use=subcategories_in_use,
         subcategories=subcategories,
     )
 
 
 @app.get("/partials/table", response_class=HTMLResponse)
-def partial_table(q: str = "", category: str = "", container_id: str = "") -> HTMLResponse:
-    parts = fetch_parts(q=q, category=category, container_id=container_id)
+def partial_table(q: str = "", category: str = "", subcategory: str = "", container_id: str = "") -> HTMLResponse:
+    parts = fetch_parts(q=q, category=category, subcategory=subcategory, container_id=container_id)
     return render("_table.html", parts=parts)
 
 
@@ -747,13 +768,15 @@ def add_part(
     container_id: str = Form(""),
     quantity: int = Form(0),
     notes: str = Form(""),
+    image_url: str = Form(""),
     datasheet_url: str = Form(""),
     pinout_url: str = Form(""),
 ) -> HTMLResponse:
     category = category.strip()
     description = description.strip()
 
-    # Allow entering just a filename for pinouts
+    # Allow entering just a filename for images
+    image_url = _normalize_static_media_path("image_url", image_url)
     pinout_url = _normalize_static_media_path("pinout_url", pinout_url)
 
     ensure_category(category)
@@ -767,9 +790,9 @@ def add_part(
             """
             INSERT INTO parts (
                 uuid, category, subcategory, description, package, container_id, quantity, notes,
-                datasheet_url, pinout_url, created_at, updated_at
+                image_url, datasheet_url, pinout_url, created_at, updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
             """,
             (
                 part_uuid,
@@ -780,6 +803,7 @@ def add_part(
                 container_id.strip(),
                 max(int(quantity), 0),
                 notes.strip(),
+                image_url.strip(),
                 datasheet_url.strip(),
                 pinout_url.strip(),
             ),

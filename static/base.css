@@ -137,6 +137,61 @@ body {
     color: #ffffff;
 }
 
+/* Navigation dropdown */
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown__trigger {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.nav-dropdown__menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    min-width: 180px;
+    background: #fff;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.nav-dropdown:hover .nav-dropdown__menu,
+.nav-dropdown:focus-within .nav-dropdown__menu {
+    display: block;
+}
+
+.nav-dropdown__item {
+    display: block;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text-main);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.nav-dropdown__item:hover {
+    background: var(--blue-soft);
+}
+
+.nav-dropdown__item--disabled {
+    color: var(--text-muted);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.nav-dropdown__item--disabled:hover {
+    background: transparent;
+}
+
 
 .main {
     /* Extra bottom space so hover previews on the last rows can be viewed
@@ -152,6 +207,14 @@ body {
     padding: 12px;
     margin-bottom: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.panel-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 12px 0;
+    padding: 0;
 }
 
 /* =========================
@@ -213,11 +276,11 @@ body {
    Row 4: Datasheet | Container
    Row 5: Qty | Add button
 */
-.add .f-desc { grid-column: 1 / span 6; grid-row: 1; }
-.add .f-notes { grid-column: 7 / span 10; grid-row: 1; }
-.add .f-package { grid-column: 1 / span 5; grid-row: 2; }
-.add .f-part-img { grid-column: 6 / span 3; grid-row: 2; }
-.add .f-pinout-img { grid-column: 9 / span 3; grid-row: 2; }
+.add .f-desc { grid-column: 1 / span 4; grid-row: 1; }
+.add .f-notes { grid-column: 5 / span 10; grid-row: 1; }
+.add .f-package { grid-column: 1 / span 2; grid-row: 2; }
+.add .f-part-img { grid-column: 5 / span 3; grid-row: 2; }
+.add .f-pinout-img { grid-column: 8 / span 3; grid-row: 2; }
 
 .add .f-category { grid-column: 1 / span 4; grid-row: 3; }
 .add .f-subcat { grid-column: 5 / span 4; grid-row: 3; }
