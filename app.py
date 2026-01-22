@@ -12,6 +12,7 @@ from pathlib import Path
 
 import csv
 import io
+import json
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
@@ -31,6 +32,17 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from db import get_conn, init_db, \
     list_containers, list_categories, list_subcategories, \
     ensure_container, ensure_category, ensure_subcategory
+from models import PartRequest, PartData, ImageResult
+
+try:
+    from openai import OpenAI
+except Exception:  # pragma: no cover - optional dependency
+    OpenAI = None  # type: ignore[assignment]
+
+try:
+    from tavily import TavilyClient
+except Exception:  # pragma: no cover - optional dependency
+    TavilyClient = None  # type: ignore[assignment]
 
 APP_TITLE = "Electronics Inventory"
 
@@ -43,6 +55,26 @@ SESSION_COOKIE_NAME = "inventory_session"
 SESSION_TTL_SECONDS = 24 * 60 * 60
 
 STATIC_DIR = Path(__file__).with_name("static")
+
+# --- AI Auto-Fill (optional feature) ---
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY", "").strip()
+
+
+def _ai_enabled() -> bool:
+    return bool(OPENAI_API_KEY and TAVILY_API_KEY and OpenAI and TavilyClient)
+
+
+def _get_openai_client() -> Optional[OpenAI]:
+    if not _ai_enabled():
+        return None
+    return OpenAI(api_key=OPENAI_API_KEY)
+
+
+def _get_tavily_client() -> Optional[TavilyClient]:
+    if not _ai_enabled():
+        return None
+    return TavilyClient(api_key=TAVILY_API_KEY)
 
 
 def _env_truthy(name: str) -> bool:
@@ -598,6 +630,127 @@ def fetch_parts(
     return [dict(r) for r in rows]
 
 
+# --- AI Auto-Fill endpoints (optional feature) ---
+EXISTING_CATEGORIES = ["IC", "Module", "Passive", "Semiconductors", "Connectors", "Electromechanical"]
+EXISTING_SUBCATS = ["OpAmp", "Logic", "Arduino", "Step-down (buck)", "N-channel", "Timers / Oscillators", "MOSFET"]
+
+
+@app.post("/api/fill-part", response_model=PartData)
+async def fill_part_agent(request: PartRequest) -> PartData:
+    if not _ai_enabled():
+        raise HTTPException(status_code=503, detail="AI Auto-Fill is disabled")
+
+    tavily = _get_tavily_client()
+    client = _get_openai_client()
+
+    if not tavily or not client:
+        raise HTTPException(status_code=503, detail="AI Auto-Fill is disabled")
+
+    # 1. TAVILY SEARCH (Text)
+    try:
+        response = tavily.search(
+            query=f"{request.query} datasheet specifications",
+            search_depth="basic",
+            max_results=5,
+        )
+        results = response.get("results", [])
+        search_context = "\n".join([f"- {r['content']}" for r in results])
+    except Exception:
+        search_context = "Search failed."
+        results = []
+
+    # 2. ASK OPENAI
+    try:
+        prompt = f"""
+        Analyze the part: "{request.query}" based on the Search Context below.
+
+        Search Context: {search_context}
+
+        --- INSTRUCTIONS ---
+
+        1. DESCRIPTION:
+           - Format strictly as: "[Part Name] [Short Generic Type]"
+           - Example 1: "IRLZ44N MOSFET"
+           - Example 2: "SS34 Schottky"
+           - Example 3: "LM358 OpAmp"
+           - Keep it extremely short (max 3-4 words). Do NOT include specs here.
+
+        2. NOTES:
+           - Extract the MAIN electrical parameters.
+           - Format strictly as comma-separated key=value pairs: "Key=Value, Key=Value"
+           - Use standard engineering abbreviations.
+           - For MOSFETs require: VDss, Id, RdsOn (or Rds).
+           - For Diodes require: Vr (Voltage), If (Current).
+           - For Regulators/ICs require: Vin, Vout, Iout (or similar).
+           - Example output: "VDss=55V, Id=47A, RdsOn=22mOhm"
+
+        3. CATEGORY/SUBCATEGORY:
+           - MAP 'Category' strictly to: {json.dumps(EXISTING_CATEGORIES)}
+           - MAP 'Subcategory' strictly to: {json.dumps(EXISTING_SUBCATS)} (or 'General').
+        """
+
+        completion = client.beta.chat.completions.parse(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a precise electronics inventory assistant."},
+                {"role": "user", "content": prompt},
+            ],
+            response_format=PartData,
+        )
+
+        data = completion.choices[0].message.parsed
+
+        # Extract PDF link
+        for r in results:
+            if ".pdf" in r.get("url", ""):
+                data.datasheet_url = r["url"]
+                break
+
+        return data
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI Error: {str(e)}")
+
+
+@app.get("/api/search-images", response_model=List[ImageResult])
+async def search_images(query: str, type: str = "part") -> List[ImageResult]:
+    if not _ai_enabled():
+        raise HTTPException(status_code=503, detail="AI Auto-Fill is disabled")
+
+    tavily = _get_tavily_client()
+    if not tavily:
+        raise HTTPException(status_code=503, detail="AI Auto-Fill is disabled")
+
+    suffix = " pinout diagram" if type == "pinout" else " electronic component"
+
+    try:
+        response = tavily.search(
+            query=query + suffix,
+            include_images=True,
+            include_answer=False,
+            max_results=6,
+        )
+        images = response.get("images", [])
+
+        clean_results: List[ImageResult] = []
+        for img_url in images:
+            if isinstance(img_url, str):
+                clean_results.append(ImageResult(title="Image", thumbnail=img_url, url=img_url, source="Web"))
+            elif isinstance(img_url, dict):
+                clean_results.append(
+                    ImageResult(
+                        title=img_url.get("description", "Image"),
+                        thumbnail=img_url.get("url", ""),
+                        url=img_url.get("url", ""),
+                        source="Web",
+                    )
+                )
+
+        return clean_results
+    except Exception:
+        return []
+
+
 def fetch_trash(
     q: str = "",
     category: str = "",
@@ -750,6 +903,7 @@ def index(
         containers=containers,
         subcategories_in_use=subcategories_in_use,
         subcategories=subcategories,
+        ai_enabled=_ai_enabled(),
     )
 
 

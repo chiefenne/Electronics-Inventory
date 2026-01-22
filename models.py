@@ -1,7 +1,7 @@
 # models.py
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field
 
 
@@ -18,3 +18,24 @@ class PartCreate(BaseModel):
 class PartUpdateCell(BaseModel):
     field: str
     value: str
+
+
+# --- AI Auto-Fill models (optional feature) ---
+class PartRequest(BaseModel):
+    query: str
+
+
+class PartData(BaseModel):
+    description: str
+    package: str
+    category: str
+    subcategory: str
+    notes: str
+    datasheet_url: Optional[str] = None
+
+
+class ImageResult(BaseModel):
+    title: str
+    thumbnail: str
+    url: str
+    source: str

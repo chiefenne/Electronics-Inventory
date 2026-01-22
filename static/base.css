@@ -217,6 +217,22 @@ body {
     padding: 0;
 }
 
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.2px;
+    line-height: 1;
+    height: 12px; /* Match font-size for consistent label height */
+}
+
 /* =========================
    Filters bar (robust)
    ========================= */
@@ -226,6 +242,31 @@ body {
     flex-wrap: wrap;
     gap: 8px;
     align-items: center;
+}
+
+.filters .field-group {
+    flex: 1 1 200px;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.filters .field-group--search {
+    flex: 2 1 320px;
+}
+
+.filters .field-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+.filters .field-group > input,
+.filters .field-group > select {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 /* Allow children to shrink correctly */
@@ -250,6 +291,22 @@ body {
     white-space: nowrap;
 }
 
+/* AI Auto-Fill image picker */
+.img-card {
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.img-card:hover {
+    transform: scale(1.03);
+    border-color: var(--blue-primary);
+}
+
+.preview-img {
+    height: 120px;
+    object-fit: contain;
+}
+
 .add {
     display: grid;
     /* 20-col grid so we can express ratios precisely without overlap.
@@ -270,29 +327,60 @@ body {
 }
 
 /* Add-form layout (desktop):
-   Row 1: Description | Notes
-   Row 2: Package | Part Image | Pinout Image
-   Row 3: Category | Subcategory
-   Row 4: Datasheet | Container
-   Row 5: Qty | Add button
+   Row 1: Description | Auto-Fill
+   Row 2: Notes
+   Row 3: Package | Part Image | Img Btn | Pinout Image | Img Btn
+   Row 4: Category | Subcategory
+   Row 5: Datasheet | Container
+   Row 6: Qty | Add button
 */
 .add .f-desc { grid-column: 1 / span 4; grid-row: 1; }
-.add .f-notes { grid-column: 5 / span 10; grid-row: 1; }
-.add .f-package { grid-column: 1 / span 2; grid-row: 2; }
-.add .f-part-img { grid-column: 5 / span 3; grid-row: 2; }
-.add .f-pinout-img { grid-column: 8 / span 3; grid-row: 2; }
+.add .f-autofill { grid-column: 5 / span 3; grid-row: 1; justify-self: start; }
+.add .f-notes { grid-column: 1 / span 14; grid-row: 2; }
 
-.add .f-category { grid-column: 1 / span 4; grid-row: 3; }
-.add .f-subcat { grid-column: 5 / span 4; grid-row: 3; }
+.add .f-package { grid-column: 1 / span 4; grid-row: 3; }
+.add .f-part-img { grid-column: 5 / span 4; grid-row: 3; }
+.add .f-part-img-btn { grid-column: 9 / span 1; grid-row: 3; }
+.add .f-pinout-img { grid-column: 10 / span 4; grid-row: 3; }
+.add .f-pinout-img-btn { grid-column: 14 / span 1; grid-row: 3; }
 
-.add .f-datasheet { grid-column: 1 / span 4; grid-row: 4; }
-.add .f-container { grid-column: 5 / span 4; grid-row: 4; }
+.add .f-category { grid-column: 1 / span 4; grid-row: 4; }
+.add .f-subcat { grid-column: 5 / span 4; grid-row: 4; }
 
-.add .f-qty { grid-column: 1 / span 1; grid-row: 5; }
+.add .f-datasheet { grid-column: 1 / span 4; grid-row: 5; }
+.add .f-container { grid-column: 5 / span 4; grid-row: 5; }
+
+.add .f-qty { grid-column: 1 / span 1; grid-row: 6; }
 .add .f-submit {
     grid-column: 2 / span 2;
-    grid-row: 5;
+    grid-row: 6;
     justify-self: start;
+    height: 42px;
+    min-height: 42px;
+    padding: 0 12px;
+    line-height: 42px;
+    align-self: end;
+}
+
+.add .f-autofill,
+.add .f-part-img-btn,
+.add .f-pinout-img-btn {
+    height: 42px;
+    min-height: 42px;
+    padding: 0 12px;
+    line-height: 42px;
+    align-self: end;
+}
+
+/* Align standalone buttons with input row (below labels) */
+.field-button {
+    margin-top: 16px; /* label height (12px) + gap (4px) */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    min-height: 42px;
+    box-sizing: border-box;
 }
 
 /* Phone: single column */
@@ -316,9 +404,12 @@ body {
     .add .f-category,
     .add .f-subcat,
     .add .f-desc,
+    .add .f-autofill,
     .add .f-package,
     .add .f-part-img,
+    .add .f-part-img-btn,
     .add .f-pinout-img,
+    .add .f-pinout-img-btn,
     .add .f-container,
     .add .f-qty,
     .add .f-notes,
@@ -341,6 +432,12 @@ select {
 
     background: #ffffff;
     color: var(--text-main);
+}
+
+.field-group > input,
+.field-group > select,
+.field-group > textarea {
+    width: 100%;
 }
 
 button {
@@ -581,6 +678,7 @@ select:focus {
    ========================= */
 
 .btn {
+    box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -853,9 +951,12 @@ select:focus {
     .add .f-category,
     .add .f-subcat,
     .add .f-desc,
+    .add .f-autofill,
     .add .f-package,
     .add .f-part-img,
+    .add .f-part-img-btn,
     .add .f-pinout-img,
+    .add .f-pinout-img-btn,
     .add .f-container,
     .add .f-qty,
     .add .f-notes,

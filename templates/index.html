@@ -5,28 +5,40 @@
     <h3 class="panel-title">Search parts</h3>
     <form class="filters" hx-get="/partials/table" hx-target="#table" hx-trigger="keyup changed delay:300ms, change"
         onsubmit="return false;">
-        <input type="text" name="q" placeholder="Search (LM358, ADS1115, BX-03…)" value="{{ q }}" />
+        <label class="field-group field-group--search" for="filter-q">
+            <span class="field-label">Search</span>
+            <input id="filter-q" type="text" name="q" placeholder="LM358, ADS1115, BX-03…" value="{{ q }}" />
+        </label>
 
-        <select name="category">
-            <option value="">All categories</option>
-            {% for c in categories %}
-            <option value="{{ c }}" {% if c==category %}selected{% endif %}>{{ c }}</option>
-            {% endfor %}
-        </select>
+        <label class="field-group" for="filter-category">
+            <span class="field-label">Category</span>
+            <select id="filter-category" name="category">
+                <option value="">All</option>
+                {% for c in categories %}
+                <option value="{{ c }}" {% if c==category %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </label>
 
-        <select name="subcategory">
-            <option value="">All subcategories</option>
-            {% for s in subcategories_in_use %}
-            <option value="{{ s }}" {% if s==subcategory %}selected{% endif %}>{{ s }}</option>
-            {% endfor %}
-        </select>
+        <label class="field-group" for="filter-subcategory">
+            <span class="field-label">Subcategory</span>
+            <select id="filter-subcategory" name="subcategory">
+                <option value="">All</option>
+                {% for s in subcategories_in_use %}
+                <option value="{{ s }}" {% if s==subcategory %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </label>
 
-        <select name="container_id">
-            <option value="">All containers</option>
-            {% for c in containers %}
-            <option value="{{ c }}" {% if c==container_id %}selected{% endif %}>{{ c }}</option>
-            {% endfor %}
-        </select>
+        <label class="field-group" for="filter-container">
+            <span class="field-label">Container</span>
+            <select id="filter-container" name="container_id">
+                <option value="">All</option>
+                {% for c in containers %}
+                <option value="{{ c }}" {% if c==container_id %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </label>
     </form>
 </section>
 
@@ -34,60 +46,108 @@
     <h3 class="panel-title">Enter new part</h3>
 
     <form class="add" hx-post="/parts" hx-target="#table" hx-swap="innerHTML">
-     <input class="f-desc" name="description"
-               placeholder="Description (LM358 DIP, ADS1115 board…)"
+     <div class="field-group f-desc">
+         <label class="field-label" for="part-description">Description</label>
+         <input name="description" id="part-description"
+               placeholder="LM358 DIP, ADS1115 board…"
                title="What you will actually search for (MPN, package, key detail)."
                required />
+     </div>
 
-     <input class="f-notes" name="notes"
-         placeholder="Notes (optional)"
-         title="Free text for anything that doesn't fit elsewhere." />
+     <!-- AI Auto-Fill (optional) -->
+     <button class="btn f-autofill field-button" type="button" id="btn-autofill"
+         data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}" disabled
+         onclick="runAgent()">
+         ✨ Auto-Fill
+     </button>
 
-     <input class="f-package" name="package"
-               placeholder="Package (DIP, SOIC, Module…)"
+     <div class="field-group f-notes">
+         <label class="field-label" for="part-notes">Notes</label>
+         <input name="notes" id="part-notes"
+             placeholder="optional"
+             title="Free text for anything that doesn't fit elsewhere." />
+     </div>
+
+     <div class="field-group f-package">
+         <label class="field-label" for="part-package">Package</label>
+         <input name="package" id="part-package"
+               placeholder="DIP, SOIC, Module…"
                title="Physical form factor (DIP, SOIC, 0603, Module)." />
+     </div>
 
-     <input class="f-part-img" name="image_url"
-               placeholder="Part image"
+     <div class="field-group f-part-img">
+         <label class="field-label" for="part-image-url">Part image</label>
+         <input name="image_url" id="part-image-url"
+               placeholder="filename or URL"
                title="Filename or URL of the part image." />
+     </div>
 
-     <input class="f-pinout-img" name="pinout_url"
-               placeholder="Pinout image"
+     <button class="btn f-part-img-btn field-button" type="button" aria-label="Find part images"
+         data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
+         {% if not ai_enabled %}disabled{% endif %}
+         onclick="openImageSearch('part')">📷</button>
+
+     <div class="field-group f-pinout-img">
+         <label class="field-label" for="part-pinout-url">Pinout image</label>
+         <input name="pinout_url" id="part-pinout-url"
+               placeholder="filename or URL"
                title="Filename or URL of the pinout diagram." />
+     </div>
 
-     <input class="f-qty" name="quantity"
+     <button class="btn f-pinout-img-btn field-button" type="button" aria-label="Find pinout images"
+         data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
+         {% if not ai_enabled %}disabled{% endif %}
+         onclick="openImageSearch('pinout')">📐</button>
+
+     <div class="field-group f-qty">
+         <label class="field-label" for="part-quantity">Qty</label>
+         <input name="quantity" id="part-quantity"
                type="number"
                min="0"
                value="0"
+               placeholder="0"
                title="Approximate stock count (can be updated anytime)." />
+     </div>
 
-     <input class="f-category" name="category"
-         placeholder="Category (IC, MCU, PASSIVE…)"
-         list="dl-categories"
-         autocomplete="off"
-         spellcheck="false"
-         title="What kind of item this is physically (IC, board, module, passive)."
-         required />
+     <div class="field-group f-category">
+         <label class="field-label" for="part-category">Category</label>
+         <input name="category" id="part-category"
+             placeholder="IC, MCU, PASSIVE…"
+             list="dl-categories"
+             autocomplete="off"
+             spellcheck="false"
+             title="What kind of item this is physically (IC, board, module, passive)."
+             required />
+     </div>
 
-     <input class="f-subcat" name="subcategory"
-         placeholder="Subcategory (OpAmp, Logic…)"
-         list="dl-subcategories"
-         autocomplete="off"
-         spellcheck="false"
-         title="Optional technical role or family (MCU, OpAmp, DC/DC, Encoder)." />
+     <div class="field-group f-subcat">
+         <label class="field-label" for="part-subcategory">Subcategory</label>
+         <input name="subcategory" id="part-subcategory"
+             placeholder="OpAmp, Logic…"
+             list="dl-subcategories"
+             autocomplete="off"
+             spellcheck="false"
+             title="Optional technical role or family (MCU, OpAmp, DC/DC, Encoder)." />
+     </div>
 
-     <button class="btn f-submit" type="submit">Add</button>
+    <button class="btn f-submit field-button" type="submit">Add</button>
 
-     <input class="f-datasheet" name="datasheet_url"
-               placeholder="Datasheet URL"
+    <div class="field-group f-datasheet">
+        <label class="field-label" for="part-datasheet-url">Datasheet</label>
+        <input name="datasheet_url" id="part-datasheet-url"
+               placeholder="https://…"
                title="Link to the datasheet (URL)." />
+    </div>
 
-     <input class="f-container" name="container_id"
-               placeholder="Container (BX-03, DR-01…)"
+    <div class="field-group f-container">
+        <label class="field-label" for="part-container-id">Container</label>
+        <input name="container_id" id="part-container-id"
+               placeholder="BX-03, DR-01…"
                list="dl-containers"
                autocomplete="off"
                spellcheck="false"
                title="Physical storage location (box, drawer, compartment)." />
+    </div>
     </form>
 
     <!-- Suggestions -->
@@ -114,6 +174,24 @@
 <section class="panel" id="table">
     {% include "_table.html" %}
 </section>
+
+<!-- AI Auto-Fill: Image Picker Modal (Bootstrap) -->
+<div class="modal fade" id="imagePickerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="imageLoading" class="text-center my-3 d-none">
+                    <div class="spinner-border text-primary"></div>
+                </div>
+                <div id="imageGrid" class="row g-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 (() => {
@@ -160,16 +238,49 @@
     // Save before HTMX sends (covers session expiry redirect)
     form.addEventListener("htmx:beforeRequest", saveDraft);
 
+
+    // Restore on page load
+    restoreDraft();
+
+    // AI Auto-Fill button state (requires keys + min 3 chars)
+    const autoFillBtn = document.getElementById("btn-autofill");
+    const descInput = document.getElementById("part-description");
+    const aiEnabled = autoFillBtn?.dataset?.aiEnabled === "true";
+
+    // Add button state (requires quantity > 0)
+    const qtyInput = document.getElementById("part-quantity");
+    const addBtn = form.querySelector(".f-submit");
+
+    const updateAddState = () => {
+        if (!qtyInput || !addBtn) return;
+        const qty = parseInt(qtyInput.value, 10);
+        addBtn.disabled = !(Number.isFinite(qty) && qty > 0);
+    };
+
+    const updateAutoFillState = () => {
+        if (!autoFillBtn || !descInput) return;
+        const hasText = descInput.value.trim().length >= 3;
+        autoFillBtn.disabled = !(aiEnabled && hasText);
+    };
+
+    if (autoFillBtn && descInput) {
+        descInput.addEventListener("input", updateAutoFillState);
+        updateAutoFillState();
+    }
+
+    if (qtyInput && addBtn) {
+        qtyInput.addEventListener("input", updateAddState);
+        updateAddState();
+    }
+
     // Clear on successful response (part added)
     form.addEventListener("htmx:afterOnLoad", (e) => {
         if (e.detail.successful) {
             clearDraft();
             form.reset();
+            updateAddState();
         }
     });
-
-    // Restore on page load
-    restoreDraft();
 
     // Duplicate button handler
     document.addEventListener("click", (e) => {
@@ -190,6 +301,119 @@
         setTimeout(() => form.querySelector('[name="description"]').focus(), 300);
     });
 })();
+
+// --- AI Auto-Fill helpers (optional feature) ---
+let currentImageTarget = null;
+
+async function runAgent() {
+    const descInput = document.getElementById("part-description");
+    const btn = document.getElementById("btn-autofill");
+    if (!descInput || !btn || btn.disabled) return;
+
+    const query = descInput.value.trim();
+    if (query.length < 3) return;
+
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "Thinking...";
+
+    try {
+        const res = await fetch("/api/fill-part", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query })
+        });
+
+        if (!res.ok) throw new Error("Agent failed");
+        const data = await res.json();
+
+        const map = {
+            "part-description": data.description,
+            "part-notes": data.notes,
+            "part-category": data.category,
+            "part-subcategory": data.subcategory,
+            "part-package": data.package,
+            "part-datasheet-url": data.datasheet_url || "",
+        };
+
+        Object.entries(map).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (el && value !== undefined && value !== null) {
+                el.value = value;
+            }
+        });
+    } catch (e) {
+        alert("Error: " + e.message);
+    } finally {
+        btn.textContent = originalText;
+        const aiEnabled = btn.dataset.aiEnabled === "true";
+        const descInputCheck = document.getElementById("part-description");
+        const hasText = !!descInputCheck && descInputCheck.value.trim().length >= 3;
+        btn.disabled = !(aiEnabled && hasText);
+    }
+}
+
+async function openImageSearch(type) {
+    const aiEnabledBtn = document.getElementById("btn-autofill");
+    if (aiEnabledBtn && aiEnabledBtn.dataset.aiEnabled !== "true") {
+        alert("AI Auto-Fill is disabled.");
+        return;
+    }
+
+    const descInput = document.getElementById("part-description");
+    if (!descInput || descInput.value.trim().length < 3) {
+        alert("Enter a part description first.");
+        return;
+    }
+
+    currentImageTarget = (type === "pinout") ? "part-pinout-url" : "part-image-url";
+
+    const grid = document.getElementById("imageGrid");
+    const spinner = document.getElementById("imageLoading");
+    if (!grid || !spinner) return;
+
+    grid.innerHTML = "";
+    spinner.classList.remove("d-none");
+
+    const modalEl = document.getElementById("imagePickerModal");
+    if (modalEl && window.bootstrap) {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+
+    try {
+        const res = await fetch(`/api/search-images?query=${encodeURIComponent(descInput.value.trim())}&type=${type}`);
+        const images = await res.json();
+
+        spinner.classList.add("d-none");
+        if (!images.length) {
+            grid.innerHTML = '<p class="text-danger">No images found.</p>';
+            return;
+        }
+
+        images.forEach(img => {
+            const col = document.createElement("div");
+            col.className = "col-6 col-md-4 col-lg-2";
+            col.innerHTML = `
+                <div class="card img-card h-100" onclick="selectImage('${img.url}')">
+                    <img src="${img.url}" class="card-img-top preview-img">
+                    <div class="card-body p-1 text-center">
+                        <small class="text-muted" style="font-size:10px">${img.source || "Web"}</small>
+                    </div>
+                </div>`;
+            grid.appendChild(col);
+        });
+    } catch (e) {
+        spinner.classList.add("d-none");
+        grid.innerHTML = '<p class="text-danger">Search failed.</p>';
+    }
+}
+
+function selectImage(url) {
+    if (!currentImageTarget) return;
+    const target = document.getElementById(currentImageTarget);
+    if (target) target.value = url;
+}
 </script>
 
 {% endblock %}
