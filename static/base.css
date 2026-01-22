@@ -737,11 +737,14 @@ select:focus {
 .btn.icon {
     width: 34px;
     height: 34px;
+    min-width: 34px;
+    min-height: 34px;
     padding: 0;
     text-align: center;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    vertical-align: middle;
 }
 
 /* Inline SVG icons: consistent sizing and alignment */
@@ -782,12 +785,13 @@ select:focus {
 /* Table action buttons: keep in one row on desktop, stack on small screens */
 .tbl td.actions {
     white-space: nowrap;
-    vertical-align: top !important;
+    vertical-align: middle !important;
 }
 
 .tbl td.actions > * {
     display: inline-flex;
     align-items: center;
+    vertical-align: middle;
     gap: 8px;
 }
 
