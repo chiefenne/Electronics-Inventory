@@ -307,6 +307,42 @@ body {
     object-fit: contain;
 }
 
+/* Custom instant tooltip (works on disabled buttons too) */
+.tooltip-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.tooltip-wrapper::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 14px;
+    background: linear-gradient(180deg, var(--bg-header-top), var(--bg-header-bot));
+    color: #f2f7fc;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: normal;
+    width: max-content;
+    max-width: 280px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.1s, visibility 0.1s;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.tooltip-wrapper:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
 .add {
     display: grid;
     /* 20-col grid so we can express ratios precisely without overlap.
@@ -318,7 +354,7 @@ body {
     grid-auto-rows: auto;
     /* slightly larger than the default so inputs don't look glued together */
     gap: 10px 12px;
-    align-items: center;
+    align-items: end;
 }
 
 /* Important: allow inputs to shrink properly */
@@ -359,22 +395,19 @@ body {
     min-height: 42px;
     padding: 0 12px;
     line-height: 42px;
-    align-self: end;
 }
 
-.add .f-autofill,
+.add .f-autofill .btn,
 .add .f-part-img-btn,
 .add .f-pinout-img-btn {
     height: 42px;
     min-height: 42px;
     padding: 0 12px;
     line-height: 42px;
-    align-self: end;
 }
 
 /* Align standalone buttons with input row (below labels) */
 .field-button {
-    margin-top: 16px; /* label height (12px) + gap (4px) */
     display: inline-flex;
     align-items: center;
     justify-content: center;

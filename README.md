@@ -9,8 +9,9 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 
 - Add, inline-edit, and delete parts
 - Duplicate parts (pre-fills add form for quick variations)
+- **AI Auto-Fill** (optional): automatically populate part data from a description using OpenAI + Tavily web search
 - **Part detail page**: click any part description to view a dedicated page with all metadata, images, and datasheet in an organized layout
-- Search + filter by category and container (free-text search also matches container codes like `BX-50`)
+- Search + filter by category, subcategory, and container (free-text search also matches container codes like `BX-50`)
 - Click a container chip in the table to open the container page
 - CSV export
 - Optional links per part: datasheet + pinout (quick-open buttons in the table)
@@ -67,6 +68,53 @@ More screenshots:
 - FastAPI (serves HTML)
 - Jinja2 templates
 - SQLite (stored in `inventory.db`)
+- OpenAI API (optional, for AI Auto-Fill)
+- Tavily API (optional, for web/image search)
+
+## AI Auto-Fill (optional)
+
+The **✨ Auto-Fill** button uses AI to automatically populate part data from a description. It searches the web for datasheets and specifications, then extracts structured data.
+
+### How it works
+
+1. Enter a part description (e.g., "LM358 DIP" or "ADS1115 I2C ADC module")
+2. Click **✨ Auto-Fill**
+3. The system uses Tavily to search for datasheets and technical information
+4. OpenAI extracts and structures the data (package, category, subcategory, notes, datasheet URL)
+5. Form fields are populated automatically — review and adjust as needed
+
+### Image search
+
+The 📷 (part image) and 📐 (pinout image) buttons let you search for images:
+
+1. Click the camera or pinout button next to the image field
+2. A modal displays image results from Tavily image search
+3. Click an image to select it — the URL is inserted into the field
+
+### Setup
+
+To enable AI features, set these environment variables:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+export TAVILY_API_KEY="tvly-..."
+```
+
+Both keys are required. If either is missing, the Auto-Fill and image search buttons will be disabled.
+
+**Get API keys:**
+- OpenAI: https://platform.openai.com/api-keys
+- Tavily: https://tavily.com/ (free tier available)
+
+### Dependencies
+
+The AI features require additional Python packages (already in `requirements.txt`):
+
+```bash
+pip install openai tavily-python
+```
+
+If these packages are not installed, AI features will be gracefully disabled.
 
 ## Quickstart (local)
 

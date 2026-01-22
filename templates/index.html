@@ -55,11 +55,14 @@
      </div>
 
      <!-- AI Auto-Fill (optional) -->
-     <button class="btn f-autofill field-button" type="button" id="btn-autofill"
-         data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}" disabled
-         onclick="runAgent()">
-         ✨ Auto-Fill
-     </button>
+     <span class="tooltip-wrapper f-autofill"
+           data-tooltip="AI-powered auto-fill using OpenAI and Tavily. Requires OPENAI_API_KEY and TAVILY_API_KEY environment variables.">
+         <button class="btn field-button" type="button" id="btn-autofill"
+             data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}" disabled
+             onclick="runAgent()">
+             ✨ Auto-Fill
+         </button>
+     </span>
 
      <div class="field-group f-notes">
          <label class="field-label" for="part-notes">Notes</label>

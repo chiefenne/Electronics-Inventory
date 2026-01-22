@@ -118,10 +118,55 @@
 </section>
 
 <section class="panel help">
+    <h3>AI Auto-Fill (Optional)</h3>
+    <p>
+        The <b>✨ Auto-Fill</b> button uses AI to automatically populate part data from a description.
+        It searches the web for datasheets and specifications, then extracts structured information.
+    </p>
+    <h4>How to use</h4>
+    <ol>
+        <li>Enter a part description (e.g., <span class="mono">LM358 DIP</span> or <span class="mono">ADS1115 I2C ADC module</span>)</li>
+        <li>Click <b>✨ Auto-Fill</b> (button enables after typing at least 3 characters)</li>
+        <li>Wait for the AI to search and extract data</li>
+        <li>Review the populated fields and adjust as needed</li>
+    </ol>
+    <h4>What gets filled</h4>
+    <ul>
+        <li><b>Package:</b> physical form factor (DIP, SOIC, Module, etc.)</li>
+        <li><b>Category:</b> suggested category based on part type</li>
+        <li><b>Subcategory:</b> more specific classification</li>
+        <li><b>Notes:</b> key specifications and features</li>
+        <li><b>Datasheet:</b> URL to official datasheet (if found)</li>
+    </ul>
+    <h4>Image search</h4>
+    <p>
+        The <b>📷</b> (part image) and <b>📐</b> (pinout image) buttons let you search for images:
+    </p>
+    <ol>
+        <li>Click the camera or ruler button next to the image field</li>
+        <li>A modal displays image results from web search</li>
+        <li>Click an image to select it — the URL is inserted into the field</li>
+    </ol>
+    <h4>Requirements</h4>
+    <p>
+        AI features require two API keys to be configured as environment variables:
+    </p>
+    <ul>
+        <li><b>OPENAI_API_KEY:</b> for GPT-powered data extraction (<a href="https://platform.openai.com/api-keys" target="_blank">get key</a>)</li>
+        <li><b>TAVILY_API_KEY:</b> for web and image search (<a href="https://tavily.com/" target="_blank">get key</a> — free tier available)</li>
+    </ul>
+    <p class="muted">
+        If either key is missing or the required Python packages (<span class="mono">openai</span>, <span class="mono">tavily-python</span>) are not installed,
+        the Auto-Fill and image search buttons will be disabled.
+    </p>
+</section>
+
+<section class="panel help">
     <h3>Daily Workflow</h3>
     <ol>
         <li><b>Add a part:</b> assign category & container, write a searchable description, set approximate quantity.
         </li>
+        <li><b>Use Auto-Fill:</b> optionally click <b>✨ Auto-Fill</b> to let AI populate package, category, notes, and datasheet.</li>
         <li><b>Duplicate a part:</b> click the duplicate icon to pre-fill the add form with an existing part's data — useful for adding variations (e.g., same component, different value).</li>
         <li><b>Find parts:</b> search by description, category, or container code.</li>
         <li><b>View part details:</b> click any part description to open a dedicated page showing all metadata, images, and datasheet in an organized layout.</li>
