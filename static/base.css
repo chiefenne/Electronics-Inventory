@@ -1017,12 +1017,6 @@ select:focus {
     cursor: pointer;
 }
 
-.cell:after {
-    content: " ✎";
-    color: #bbb;
-    font-size: 11px;
-}
-
 .cell:hover:after {
     color: #777;
 }
