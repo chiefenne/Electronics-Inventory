@@ -5,3 +5,5 @@ python-multipart
 qrcode
 pillow
 passlib
+openai
+tavily-python
