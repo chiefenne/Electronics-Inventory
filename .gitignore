@@ -19,6 +19,7 @@ inventory.db
 *.sqlite3
 codebase.zip
 command.sh
+00_Diverses/
 
 # User-managed assets (often large / personal)
 # Keep the folders in git (via .gitkeep), but ignore user content.
