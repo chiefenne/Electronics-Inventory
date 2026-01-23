@@ -145,8 +145,19 @@
     <ol>
         <li>Click the camera or ruler button next to the image field</li>
         <li>A modal displays image results from web search</li>
-        <li>Click an image to select it — the URL is inserted into the field</li>
+        <li>Click an image to select it — the image is <b>downloaded and saved locally</b></li>
     </ol>
+    <p>
+        When you click an image:
+    </p>
+    <ul>
+        <li>Part images are saved to <span class="mono">static/images/</span></li>
+        <li>Pinout images are saved to <span class="mono">static/pinouts/</span></li>
+        <li>The filename (based on the part description) is inserted into the field</li>
+    </ul>
+    <p class="muted">
+        This ensures images are stored permanently and won't break if external sources change or go offline.
+    </p>
     <h4>Requirements</h4>
     <p>
         AI features require two API keys to be configured as environment variables:

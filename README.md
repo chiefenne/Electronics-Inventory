@@ -89,7 +89,12 @@ The 📷 (part image) and 📐 (pinout image) buttons let you search for images:
 
 1. Click the camera or pinout button next to the image field
 2. A modal displays image results from Tavily image search
-3. Click an image to select it — the URL is inserted into the field
+3. Click an image to select it — the image is **downloaded and saved locally**:
+   - Part images are saved to `static/images/`
+   - Pinout images are saved to `static/pinouts/`
+   - The filename (based on the part description) is inserted into the field
+
+This ensures images are stored permanently and won't break if external sources change or go offline.
 
 ### Setup
 
