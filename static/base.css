@@ -973,6 +973,35 @@ select:focus {
     align-items: center;
 }
 
+/* Allow edit forms to overflow their table cell so custom widths apply */
+.tbl td:has(.edit) {
+    overflow: visible;
+}
+
+.edit-description input {
+    width: 150px !important;
+}
+
+.edit-package input {
+    width: 100px !important;
+}
+
+.edit-quantity input[name="value"] {
+    width: 70px !important;
+}
+
+.edit-quantity input[name="stock_levels"] {
+    width: 60px !important;
+}
+
+.edit-category select {
+    width: 120px !important;
+}
+
+.edit-subcategory input {
+    width: 120px !important;
+}
+
 .footer {
     padding: 10px 20px;
     color: #555;

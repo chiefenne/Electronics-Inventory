@@ -134,6 +134,21 @@
     <script src="/static/qty_optimistic.js"></script>
 
     <script>
+        // ESC key cancels inline edit forms
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                var editForm = e.target.closest('.edit');
+                if (editForm) {
+                    var cancelBtn = editForm.querySelector('button[hx-get]');
+                    if (cancelBtn) {
+                        cancelBtn.click();
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script>
         // Inline edit for detail page quantity
         function editQtyInline(uuid, currentQty, stockLevels) {
             const container = document.getElementById('meta-qty-item-' + uuid);

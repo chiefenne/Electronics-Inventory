@@ -2,7 +2,7 @@
     {# Description #}
     {% if field == "description" %}
     <td class="cell" data-label="Description">
-        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/description" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+        <form class="edit edit-description" hx-post="/parts/{{ part.uuid }}/edit/description" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
             <input name="value" value="{{ part.get('description','') }}" autofocus />
             <button class="btn secondary icon icon-lg" type="submit" title="Save" aria-label="Save">
                 <img src="/static/icons/Green_Checkmark_Circle.svg" alt="" aria-hidden="true" />
@@ -19,7 +19,7 @@
     {# Package #}
     {% if field == "package" %}
     <td class="cell" data-label="Package">
-        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/package" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+        <form class="edit edit-package" hx-post="/parts/{{ part.uuid }}/edit/package" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
             <input name="value" value="{{ part.get('package','') }}" autofocus />
             <button class="btn secondary icon icon-lg" type="submit" title="Save" aria-label="Save">
                 <img src="/static/icons/Green_Checkmark_Circle.svg" alt="" aria-hidden="true" />
@@ -65,7 +65,7 @@
     {# Qty #}
     {% if field == "quantity" %}
     <td class="cell mono" data-label="Qty">
-        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/quantity" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+        <form class="edit edit-quantity" hx-post="/parts/{{ part.uuid }}/edit/quantity" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
             <input name="value" value="{{ part.get('quantity', 0) }}" type="number" min="0" autofocus />
 
             {% if part.get('stock_warn_min') is not none %}
@@ -142,7 +142,7 @@
     {# Category #}
     {% if field == "category" %}
     <td class="cell" data-label="Category">
-        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/category" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+        <form class="edit edit-category" hx-post="/parts/{{ part.uuid }}/edit/category" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
             <select name="value" autofocus>
                 {% for cat in categories %}
                 <option value="{{ cat }}" {% if cat==part.category %}selected{% endif %}>{{ cat }}</option>
@@ -163,7 +163,7 @@
     {# Subcategory #}
     {% if field == "subcategory" %}
     <td class="cell" data-label="Subcategory">
-        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+        <form class="edit edit-subcategory" hx-post="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
             <input name="value" value="{{ part.get('subcategory','') }}" autofocus />
             <button class="btn secondary icon icon-lg" type="submit" title="Save" aria-label="Save">
                 <img src="/static/icons/Green_Checkmark_Circle.svg" alt="" aria-hidden="true" />
