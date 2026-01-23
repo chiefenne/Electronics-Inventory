@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 import qrcode
 from io import BytesIO
 import base64
+import httpx
 
 from fastapi import FastAPI, Form, Request, Query
 from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse, StreamingResponse
@@ -32,7 +33,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from db import get_conn, init_db, \
     list_containers, list_categories, list_subcategories, \
     ensure_container, ensure_category, ensure_subcategory
-from models import PartRequest, PartData, ImageResult
+from models import PartRequest, PartData, ImageResult, ImageDownloadRequest
 
 try:
     from openai import OpenAI
@@ -749,6 +750,90 @@ async def search_images(query: str, type: str = "part") -> List[ImageResult]:
         return clean_results
     except Exception:
         return []
+
+
+@app.post("/api/download-image")
+async def download_image(req: ImageDownloadRequest) -> Dict[str, str]:
+    """Download an image from URL and save it locally to /static/images or /static/pinouts."""
+
+    # Determine target folder
+    if req.type == "pinout":
+        target_dir = STATIC_DIR / "pinouts"
+        suffix = "_pinout"
+    else:
+        target_dir = STATIC_DIR / "images"
+        suffix = ""
+
+    # Sanitize part description for use as filename
+    # Remove special characters, replace spaces with underscores
+    safe_name = re.sub(r'[^\w\s-]', '', req.part_description.strip())
+    safe_name = re.sub(r'[\s]+', '_', safe_name)
+    if not safe_name:
+        safe_name = f"image_{secrets.token_hex(4)}"
+
+    # Try to determine file extension from URL
+    parsed = urlparse(req.url)
+    url_path = parsed.path.lower()
+
+    # Map common extensions
+    ext = ".jpg"  # default
+    for extension in [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"]:
+        if url_path.endswith(extension):
+            ext = extension
+            break
+
+    # Build final filename
+    filename = f"{safe_name}{suffix}{ext}"
+    filepath = target_dir / filename
+
+    # If file already exists, add a short random suffix
+    if filepath.exists():
+        filename = f"{safe_name}{suffix}_{secrets.token_hex(3)}{ext}"
+        filepath = target_dir / filename
+
+    try:
+        # Download the image with httpx (async-friendly)
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+            response = await client.get(req.url, headers={
+                "User-Agent": "Mozilla/5.0 (compatible; ElectronicsInventory/1.0)"
+            })
+            response.raise_for_status()
+
+            # Check content type to ensure it's an image
+            content_type = response.headers.get("content-type", "").lower()
+            if not any(t in content_type for t in ["image/", "application/octet-stream"]):
+                raise HTTPException(status_code=400, detail=f"URL did not return an image (got {content_type})")
+
+            # Optionally update extension based on content-type
+            if "png" in content_type:
+                ext = ".png"
+            elif "gif" in content_type:
+                ext = ".gif"
+            elif "webp" in content_type:
+                ext = ".webp"
+            elif "svg" in content_type:
+                ext = ".svg"
+            # Rebuild filename if content-type gave us a better extension
+            if not filename.endswith(ext):
+                filename = f"{safe_name}{suffix}{ext}"
+                filepath = target_dir / filename
+                if filepath.exists():
+                    filename = f"{safe_name}{suffix}_{secrets.token_hex(3)}{ext}"
+                    filepath = target_dir / filename
+
+            # Write the file
+            filepath.write_bytes(response.content)
+
+        # Return the local path (relative to static, for use in templates)
+        local_path = filename
+        return {"filename": local_path, "path": str(filepath)}
+
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=502, detail=f"Failed to download image: HTTP {e.response.status_code}")
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=502, detail=f"Failed to download image: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save image: {str(e)}")
 
 
 def fetch_trash(

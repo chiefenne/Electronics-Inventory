@@ -398,7 +398,7 @@ async function openImageSearch(type) {
             const col = document.createElement("div");
             col.className = "col-6 col-md-4 col-lg-2";
             col.innerHTML = `
-                <div class="card img-card h-100" onclick="selectImage('${img.url}')">
+                <div class="card img-card h-100" data-url="${img.url}" onclick="selectAndDownloadImage(this)">
                     <img src="${img.url}" class="card-img-top preview-img">
                     <div class="card-body p-1 text-center">
                         <small class="text-muted" style="font-size:10px">${img.source || "Web"}</small>
@@ -416,6 +416,51 @@ function selectImage(url) {
     if (!currentImageTarget) return;
     const target = document.getElementById(currentImageTarget);
     if (target) target.value = url;
+}
+
+async function selectAndDownloadImage(cardEl) {
+    if (!currentImageTarget) return;
+
+    const url = cardEl.dataset.url;
+    const target = document.getElementById(currentImageTarget);
+    const descInput = document.getElementById("part-description");
+    const partDescription = descInput ? descInput.value.trim() : "image";
+    const type = currentImageTarget === "part-pinout-url" ? "pinout" : "part";
+
+    // Show loading state on the clicked card
+    const originalContent = cardEl.innerHTML;
+    cardEl.innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
+    cardEl.style.pointerEvents = "none";
+
+    try {
+        const res = await fetch("/api/download-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url, type, part_description: partDescription })
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || "Download failed");
+        }
+
+        const data = await res.json();
+        // Set the local filename in the input field
+        if (target) target.value = data.filename;
+
+        // Close the modal
+        const modalEl = document.getElementById("imagePickerModal");
+        if (modalEl && window.bootstrap) {
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }
+
+    } catch (e) {
+        alert("Failed to download image: " + e.message);
+        // Restore card content on error
+        cardEl.innerHTML = originalContent;
+        cardEl.style.pointerEvents = "";
+    }
 }
 </script>
 

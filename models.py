@@ -39,3 +39,9 @@ class ImageResult(BaseModel):
     thumbnail: str
     url: str
     source: str
+
+
+class ImageDownloadRequest(BaseModel):
+    url: str
+    type: str = "part"  # "part" or "pinout"
+    part_description: str  # Used to generate filename
