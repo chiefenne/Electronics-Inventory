@@ -132,7 +132,44 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- AI Image Picker Modal (shared across all pages) -->
+    <div class="modal fade" id="imagePickerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imagePickerTitle">Select Image</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="imageLoading" class="text-center my-3 d-none">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                    <div id="imageGrid" class="row g-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Datasheet Picker Modal -->
+    <div class="modal fade" id="datasheetPickerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select Datasheet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="datasheetLoading" class="text-center my-3 d-none">
+                        <div class="spinner-border text-primary"></div>
+                    </div>
+                    <div id="datasheetList" class="list-group"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/static/qty_optimistic.js"></script>
+    <script src="/static/image_search.js"></script>
 
     <script>
         // ESC key cancels inline edit forms

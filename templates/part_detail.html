@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 
+{# Pass AI enabled state to JavaScript #}
+<script>window.AI_ENABLED = {{ ai_enabled | default(false) | tojson }};</script>
+<script>window.PART_DESCRIPTION = {{ part.description | tojson }};</script>
+
 <section class="panel part-detail-panel">
     <div class="part-detail-header">
         <a href="/" class="btn secondary" title="Back to inventory">
@@ -105,60 +109,102 @@
     <div class="part-detail-section">
         <h3>Images</h3>
         <div class="part-detail-images">
-            <div class="part-detail-image-box">
-                <h4>Device Image</h4>
-                {% if has_image %}
-                    {% set image_url_l = image_url|lower %}
-                    {% if image_url_l.endswith('.png')
-                          or image_url_l.endswith('.jpg')
-                          or image_url_l.endswith('.jpeg')
-                          or image_url_l.endswith('.gif')
-                          or image_url_l.endswith('.webp')
-                          or image_url_l.endswith('.svg') %}
-                        <a href="{{ image_url }}" target="_blank" rel="noopener" title="Open full size">
-                            <img src="{{ image_url }}" alt="Device image" class="part-detail-image" loading="lazy" />
-                        </a>
+            {# Device Image Box #}
+            <div class="part-detail-image-box" id="image-box-{{ part.uuid }}">
+                <h4>
+                    Device Image
+                    <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'image_url')" title="Edit device image" aria-label="Edit device image">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px"><path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+                    </button>
+                </h4>
+                <div id="image-display-{{ part.uuid }}">
+                    {% if has_image %}
+                        {% set image_url_l = image_url|lower %}
+                        {% if image_url_l.endswith('.png')
+                              or image_url_l.endswith('.jpg')
+                              or image_url_l.endswith('.jpeg')
+                              or image_url_l.endswith('.gif')
+                              or image_url_l.endswith('.webp')
+                              or image_url_l.endswith('.svg') %}
+                            <a href="{{ image_url }}" target="_blank" rel="noopener" title="Open full size">
+                                <img src="{{ image_url }}" alt="Device image" class="part-detail-image" loading="lazy" />
+                            </a>
+                        {% else %}
+                            <a href="{{ image_url }}" target="_blank" rel="noopener" class="btn secondary">Open Device Image</a>
+                        {% endif %}
                     {% else %}
-                        <a href="{{ image_url }}" target="_blank" rel="noopener" class="btn secondary">Open Device Image</a>
+                        <div class="part-detail-image-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
+                                <path fill="currentColor" d="M8.5 13.5l2.5 3l3.5-4.5l4.5 6H5m16 1V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/>
+                            </svg>
+                            <span class="placeholder-text">No image</span>
+                        </div>
                     {% endif %}
-                {% else %}
-                    <div class="part-detail-image-placeholder">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
-                            <path fill="currentColor" d="M8.5 13.5l2.5 3l3.5-4.5l4.5 6H5m16 1V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/>
-                        </svg>
-                        <span class="placeholder-text">No image</span>
+                </div>
+                {# Inline edit form (hidden by default) #}
+                <div id="image-edit-{{ part.uuid }}" class="part-detail-edit-form" style="display:none;">
+                    <div class="edit-form-row">
+                        <input type="text" id="input-image_url-{{ part.uuid }}" value="{{ image_url }}" placeholder="filename.jpg or https://..." class="edit-input" />
+                        <button type="button" class="btn secondary icon" onclick="searchImageForPart('{{ part.uuid }}', 'part')" title="AI Search" aria-label="AI Search">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px"><path fill="currentColor" d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5l-1.5 1.5l-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16A6.5 6.5 0 0 1 3 9.5A6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14S14 12 14 9.5S12 5 9.5 5Z"/></svg>
+                        </button>
                     </div>
-                {% endif %}
+                    <div class="edit-form-actions">
+                        <button type="button" class="btn secondary" onclick="saveImageField('{{ part.uuid }}', 'image_url')">Save</button>
+                        <button type="button" class="btn secondary" onclick="toggleImageEdit('{{ part.uuid }}', 'image_url')">Cancel</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="part-detail-image-box">
-                <h4>Pinout</h4>
-                {% if has_pinout %}
-                    {% set pinout_url_l = pinout_url|lower %}
-                    {% if pinout_url_l.endswith('.png')
-                          or pinout_url_l.endswith('.jpg')
-                          or pinout_url_l.endswith('.jpeg')
-                          or pinout_url_l.endswith('.gif')
-                          or pinout_url_l.endswith('.webp')
-                          or pinout_url_l.endswith('.svg') %}
-                        <a href="{{ pinout_url }}" target="_blank" rel="noopener" title="Open full size">
-                            <img src="{{ pinout_url }}" alt="Pinout image" class="part-detail-image" loading="lazy" />
-                        </a>
+            {# Pinout Box #}
+            <div class="part-detail-image-box" id="pinout-box-{{ part.uuid }}">
+                <h4>
+                    Pinout
+                    <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'pinout_url')" title="Edit pinout" aria-label="Edit pinout">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px"><path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+                    </button>
+                </h4>
+                <div id="pinout-display-{{ part.uuid }}">
+                    {% if has_pinout %}
+                        {% set pinout_url_l = pinout_url|lower %}
+                        {% if pinout_url_l.endswith('.png')
+                              or pinout_url_l.endswith('.jpg')
+                              or pinout_url_l.endswith('.jpeg')
+                              or pinout_url_l.endswith('.gif')
+                              or pinout_url_l.endswith('.webp')
+                              or pinout_url_l.endswith('.svg') %}
+                            <a href="{{ pinout_url }}" target="_blank" rel="noopener" title="Open full size">
+                                <img src="{{ pinout_url }}" alt="Pinout image" class="part-detail-image" loading="lazy" />
+                            </a>
+                        {% else %}
+                            <a href="{{ pinout_url }}" target="_blank" rel="noopener" class="btn secondary">Open Pinout</a>
+                        {% endif %}
                     {% else %}
-                        <a href="{{ pinout_url }}" target="_blank" rel="noopener" class="btn secondary">Open Pinout</a>
+                        <div class="part-detail-image-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
+                                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
+                                    <rect x="7" y="5" width="10" height="14" rx="1.2" />
+                                    <path d="M10 5.2c.4 1.2 1.3 2 2 2s1.6-.8 2-2" />
+                                    <path d="M7 8H5M7 11H5M7 14H5M7 17H5M19 8H17M19 11H17M19 14H17M19 17H17" />
+                                </g>
+                            </svg>
+                            <span class="placeholder-text">No pinout</span>
+                        </div>
                     {% endif %}
-                {% else %}
-                    <div class="part-detail-image-placeholder">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
-                            <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">
-                                <rect x="7" y="5" width="10" height="14" rx="1.2" />
-                                <path d="M10 5.2c.4 1.2 1.3 2 2 2s1.6-.8 2-2" />
-                                <path d="M7 8H5M7 11H5M7 14H5M7 17H5M19 8H17M19 11H17M19 14H17M19 17H17" />
-                            </g>
-                        </svg>
-                        <span class="placeholder-text">No pinout</span>
+                </div>
+                {# Inline edit form (hidden by default) #}
+                <div id="pinout-edit-{{ part.uuid }}" class="part-detail-edit-form" style="display:none;">
+                    <div class="edit-form-row">
+                        <input type="text" id="input-pinout_url-{{ part.uuid }}" value="{{ pinout_url }}" placeholder="filename.png or https://..." class="edit-input" />
+                        <button type="button" class="btn secondary icon" onclick="searchImageForPart('{{ part.uuid }}', 'pinout')" title="AI Search" aria-label="AI Search">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px"><path fill="currentColor" d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5l-1.5 1.5l-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16A6.5 6.5 0 0 1 3 9.5A6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14S14 12 14 9.5S12 5 9.5 5Z"/></svg>
+                        </button>
                     </div>
-                {% endif %}
+                    <div class="edit-form-actions">
+                        <button type="button" class="btn secondary" onclick="saveImageField('{{ part.uuid }}', 'pinout_url')">Save</button>
+                        <button type="button" class="btn secondary" onclick="toggleImageEdit('{{ part.uuid }}', 'pinout_url')">Cancel</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -167,22 +213,135 @@
     {% set datasheet_url = part.get("datasheet_url", "") %}
     {% set has_datasheet = datasheet_url and datasheet_url|trim %}
 
-    <div class="part-detail-section">
-        <h3>Datasheet / Documentation</h3>
-        {% if has_datasheet %}
-            <div class="part-detail-doc-link-box">
-                <a href="{{ datasheet_url }}" target="_blank" rel="noopener" class="btn">Open Datasheet</a>
-                <div class="datasheet-url-display">{{ datasheet_url }}</div>
+    <div class="part-detail-section" id="datasheet-box-{{ part.uuid }}">
+        <h3>
+            Datasheet / Documentation
+            <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'datasheet_url')" title="Edit datasheet" aria-label="Edit datasheet">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px"><path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+            </button>
+        </h3>
+        <div id="datasheet-display-{{ part.uuid }}">
+            {% if has_datasheet %}
+                <div class="part-detail-doc-link-box">
+                    <a href="{{ datasheet_url }}" target="_blank" rel="noopener" class="btn">Open Datasheet</a>
+                    <div class="datasheet-url-display">{{ datasheet_url }}</div>
+                </div>
+            {% else %}
+                <div class="part-detail-image-placeholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
+                        <path fill="currentColor" d="M13 9h5.5L13 3.5zM6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                    </svg>
+                    <span class="placeholder-text">No datasheet</span>
+                </div>
+            {% endif %}
+        </div>
+        {# Inline edit form (hidden by default) #}
+        <div id="datasheet-edit-{{ part.uuid }}" class="part-detail-edit-form" style="display:none;">
+            <div class="edit-form-row">
+                <input type="text" id="input-datasheet_url-{{ part.uuid }}" value="{{ datasheet_url }}" placeholder="https://..." class="edit-input" style="flex:1;" />
+                <button type="button" class="btn secondary icon" onclick="searchDatasheetForPart('{{ part.uuid }}')" title="AI Search" aria-label="AI Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:18px;height:18px"><path fill="currentColor" d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5l-1.5 1.5l-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16A6.5 6.5 0 0 1 3 9.5A6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14S14 12 14 9.5S12 5 9.5 5Z"/></svg>
+                </button>
             </div>
-        {% else %}
-            <div class="part-detail-image-placeholder">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 48px; height: 48px; opacity: 0.3;">
-                    <path fill="currentColor" d="M13 9h5.5L13 3.5zM6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-                </svg>
-                <span class="placeholder-text">No datasheet</span>
+            <div class="edit-form-actions">
+                <button type="button" class="btn secondary" onclick="saveImageField('{{ part.uuid }}', 'datasheet_url')">Save</button>
+                <button type="button" class="btn secondary" onclick="toggleImageEdit('{{ part.uuid }}', 'datasheet_url')">Cancel</button>
             </div>
-        {% endif %}
+        </div>
     </div>
 </section>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Toggle edit form visibility for image/pinout/datasheet fields
+    function toggleImageEdit(uuid, field) {
+        let editId, displayId;
+        if (field === 'image_url') {
+            editId = 'image-edit-' + uuid;
+            displayId = 'image-display-' + uuid;
+        } else if (field === 'pinout_url') {
+            editId = 'pinout-edit-' + uuid;
+            displayId = 'pinout-display-' + uuid;
+        } else if (field === 'datasheet_url') {
+            editId = 'datasheet-edit-' + uuid;
+            displayId = 'datasheet-display-' + uuid;
+        }
+
+        const editForm = document.getElementById(editId);
+        const display = document.getElementById(displayId);
+        if (!editForm) return;
+
+        const isHidden = editForm.style.display === 'none';
+        editForm.style.display = isHidden ? 'block' : 'none';
+        if (display) display.style.display = isHidden ? 'none' : 'block';
+
+        // Focus input when showing
+        if (isHidden) {
+            const input = document.getElementById('input-' + field + '-' + uuid);
+            if (input) input.focus();
+        }
+    }
+
+    // Save field value via API
+    async function saveImageField(uuid, field) {
+        const input = document.getElementById('input-' + field + '-' + uuid);
+        if (!input) return;
+
+        const value = input.value.trim();
+
+        try {
+            const formData = new FormData();
+            formData.append('value', value);
+
+            const res = await fetch(`/parts/${uuid}/edit/${field}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                // Reload page to show updated content
+                location.reload();
+            } else {
+                const text = await res.text();
+                alert('Save failed: ' + text);
+            }
+        } catch (e) {
+            alert('Save failed: ' + e.message);
+        }
+    }
+
+    // AI search for images (part or pinout)
+    function searchImageForPart(uuid, type) {
+        const inputId = type === 'pinout' ? 'input-pinout_url-' + uuid : 'input-image_url-' + uuid;
+        const description = window.PART_DESCRIPTION || '';
+
+        openImageSearchModal(type, {
+            targetInputId: inputId,
+            partUuid: uuid,
+            partDescription: description,
+            onComplete: function(filename) {
+                // Auto-save after selection
+                saveImageField(uuid, type === 'pinout' ? 'pinout_url' : 'image_url');
+            }
+        });
+    }
+
+    // AI search for datasheets
+    function searchDatasheetForPart(uuid) {
+        const inputId = 'input-datasheet_url-' + uuid;
+        const description = window.PART_DESCRIPTION || '';
+
+        openDatasheetSearchModal({
+            targetInputId: inputId,
+            partUuid: uuid,
+            partDescription: description,
+            onComplete: function(url) {
+                // Auto-save after selection
+                saveImageField(uuid, 'datasheet_url');
+            }
+        });
+    }
+</script>
 {% endblock %}

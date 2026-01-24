@@ -45,3 +45,10 @@ class ImageDownloadRequest(BaseModel):
     url: str
     type: str = "part"  # "part" or "pinout"
     part_description: str  # Used to generate filename
+
+
+class DatasheetResult(BaseModel):
+    """A datasheet search result."""
+    title: str
+    url: str
+    source: str

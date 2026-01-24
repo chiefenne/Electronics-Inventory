@@ -33,7 +33,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from db import get_conn, init_db, \
     list_containers, list_categories, list_subcategories, list_packages, \
     ensure_container, ensure_category, ensure_subcategory, ensure_package
-from models import PartRequest, PartData, ImageResult, ImageDownloadRequest
+from models import PartRequest, PartData, ImageResult, ImageDownloadRequest, DatasheetResult
 
 try:
     from openai import OpenAI
@@ -658,6 +658,14 @@ ELECTRONICS_DOMAINS = [
     "electronics.semaf.at",
     "berrybase.at",
     "dfrobot.com",
+    "seeedstudio.com",
+    "adafruit.com",
+    "sparkfun.com",
+    "pololu.com",
+    "rohm.com",
+    "maxim-ic.com",
+    "monolithicpower.com",
+    "pimoroni.com",
 ]
 
 
@@ -788,6 +796,55 @@ async def search_images(query: str, type: str = "part") -> List[ImageResult]:
                 )
 
         return clean_results
+    except Exception:
+        return []
+
+
+@app.get("/api/search-datasheet", response_model=List[DatasheetResult])
+async def search_datasheet(query: str) -> List[DatasheetResult]:
+    """Search for datasheets using Tavily, returning PDF links."""
+    if not _ai_enabled():
+        raise HTTPException(status_code=503, detail="AI Auto-Fill is disabled")
+
+    tavily = _get_tavily_client()
+    if not tavily:
+        raise HTTPException(status_code=503, detail="AI Auto-Fill is disabled")
+
+    try:
+        # Search for datasheets with PDF focus
+        response = tavily.search(
+            query=f"{query} datasheet PDF",
+            include_answer=False,
+            max_results=8,
+            include_domains=ELECTRONICS_DOMAINS,
+        )
+
+        results: List[DatasheetResult] = []
+        seen_urls = set()
+
+        for item in response.get("results", []):
+            url = item.get("url", "")
+            title = item.get("title", "Datasheet")
+
+            # Skip duplicates
+            if url in seen_urls:
+                continue
+            seen_urls.add(url)
+
+            # Extract domain for source
+            try:
+                from urllib.parse import urlparse
+                domain = urlparse(url).netloc.replace("www.", "")
+            except Exception:
+                domain = "Web"
+
+            results.append(DatasheetResult(
+                title=title[:100],  # Truncate long titles
+                url=url,
+                source=domain
+            ))
+
+        return results
     except Exception:
         return []
 
@@ -1470,7 +1527,7 @@ def view_part(request: Request, part_uuid: str) -> HTMLResponse:
     if row is None:
         return HTMLResponse("Not found", status_code=404)
 
-    return render("part_detail.html", part=dict(row), request=request, title=f"{APP_TITLE} – Part Details")
+    return render("part_detail.html", part=dict(row), request=request, title=f"{APP_TITLE} – Part Details", ai_enabled=_ai_enabled())
 
 
 @app.post("/parts/{part_uuid}/detail/quantity", response_class=HTMLResponse)

@@ -178,24 +178,6 @@
     {% include "_table.html" %}
 </section>
 
-<!-- AI Auto-Fill: Image Picker Modal (Bootstrap) -->
-<div class="modal fade" id="imagePickerModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Select Image</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="imageLoading" class="text-center my-3 d-none">
-                    <div class="spinner-border text-primary"></div>
-                </div>
-                <div id="imageGrid" class="row g-2"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
 (() => {
     const FORM_KEY = "inventory.add.draft";
@@ -356,112 +338,7 @@ async function runAgent() {
     }
 }
 
-async function openImageSearch(type) {
-    const aiEnabledBtn = document.getElementById("btn-autofill");
-    if (aiEnabledBtn && aiEnabledBtn.dataset.aiEnabled !== "true") {
-        alert("AI Auto-Fill is disabled.");
-        return;
-    }
-
-    const descInput = document.getElementById("part-description");
-    if (!descInput || descInput.value.trim().length < 3) {
-        alert("Enter a part description first.");
-        return;
-    }
-
-    currentImageTarget = (type === "pinout") ? "part-pinout-url" : "part-image-url";
-
-    const grid = document.getElementById("imageGrid");
-    const spinner = document.getElementById("imageLoading");
-    if (!grid || !spinner) return;
-
-    grid.innerHTML = "";
-    spinner.classList.remove("d-none");
-
-    const modalEl = document.getElementById("imagePickerModal");
-    if (modalEl && window.bootstrap) {
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
-    }
-
-    try {
-        const res = await fetch(`/api/search-images?query=${encodeURIComponent(descInput.value.trim())}&type=${type}`);
-        const images = await res.json();
-
-        spinner.classList.add("d-none");
-        if (!images.length) {
-            grid.innerHTML = '<p class="text-danger">No images found.</p>';
-            return;
-        }
-
-        images.forEach(img => {
-            const col = document.createElement("div");
-            col.className = "col-6 col-md-4 col-lg-2";
-            col.innerHTML = `
-                <div class="card img-card h-100" data-url="${img.url}" onclick="selectAndDownloadImage(this)">
-                    <img src="${img.url}" class="card-img-top preview-img">
-                    <div class="card-body p-1 text-center">
-                        <small class="text-muted" style="font-size:10px">${img.source || "Web"}</small>
-                    </div>
-                </div>`;
-            grid.appendChild(col);
-        });
-    } catch (e) {
-        spinner.classList.add("d-none");
-        grid.innerHTML = '<p class="text-danger">Search failed.</p>';
-    }
-}
-
-function selectImage(url) {
-    if (!currentImageTarget) return;
-    const target = document.getElementById(currentImageTarget);
-    if (target) target.value = url;
-}
-
-async function selectAndDownloadImage(cardEl) {
-    if (!currentImageTarget) return;
-
-    const url = cardEl.dataset.url;
-    const target = document.getElementById(currentImageTarget);
-    const descInput = document.getElementById("part-description");
-    const partDescription = descInput ? descInput.value.trim() : "image";
-    const type = currentImageTarget === "part-pinout-url" ? "pinout" : "part";
-
-    // Show loading state on the clicked card
-    const originalContent = cardEl.innerHTML;
-    cardEl.innerHTML = '<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border spinner-border-sm text-primary"></div></div>';
-    cardEl.style.pointerEvents = "none";
-
-    try {
-        const res = await fetch("/api/download-image", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url, type, part_description: partDescription })
-        });
-
-        if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.detail || "Download failed");
-        }
-
-        const data = await res.json();
-        // Set the local filename in the input field
-        if (target) target.value = data.filename;
-
-        // Close the modal
-        const modalEl = document.getElementById("imagePickerModal");
-        if (modalEl && window.bootstrap) {
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
-        }
-
-    } catch (e) {
-        alert("Failed to download image: " + e.message);
-        // Restore card content on error
-        cardEl.innerHTML = originalContent;
-        cardEl.style.pointerEvents = "";
-    }
-}
+// Note: openImageSearch, selectImage, and selectAndDownloadImage are now in /static/image_search.js
 </script>
 
 {% endblock %}
