@@ -217,6 +217,35 @@ body {
     padding: 0;
 }
 
+.maintenance-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.maintenance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+.maintenance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.maintenance-message {
+    margin-bottom: 8px;
+    color: #0f5132;
+}
+
+.maintenance-message--error {
+    color: #b91c1c;
+}
+
 .field-group {
     display: flex;
     flex-direction: column;
@@ -546,6 +575,12 @@ select:focus {
 
 .tbl th.col-package,
 .tbl td.col-package {
+    min-width: 60px;
+    width: 6%;
+}
+
+.tbl th.col-container,
+.tbl td.col-container {
     min-width: 60px;
     width: 6%;
 }
@@ -991,6 +1026,10 @@ select:focus {
     width: 100px !important;
 }
 
+.edit-container select {
+    width: 100px !important;
+}
+
 .edit-quantity input[name="value"] {
     width: 70px !important;
 }
@@ -999,7 +1038,7 @@ select:focus {
     width: 60px !important;
 }
 
-.edit-category select {
+.edit-category input {
     width: 120px !important;
 }
 

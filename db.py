@@ -69,6 +69,13 @@ def init_db() -> None:
             );
             """
         )
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS packages (
+                name TEXT PRIMARY KEY
+            );
+            """
+        )
 
         conn.execute(
             """
@@ -217,6 +224,12 @@ def list_subcategories():
         rows = conn.execute("SELECT name FROM subcategories ORDER BY name").fetchall()
         return [r["name"] if hasattr(r, "keys") else r[0] for r in rows]
 
+
+def list_packages():
+    with get_conn() as conn:
+        rows = conn.execute("SELECT name FROM packages ORDER BY name").fetchall()
+        return [r["name"] if hasattr(r, "keys") else r[0] for r in rows]
+
 def ensure_container(code: str):
     code = (code or "").strip()
     if not code:
@@ -245,4 +258,13 @@ def ensure_subcategory(name: str):
         return
     with get_conn() as conn:
         conn.execute("INSERT OR IGNORE INTO subcategories(name) VALUES (?)", (name,))
+        conn.commit()
+
+
+def ensure_package(name: str):
+    name = (name or "").strip()
+    if not name:
+        return
+    with get_conn() as conn:
+        conn.execute("INSERT OR IGNORE INTO packages(name) VALUES (?)", (name,))
         conn.commit()

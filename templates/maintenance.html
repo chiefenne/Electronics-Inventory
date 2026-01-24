@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <h3 class="panel-title">Maintenance</h3>
+    {% if error %}
+    <div class="maintenance-message maintenance-message--error">{{ error }}</div>
+    {% endif %}
+    {% if notice %}
+    <div class="maintenance-message">{{ notice }}</div>
+    {% endif %}
+    <p class="muted">Manage lookup values used for suggestions and dropdowns. Rename to merge variants; delete is blocked if values are in use.</p>
+</section>
+
+<section class="panel">
+    <h3 class="panel-title">Categories</h3>
+    <div class="maintenance-list">
+        {% for cat in categories %}
+        <span class="chip">{{ cat }}</span>
+        {% else %}
+        <span class="muted">No categories yet.</span>
+        {% endfor %}
+    </div>
+    <div class="maintenance-grid">
+        <form class="maintenance-form" method="post" action="/maintenance/category/add">
+            <label class="field-group">
+                <span class="field-label">Add category</span>
+                <input name="value" placeholder="IC, MCU, PASSIVE…" required />
+            </label>
+            <button class="btn" type="submit">Add</button>
+        </form>
+
+        <form class="maintenance-form" method="post" action="/maintenance/category/rename">
+            <label class="field-group">
+                <span class="field-label">Rename category</span>
+                <select name="value" required>
+                    <option value="">Select…</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="field-group">
+                <span class="field-label">New name</span>
+                <input name="new_value" placeholder="New category" required />
+            </label>
+            <button class="btn secondary" type="submit">Rename</button>
+        </form>
+
+        <form class="maintenance-form" method="post" action="/maintenance/category/delete">
+            <label class="field-group">
+                <span class="field-label">Delete category</span>
+                <select name="value" required>
+                    <option value="">Select…</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="btn danger-outline" type="submit">Delete</button>
+        </form>
+    </div>
+</section>
+
+<section class="panel">
+    <h3 class="panel-title">Subcategories</h3>
+    <div class="maintenance-list">
+        {% for sub in subcategories %}
+        <span class="chip">{{ sub }}</span>
+        {% else %}
+        <span class="muted">No subcategories yet.</span>
+        {% endfor %}
+    </div>
+    <div class="maintenance-grid">
+        <form class="maintenance-form" method="post" action="/maintenance/subcategory/add">
+            <label class="field-group">
+                <span class="field-label">Add subcategory</span>
+                <input name="value" placeholder="OpAmp, Logic…" required />
+            </label>
+            <button class="btn" type="submit">Add</button>
+        </form>
+
+        <form class="maintenance-form" method="post" action="/maintenance/subcategory/rename">
+            <label class="field-group">
+                <span class="field-label">Rename subcategory</span>
+                <select name="value" required>
+                    <option value="">Select…</option>
+                    {% for sub in subcategories %}
+                    <option value="{{ sub }}">{{ sub }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="field-group">
+                <span class="field-label">New name</span>
+                <input name="new_value" placeholder="New subcategory" required />
+            </label>
+            <button class="btn secondary" type="submit">Rename</button>
+        </form>
+
+        <form class="maintenance-form" method="post" action="/maintenance/subcategory/delete">
+            <label class="field-group">
+                <span class="field-label">Delete subcategory</span>
+                <select name="value" required>
+                    <option value="">Select…</option>
+                    {% for sub in subcategories %}
+                    <option value="{{ sub }}">{{ sub }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="btn danger-outline" type="submit">Delete</button>
+        </form>
+    </div>
+</section>
+
+<section class="panel">
+    <h3 class="panel-title">Containers</h3>
+    <div class="maintenance-list">
+        {% for c in containers %}
+        {% set code = c.code if c.code is defined else c %}
+        <span class="chip mono">{{ code }}</span>
+        {% else %}
+        <span class="muted">No containers yet.</span>
+        {% endfor %}
+    </div>
+    <div class="maintenance-grid">
+        <form class="maintenance-form" method="post" action="/maintenance/container/add">
+            <label class="field-group">
+                <span class="field-label">Add container</span>
+                <input name="value" placeholder="BX-03, DR-A1…" required />
+            </label>
+            <button class="btn" type="submit">Add</button>
+        </form>
+
+        <form class="maintenance-form" method="post" action="/maintenance/container/rename">
+            <label class="field-group">
+                <span class="field-label">Rename container</span>
+                <select name="value" required>
+                    <option value="">Select…</option>
+                    {% for c in containers %}
+                    {% set code = c.code if c.code is defined else c %}
+                    <option value="{{ code }}">{{ code }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="field-group">
+                <span class="field-label">New code</span>
+                <input name="new_value" placeholder="New code" required />
+            </label>
+            <button class="btn secondary" type="submit">Rename</button>
+        </form>
+
+        <form class="maintenance-form" method="post" action="/maintenance/container/delete">
+            <label class="field-group">
+                <span class="field-label">Delete container</span>
+                <select name="value" required>
+                    <option value="">Select…</option>
+                    {% for c in containers %}
+                    {% set code = c.code if c.code is defined else c %}
+                    <option value="{{ code }}">{{ code }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="btn danger-outline" type="submit">Delete</button>
+        </form>
+    </div>
+</section>
+
+<section class="panel">
+    <h3 class="panel-title">Packages</h3>
+    <div class="maintenance-list">
+        {% for pkg in packages %}
+        <span class="chip">{{ pkg }}</span>
+        {% else %}
+        <span class="muted">No packages yet.</span>
+        {% endfor %}
+    </div>
+    <div class="maintenance-grid">
+        <form class="maintenance-form" method="post" action="/maintenance/package/add">
+            <label class="field-group">
+                <span class="field-label">Add package</span>
+                <input name="value" placeholder="DIP, SOIC, 0603…" required />
+            </label>
+            <button class="btn" type="submit">Add</button>
+        </form>
+
+        <form class="maintenance-form" method="post" action="/maintenance/package/rename">
+            <label class="field-group">
+                <span class="field-label">Rename package</span>
+                <select name="value" required>
+                    <option value="">Select…</option>
+                    {% for pkg in packages %}
+                    <option value="{{ pkg }}">{{ pkg }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="field-group">
+                <span class="field-label">New name</span>
+                <input name="new_value" placeholder="New package" required />
+            </label>
+            <button class="btn secondary" type="submit">Rename</button>
+        </form>
+
+        <form class="maintenance-form" method="post" action="/maintenance/package/delete">
+            <label class="field-group">
+                <span class="field-label">Delete package</span>
+                <select name="value" required>
+                    <option value="">Select…</option>
+                    {% for pkg in packages %}
+                    <option value="{{ pkg }}">{{ pkg }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <button class="btn danger-outline" type="submit">Delete</button>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

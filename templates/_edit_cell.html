@@ -35,9 +35,9 @@
 
     {# Container #}
     {% if field == "container_id" %}
-    <td class="cell" data-label="Container">
-        <form class="edit" hx-post="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
-            <select name="value" autofocus>
+    <td class="cell col-container" data-label="Container">
+        <form class="edit edit-container" hx-post="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            <select name="value" autofocus onfocus="if (this.showPicker) this.showPicker();">
                 <option value="" {% if not (part.container_id and part.container_id|trim) %}selected{% endif %}>—</option>
                 {% for c in containers %}
                 {% set code = c.code if c.code is defined else c %}
@@ -53,7 +53,7 @@
         </form>
     </td>
     {% else %}
-    <td class="cell" data-label="Container" hx-get="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+    <td class="cell col-container" data-label="Container" hx-get="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
         {% if part.container_id and part.container_id|trim %}
         <a class="chip chip-link" href="/containers/{{ part.container_id|urlencode }}" onclick="event.stopPropagation();" title="Open container {{ part.container_id }}">{{ part.container_id }}</a>
         {% else %}
@@ -143,11 +143,18 @@
     {% if field == "category" %}
     <td class="cell" data-label="Category">
         <form class="edit edit-category" hx-post="/parts/{{ part.uuid }}/edit/category" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
-            <select name="value" autofocus>
+            <input name="value"
+                   value="{{ part.get('category','') }}"
+                   list="dl-edit-categories-{{ part.uuid }}"
+                   autocomplete="off"
+                   spellcheck="false"
+                   required
+                   autofocus />
+            <datalist id="dl-edit-categories-{{ part.uuid }}">
                 {% for cat in categories %}
-                <option value="{{ cat }}" {% if cat==part.category %}selected{% endif %}>{{ cat }}</option>
+                <option value="{{ cat }}"></option>
                 {% endfor %}
-            </select>
+            </datalist>
             <button class="btn secondary icon icon-lg" type="submit" title="Save" aria-label="Save">
                 <img src="/static/icons/Green_Checkmark_Circle.svg" alt="" aria-hidden="true" />
             </button>
@@ -164,7 +171,17 @@
     {% if field == "subcategory" %}
     <td class="cell" data-label="Subcategory">
         <form class="edit edit-subcategory" hx-post="/parts/{{ part.uuid }}/edit/subcategory" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
-            <input name="value" value="{{ part.get('subcategory','') }}" autofocus />
+            <input name="value"
+                   value="{{ part.get('subcategory','') }}"
+                   list="dl-edit-subcategories-{{ part.uuid }}"
+                   autocomplete="off"
+                   spellcheck="false"
+                   autofocus />
+            <datalist id="dl-edit-subcategories-{{ part.uuid }}">
+                {% for sub in subcategories %}
+                <option value="{{ sub }}"></option>
+                {% endfor %}
+            </datalist>
             <button class="btn secondary icon icon-lg" type="submit" title="Save" aria-label="Save">
                 <img src="/static/icons/Green_Checkmark_Circle.svg" alt="" aria-hidden="true" />
             </button>

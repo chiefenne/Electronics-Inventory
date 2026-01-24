@@ -38,6 +38,7 @@
                 <div class="nav-dropdown__menu">
                     <a href="/export.csv" class="nav-dropdown__item">Export CSV (all)</a>
                     <a href="/export.csv?q={{ q|default('', true)|urlencode }}&category={{ category|default('', true)|urlencode }}&subcategory={{ subcategory|default('', true)|urlencode }}&container_id={{ container_id|default('', true)|urlencode }}" class="nav-dropdown__item">Export CSV (filtered)</a>
+                    <a href="/maintenance" class="nav-dropdown__item">Maintenance</a>
                     <span class="nav-dropdown__item nav-dropdown__item--disabled">Import CSV</span>
                 </div>
             </div>
