@@ -666,6 +666,7 @@ ELECTRONICS_DOMAINS = [
     "maxim-ic.com",
     "monolithicpower.com",
     "pimoroni.com",
+    "botland.store",
 ]
 
 
