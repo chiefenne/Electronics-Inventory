@@ -31,8 +31,8 @@ from passlib.hash import pbkdf2_sha256
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from db import get_conn, init_db, \
-    list_containers, list_categories, list_subcategories, \
-    ensure_container, ensure_category, ensure_subcategory
+    list_containers, list_categories, list_subcategories, list_packages, \
+    ensure_container, ensure_category, ensure_subcategory, ensure_package
 from models import PartRequest, PartData, ImageResult, ImageDownloadRequest
 
 try:
@@ -635,6 +635,31 @@ def fetch_parts(
 EXISTING_CATEGORIES = ["IC", "Module", "Passive", "Semiconductors", "Connectors", "Electromechanical"]
 EXISTING_SUBCATS = ["OpAmp", "Logic", "Arduino", "Step-down (buck)", "N-channel", "Timers / Oscillators", "MOSFET"]
 
+# Trusted electronics domains for Tavily search (first pass)
+ELECTRONICS_DOMAINS = [
+    "digikey.com",
+    "mouser.com",
+    "reichelt.de",
+    "conrad.com",
+    "farnell.com",
+    "newark.com",
+    "lcsc.com",
+    "alldatasheet.com",
+    "datasheetcatalog.com",
+    "ti.com",
+    "onsemi.com",
+    "st.com",
+    "infineon.com",
+    "nxp.com",
+    "microchip.com",
+    "analog.com",
+    "vishay.com",
+    "tme.eu",
+    "electronics.semaf.at",
+    "berrybase.at",
+    "dfrobot.com",
+]
+
 
 @app.post("/api/fill-part", response_model=PartData)
 async def fill_part_agent(request: PartRequest) -> PartData:
@@ -647,18 +672,33 @@ async def fill_part_agent(request: PartRequest) -> PartData:
     if not tavily or not client:
         raise HTTPException(status_code=503, detail="AI Auto-Fill is disabled")
 
-    # 1. TAVILY SEARCH (Text)
+    # 1. TAVILY SEARCH (Text) - first try trusted electronics domains
+    search_query = f"{request.query} datasheet specifications"
+    results = []
     try:
         response = tavily.search(
-            query=f"{request.query} datasheet specifications",
+            query=search_query,
             search_depth="basic",
             max_results=5,
+            include_domains=ELECTRONICS_DOMAINS,
         )
         results = response.get("results", [])
-        search_context = "\n".join([f"- {r['content']}" for r in results])
     except Exception:
-        search_context = "Search failed."
         results = []
+
+    # Fallback: if fewer than 2 results, retry without domain restriction
+    if len(results) < 2:
+        try:
+            response = tavily.search(
+                query=search_query,
+                search_depth="basic",
+                max_results=5,
+            )
+            results = response.get("results", [])
+        except Exception:
+            results = []
+
+    search_context = "\n".join([f"- {r['content']}" for r in results]) if results else "Search failed."
 
     # 2. ASK OPENAI
     try:
@@ -947,6 +987,26 @@ def list_subcategories_in_use():
     return [r["name"] if hasattr(r, "keys") else r[0] for r in rows]
 
 
+def _maintenance_lists() -> Dict[str, Any]:
+    return {
+        "categories": list_categories(),
+        "subcategories": list_subcategories(),
+        "containers": list_containers(),
+        "packages": list_packages(),
+    }
+
+
+def _count_usage(field: str, value: str) -> int:
+    with get_conn() as conn:
+        row = conn.execute(
+            f"SELECT COUNT(*) AS c FROM parts WHERE {field} = ?",
+            (value,),
+        ).fetchone()
+    if row is None:
+        return 0
+    return row["c"] if hasattr(row, "keys") else row[0]
+
+
 def qr_base64(text: str) -> str:
     img = qrcode.make(text)
     buf = BytesIO()
@@ -992,6 +1052,119 @@ def index(
     )
 
 
+@app.get("/maintenance", response_class=HTMLResponse)
+def maintenance_page(request: Request, notice: str = "", error: str = "") -> HTMLResponse:
+    for cat in list_categories_in_use():
+        ensure_category(cat)
+    for sub in list_subcategories_in_use():
+        ensure_subcategory(sub)
+    for code in list_containers_in_use():
+        ensure_container(code)
+    for pkg in fetch_distinct("package"):
+        ensure_package(pkg)
+
+    data = _maintenance_lists()
+    return render(
+        "maintenance.html",
+        request=request,
+        title=f"{APP_TITLE} – Maintenance",
+        notice=notice,
+        error=error,
+        **data,
+    )
+
+
+@app.post("/maintenance/{entity}/{action}", response_class=HTMLResponse)
+def maintenance_action(
+    request: Request,
+    entity: str,
+    action: str,
+    value: str = Form(""),
+    new_value: str = Form(""),
+) -> HTMLResponse:
+    entity = (entity or "").strip().lower()
+    action = (action or "").strip().lower()
+
+    entities = {
+        "category": {"table": "categories", "col": "name", "field": "category"},
+        "subcategory": {"table": "subcategories", "col": "name", "field": "subcategory"},
+        "container": {"table": "containers", "col": "code", "field": "container_id"},
+        "package": {"table": "packages", "col": "name", "field": "package"},
+    }
+
+    if entity not in entities or action not in {"add", "rename", "delete"}:
+        return HTMLResponse("Invalid maintenance action", status_code=400)
+
+    value = (value or "").strip()
+    new_value = (new_value or "").strip()
+    meta = entities[entity]
+
+    if action == "add":
+        if not value:
+            return maintenance_page(request, error="Value is required.")
+        with get_conn() as conn:
+            if entity == "container":
+                conn.execute(
+                    "INSERT OR IGNORE INTO containers(code, name) VALUES (?, ?)",
+                    (value, value),
+                )
+            else:
+                conn.execute(
+                    f"INSERT OR IGNORE INTO {meta['table']}({meta['col']}) VALUES (?)",
+                    (value,),
+                )
+            conn.commit()
+        return maintenance_page(request, notice=f"Added {entity}: {value}")
+
+    if action == "rename":
+        if not value or not new_value:
+            return maintenance_page(request, error="Current and new values are required.")
+        with get_conn() as conn:
+            conn.execute(
+                f"UPDATE parts SET {meta['field']} = ? WHERE {meta['field']} = ?",
+                (new_value, value),
+            )
+            if entity == "container":
+                conn.execute(
+                    "INSERT OR IGNORE INTO containers(code, name) VALUES (?, ?)",
+                    (new_value, new_value),
+                )
+                conn.execute("DELETE FROM containers WHERE code = ?", (value,))
+            else:
+                conn.execute(
+                    f"INSERT OR IGNORE INTO {meta['table']}({meta['col']}) VALUES (?)",
+                    (new_value,),
+                )
+                conn.execute(
+                    f"DELETE FROM {meta['table']} WHERE {meta['col']} = ?",
+                    (value,),
+                )
+            conn.commit()
+        return maintenance_page(request, notice=f"Renamed {entity}: {value} → {new_value}")
+
+    if not value:
+        return maintenance_page(request, error="Value is required.")
+
+    used = _count_usage(meta["field"], value)
+    if used > 0:
+        return maintenance_page(
+            request,
+            error=f"Cannot delete '{value}' because it is used by {used} part(s).",
+        )
+
+    with get_conn() as conn:
+        if entity == "container":
+            conn.execute("DELETE FROM containers WHERE code = ?", (value,))
+        else:
+            conn.execute(
+                f"DELETE FROM {meta['table']} WHERE {meta['col']} = ?",
+                (value,),
+            )
+        conn.commit()
+
+    return maintenance_page(request, notice=f"Deleted {entity}: {value}")
+
+
 @app.get("/partials/table", response_class=HTMLResponse)
 def partial_table(q: str = "", category: str = "", subcategory: str = "", container_id: str = "") -> HTMLResponse:
     parts = fetch_parts(q=q, category=category, subcategory=subcategory, container_id=container_id)
@@ -1021,6 +1194,7 @@ def add_part(
     ensure_category(category)
     ensure_container(container_id)
     ensure_subcategory(subcategory)
+    ensure_package(package)
 
     part_uuid = str(uuid.uuid4())
 
@@ -1111,8 +1285,15 @@ def edit_cell(part_uuid: str, field: str) -> HTMLResponse:
 
     containers = list_containers()
     categories = list_categories()
-    return render("_edit_cell.html", part=dict(row), field=field,
-                  containers=containers, categories=categories)
+    subcategories = list_subcategories()
+    return render(
+        "_edit_cell.html",
+        part=dict(row),
+        field=field,
+        containers=containers,
+        categories=categories,
+        subcategories=subcategories,
+    )
 
 
 @app.post("/parts/{part_uuid}/edit/{field}", response_class=HTMLResponse)
@@ -1151,6 +1332,8 @@ def save_cell(
         ensure_category(value)
     elif field == "subcategory":
         ensure_subcategory(value)
+    elif field == "package":
+        ensure_package(value)
     elif field in ("datasheet_url", "pinout_url", "image_url"):
         if field in ("pinout_url", "image_url"):
             value = _normalize_static_media_path(field, value)
