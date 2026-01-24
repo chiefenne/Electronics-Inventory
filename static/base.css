@@ -368,6 +368,34 @@ body {
     margin-bottom: 4px;
 }
 
+/* =========================
+   Tags - Unused styling
+   ========================= */
+
+.tag.unused {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #9a3412;
+    border-style: dashed;
+}
+
+.tag.unused:hover {
+    background: #ffedd5;
+    border-color: #fdba74;
+}
+
+/* Unused count hint in accordion header */
+.unused-hint {
+    font-weight: 500;
+    color: #9a3412;
+    font-size: 11px;
+    margin-left: 4px;
+}
+
+.accordion-section[open] .unused-hint {
+    color: #fdba74;
+}
+
 .maintenance-list {
     display: flex;
     flex-wrap: wrap;

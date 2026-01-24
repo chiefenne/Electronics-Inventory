@@ -11,7 +11,7 @@
     <details class="accordion-section" data-section="categories" open>
         <summary class="accordion-trigger">
             <span class="accordion-title">Categories</span>
-            <span class="accordion-count">{{ categories|length }}</span>
+            <span class="accordion-count">{{ categories|length }}{% if categories_unused %}<span class="unused-hint">({{ categories_unused }} unused)</span>{% endif %}</span>
             <svg class="accordion-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="accordion-content">
@@ -36,8 +36,8 @@
                             <span class="field-label">Rename category</span>
                             <select name="value" class="maintenance-select" required>
                                 <option value="">Select…</option>
-                                {% for cat in categories %}
-                                <option value="{{ cat }}">{{ cat }}</option>
+                                {% for item in categories %}
+                                <option value="{{ item.value }}">{{ item.value }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -53,8 +53,8 @@
                             <span class="field-label">Delete category</span>
                             <select name="value" class="maintenance-select" required>
                                 <option value="">Select…</option>
-                                {% for cat in categories %}
-                                <option value="{{ cat }}">{{ cat }}</option>
+                                {% for item in categories %}
+                                <option value="{{ item.value }}">{{ item.value }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -62,10 +62,10 @@
                     </form>
                 </div>
                 <div class="maintenance-tags">
-                    <span class="field-label">Existing ({{ categories|length }})</span>
+                    <span class="field-label">Existing ({{ categories|length }}{% if categories_unused %}, {{ categories_unused }} unused{% endif %})</span>
                     <div class="maintenance-list" data-target="category">
-                        {% for cat in categories %}
-                        <button type="button" class="tag" data-value="{{ cat }}">{{ cat }}</button>
+                        {% for item in categories %}
+                        <button type="button" class="tag{% if not item.used %} unused{% endif %}" data-value="{{ item.value }}">{{ item.value }}</button>
                         {% else %}
                         <span class="muted">No categories yet.</span>
                         {% endfor %}
@@ -79,7 +79,7 @@
     <details class="accordion-section" data-section="subcategories">
         <summary class="accordion-trigger">
             <span class="accordion-title">Subcategories</span>
-            <span class="accordion-count">{{ subcategories|length }}</span>
+            <span class="accordion-count">{{ subcategories|length }}{% if subcategories_unused %}<span class="unused-hint">({{ subcategories_unused }} unused)</span>{% endif %}</span>
             <svg class="accordion-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="accordion-content">
@@ -104,8 +104,8 @@
                             <span class="field-label">Rename subcategory</span>
                             <select name="value" class="maintenance-select" required>
                                 <option value="">Select…</option>
-                                {% for sub in subcategories %}
-                                <option value="{{ sub }}">{{ sub }}</option>
+                                {% for item in subcategories %}
+                                <option value="{{ item.value }}">{{ item.value }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -121,8 +121,8 @@
                             <span class="field-label">Delete subcategory</span>
                             <select name="value" class="maintenance-select" required>
                                 <option value="">Select…</option>
-                                {% for sub in subcategories %}
-                                <option value="{{ sub }}">{{ sub }}</option>
+                                {% for item in subcategories %}
+                                <option value="{{ item.value }}">{{ item.value }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -130,10 +130,10 @@
                     </form>
                 </div>
                 <div class="maintenance-tags">
-                    <span class="field-label">Existing ({{ subcategories|length }})</span>
+                    <span class="field-label">Existing ({{ subcategories|length }}{% if subcategories_unused %}, {{ subcategories_unused }} unused{% endif %})</span>
                     <div class="maintenance-list" data-target="subcategory">
-                        {% for sub in subcategories %}
-                        <button type="button" class="tag" data-value="{{ sub }}">{{ sub }}</button>
+                        {% for item in subcategories %}
+                        <button type="button" class="tag{% if not item.used %} unused{% endif %}" data-value="{{ item.value }}">{{ item.value }}</button>
                         {% else %}
                         <span class="muted">No subcategories yet.</span>
                         {% endfor %}
@@ -147,7 +147,7 @@
     <details class="accordion-section" data-section="containers">
         <summary class="accordion-trigger">
             <span class="accordion-title">Containers</span>
-            <span class="accordion-count">{{ containers|length }}</span>
+            <span class="accordion-count">{{ containers|length }}{% if containers_unused %}<span class="unused-hint">({{ containers_unused }} unused)</span>{% endif %}</span>
             <svg class="accordion-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="accordion-content">
@@ -172,9 +172,8 @@
                             <span class="field-label">Rename container</span>
                             <select name="value" class="maintenance-select" required>
                                 <option value="">Select…</option>
-                                {% for c in containers %}
-                                {% set code = c.code if c.code is defined else c %}
-                                <option value="{{ code }}">{{ code }}</option>
+                                {% for item in containers %}
+                                <option value="{{ item.value }}">{{ item.value }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -190,9 +189,8 @@
                             <span class="field-label">Delete container</span>
                             <select name="value" class="maintenance-select" required>
                                 <option value="">Select…</option>
-                                {% for c in containers %}
-                                {% set code = c.code if c.code is defined else c %}
-                                <option value="{{ code }}">{{ code }}</option>
+                                {% for item in containers %}
+                                <option value="{{ item.value }}">{{ item.value }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -200,11 +198,10 @@
                     </form>
                 </div>
                 <div class="maintenance-tags">
-                    <span class="field-label">Existing ({{ containers|length }})</span>
+                    <span class="field-label">Existing ({{ containers|length }}{% if containers_unused %}, {{ containers_unused }} unused{% endif %})</span>
                     <div class="maintenance-list" data-target="container">
-                        {% for c in containers %}
-                        {% set code = c.code if c.code is defined else c %}
-                        <button type="button" class="tag mono" data-value="{{ code }}">{{ code }}</button>
+                        {% for item in containers %}
+                        <button type="button" class="tag mono{% if not item.used %} unused{% endif %}" data-value="{{ item.value }}">{{ item.value }}</button>
                         {% else %}
                         <span class="muted">No containers yet.</span>
                         {% endfor %}
@@ -218,7 +215,7 @@
     <details class="accordion-section" data-section="packages">
         <summary class="accordion-trigger">
             <span class="accordion-title">Packages</span>
-            <span class="accordion-count">{{ packages|length }}</span>
+            <span class="accordion-count">{{ packages|length }}{% if packages_unused %}<span class="unused-hint">({{ packages_unused }} unused)</span>{% endif %}</span>
             <svg class="accordion-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="accordion-content">
@@ -243,8 +240,8 @@
                             <span class="field-label">Rename package</span>
                             <select name="value" class="maintenance-select" required>
                                 <option value="">Select…</option>
-                                {% for pkg in packages %}
-                                <option value="{{ pkg }}">{{ pkg }}</option>
+                                {% for item in packages %}
+                                <option value="{{ item.value }}">{{ item.value }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -260,8 +257,8 @@
                             <span class="field-label">Delete package</span>
                             <select name="value" class="maintenance-select" required>
                                 <option value="">Select…</option>
-                                {% for pkg in packages %}
-                                <option value="{{ pkg }}">{{ pkg }}</option>
+                                {% for item in packages %}
+                                <option value="{{ item.value }}">{{ item.value }}</option>
                                 {% endfor %}
                             </select>
                         </label>
@@ -269,10 +266,10 @@
                     </form>
                 </div>
                 <div class="maintenance-tags">
-                    <span class="field-label">Existing ({{ packages|length }})</span>
+                    <span class="field-label">Existing ({{ packages|length }}{% if packages_unused %}, {{ packages_unused }} unused{% endif %})</span>
                     <div class="maintenance-list" data-target="package">
-                        {% for pkg in packages %}
-                        <button type="button" class="tag" data-value="{{ pkg }}">{{ pkg }}</button>
+                        {% for item in packages %}
+                        <button type="button" class="tag{% if not item.used %} unused{% endif %}" data-value="{{ item.value }}">{{ item.value }}</button>
                         {% else %}
                         <span class="muted">No packages yet.</span>
                         {% endfor %}

@@ -11,6 +11,7 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 - Duplicate parts (pre-fills add form for quick variations)
 - **AI Auto-Fill** (optional): automatically populate part data from a description using OpenAI + Tavily web search
 - **Part detail page**: click any part description to view a dedicated page with all metadata, images, and datasheet in an organized layout
+- **Maintenance page**: manage lookup values (categories, subcategories, containers, packages) with add/rename/delete operations and usage tracking
 - Search + filter by category, subcategory, and container (free-text search also matches container codes like `BX-50`)
 - Click a container chip in the table to open the container page
 - CSV export
@@ -19,6 +20,24 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 - Optional stock levels (low-stock warning colors) for quantity
 - Container pages and printable container labels with QR codes
 - Uses a local SQLite database file (no server required)
+
+## Maintenance Page
+
+The maintenance page (`/maintenance`) lets you manage the lookup values used for suggestions and dropdowns throughout the app.
+
+### Features
+
+- **Accordion interface**: Collapsible sections for Categories, Subcategories, Containers, and Packages — remembers which section you last opened
+- **Usage tracking**: Each section header shows the total count and how many items are unused (e.g., "9 (2 unused)")
+- **Visual distinction**: Unused items appear with a dashed orange border so you can quickly identify candidates for cleanup
+- **Interactive tags**: Click any existing item tag to auto-select it in the rename and delete dropdowns
+- **Inline feedback**: Success/error messages appear within the relevant section, not at the top of the page
+
+### Operations
+
+- **Add**: Create a new category, subcategory, container, or package
+- **Rename**: Rename an existing value — all parts using the old value are automatically updated (useful for merging duplicates)
+- **Delete**: Remove an unused value — blocked if any parts still reference it
 
 ## Quantity + stock levels
 

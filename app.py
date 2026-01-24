@@ -988,11 +988,50 @@ def list_subcategories_in_use():
 
 
 def _maintenance_lists() -> Dict[str, Any]:
+    """Return maintenance items with usage counts for each."""
+    # Get items in use
+    categories_in_use = set(list_categories_in_use())
+    subcategories_in_use = set(list_subcategories_in_use())
+    containers_in_use = set(list_containers_in_use())
+    packages_in_use = set(fetch_distinct("package"))
+
+    # Build lists with usage info: list of {"value": x, "used": bool}
+    categories = [
+        {"value": c, "used": c in categories_in_use}
+        for c in list_categories()
+    ]
+    subcategories = [
+        {"value": s, "used": s in subcategories_in_use}
+        for s in list_subcategories()
+    ]
+    containers_raw = list_containers()
+    containers = [
+        {
+            "value": c["code"] if hasattr(c, "keys") else c[0],
+            "used": (c["code"] if hasattr(c, "keys") else c[0]) in containers_in_use,
+        }
+        for c in containers_raw
+    ]
+    packages = [
+        {"value": p, "used": p in packages_in_use}
+        for p in list_packages()
+    ]
+
+    # Count unused
+    categories_unused = sum(1 for c in categories if not c["used"])
+    subcategories_unused = sum(1 for s in subcategories if not s["used"])
+    containers_unused = sum(1 for c in containers if not c["used"])
+    packages_unused = sum(1 for p in packages if not p["used"])
+
     return {
-        "categories": list_categories(),
-        "subcategories": list_subcategories(),
-        "containers": list_containers(),
-        "packages": list_packages(),
+        "categories": categories,
+        "subcategories": subcategories,
+        "containers": containers,
+        "packages": packages,
+        "categories_unused": categories_unused,
+        "subcategories_unused": subcategories_unused,
+        "containers_unused": containers_unused,
+        "packages_unused": packages_unused,
     }
 
 

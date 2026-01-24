@@ -389,6 +389,42 @@
 </section>
 
 <section class="panel help">
+    <h3>Maintenance Page</h3>
+    <p>
+        The <b>Maintenance</b> page lets you manage the lookup values used for suggestions and dropdowns throughout the app:
+        <b>Categories</b>, <b>Subcategories</b>, <b>Containers</b>, and <b>Packages</b>.
+    </p>
+    <h4>Accordion interface</h4>
+    <ul>
+        <li>Each entity type is in a collapsible section — click the header to expand/collapse.</li>
+        <li>The app remembers which section you last opened (stored in browser localStorage).</li>
+        <li>Closed sections show a compact header; open sections expand to show forms and existing items.</li>
+    </ul>
+    <h4>Usage tracking</h4>
+    <ul>
+        <li>Each section header shows the <b>total count</b> and <b>unused count</b> (e.g., "9 (2 unused)").</li>
+        <li><b>Unused items</b> are values defined in the lookup table but not referenced by any part.</li>
+        <li>Unused items appear with a <b>dashed orange border</b> so you can quickly identify cleanup candidates.</li>
+    </ul>
+    <h4>Interactive tags</h4>
+    <ul>
+        <li>Click any existing item tag to <b>auto-select</b> it in both the rename and delete dropdowns.</li>
+        <li>This saves time when you want to rename or delete a specific item — no need to scroll through the dropdown.</li>
+    </ul>
+    <h4>Operations</h4>
+    <ul>
+        <li><b>Add:</b> Create a new value. Type a name and click Add.</li>
+        <li><b>Rename:</b> Select an existing value, enter the new name, and click Rename. All parts using the old value are automatically updated. <span class="muted">Tip: use this to merge duplicate values (rename "OpAmp" to "Op-Amp").</span></li>
+        <li><b>Delete:</b> Select a value and click Delete. <b>Blocked</b> if any parts still reference it — rename or reassign parts first.</li>
+    </ul>
+    <h4>Inline feedback</h4>
+    <p>
+        Success and error messages appear <b>within the relevant section</b>, not at the top of the page.
+        This makes it clear which operation succeeded or failed.
+    </p>
+</section>
+
+<section class="panel help">
     <h3>Backup</h3>
     <ul>
         <li>The entire inventory is stored in one file: <span class="mono">inventory.db</span>.</li>
