@@ -1053,7 +1053,13 @@ def index(
 
 
 @app.get("/maintenance", response_class=HTMLResponse)
-def maintenance_page(request: Request, notice: str = "", error: str = "") -> HTMLResponse:
+def maintenance_page(
+    request: Request,
+    notice: str = "",
+    error: str = "",
+    notice_section: str = "",
+    error_section: str = "",
+) -> HTMLResponse:
     for cat in list_categories_in_use():
         ensure_category(cat)
     for sub in list_subcategories_in_use():
@@ -1070,6 +1076,8 @@ def maintenance_page(request: Request, notice: str = "", error: str = "") -> HTM
         title=f"{APP_TITLE} – Maintenance",
         notice=notice,
         error=error,
+        notice_section=notice_section,
+        error_section=error_section,
         **data,
     )
 
@@ -1101,7 +1109,7 @@ def maintenance_action(
 
     if action == "add":
         if not value:
-            return maintenance_page(request, error="Value is required.")
+            return maintenance_page(request, error="Value is required.", error_section=entity)
         with get_conn() as conn:
             if entity == "container":
                 conn.execute(
@@ -1114,11 +1122,11 @@ def maintenance_action(
                     (value,),
                 )
             conn.commit()
-        return maintenance_page(request, notice=f"Added {entity}: {value}")
+        return maintenance_page(request, notice=f"Added {entity}: {value}", notice_section=entity)
 
     if action == "rename":
         if not value or not new_value:
-            return maintenance_page(request, error="Current and new values are required.")
+            return maintenance_page(request, error="Current and new values are required.", error_section=entity)
         with get_conn() as conn:
             conn.execute(
                 f"UPDATE parts SET {meta['field']} = ? WHERE {meta['field']} = ?",
@@ -1140,16 +1148,17 @@ def maintenance_action(
                     (value,),
                 )
             conn.commit()
-        return maintenance_page(request, notice=f"Renamed {entity}: {value} → {new_value}")
+        return maintenance_page(request, notice=f"Renamed {entity}: {value} → {new_value}", notice_section=entity)
 
     if not value:
-        return maintenance_page(request, error="Value is required.")
+        return maintenance_page(request, error="Value is required.", error_section=entity)
 
     used = _count_usage(meta["field"], value)
     if used > 0:
         return maintenance_page(
             request,
             error=f"Cannot delete '{value}' because it is used by {used} part(s).",
+            error_section=entity,
         )
 
     with get_conn() as conn:
@@ -1162,7 +1171,7 @@ def maintenance_action(
             )
         conn.commit()
 
-    return maintenance_page(request, notice=f"Deleted {entity}: {value}")
+    return maintenance_page(request, notice=f"Deleted {entity}: {value}", notice_section=entity)
 
 
 @app.get("/partials/table", response_class=HTMLResponse)
