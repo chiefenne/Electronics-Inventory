@@ -1,218 +1,348 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="panel">
+<section class="panel maintenance-header">
     <h3 class="panel-title">Maintenance</h3>
-    {% if error %}
-    <div class="maintenance-message maintenance-message--error">{{ error }}</div>
-    {% endif %}
-    {% if notice %}
-    <div class="maintenance-message">{{ notice }}</div>
-    {% endif %}
-    <p class="muted">Manage lookup values used for suggestions and dropdowns. Rename to merge variants; delete is blocked if values are in use.</p>
+    <p class="muted">Manage lookup values used for suggestions and dropdowns. Rename to merge variants; delete is blocked if values are in use. Click any tag to select it for rename or delete.</p>
 </section>
 
-<section class="panel">
-    <h3 class="panel-title">Categories</h3>
-    <div class="maintenance-list">
-        {% for cat in categories %}
-        <span class="chip">{{ cat }}</span>
-        {% else %}
-        <span class="muted">No categories yet.</span>
-        {% endfor %}
-    </div>
-    <div class="maintenance-grid">
-        <form class="maintenance-form" method="post" action="/maintenance/category/add">
-            <label class="field-group">
-                <span class="field-label">Add category</span>
-                <input name="value" placeholder="IC, MCU, PASSIVE…" required />
-            </label>
-            <button class="btn" type="submit">Add</button>
-        </form>
+<div class="maintenance-accordion">
+    <!-- Categories -->
+    <details class="accordion-section" data-section="categories" open>
+        <summary class="accordion-trigger">
+            <span class="accordion-title">Categories</span>
+            <span class="accordion-count">{{ categories|length }}</span>
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="accordion-content">
+            {% if error and error_section == 'category' %}
+            <div class="maintenance-message maintenance-message--error">{{ error }}</div>
+            {% endif %}
+            {% if notice and notice_section == 'category' %}
+            <div class="maintenance-message maintenance-message--success">{{ notice }}</div>
+            {% endif %}
+            <div class="maintenance-layout">
+                <div class="maintenance-forms">
+                    <form class="maintenance-form" method="post" action="/maintenance/category/add">
+                        <label class="field-group">
+                            <span class="field-label">Add category</span>
+                            <input name="value" placeholder="IC, MCU, PASSIVE…" required />
+                        </label>
+                        <button class="btn" type="submit">Add</button>
+                    </form>
 
-        <form class="maintenance-form" method="post" action="/maintenance/category/rename">
-            <label class="field-group">
-                <span class="field-label">Rename category</span>
-                <select name="value" required>
-                    <option value="">Select…</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat }}">{{ cat }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="field-group">
-                <span class="field-label">New name</span>
-                <input name="new_value" placeholder="New category" required />
-            </label>
-            <button class="btn secondary" type="submit">Rename</button>
-        </form>
+                    <form class="maintenance-form" method="post" action="/maintenance/category/rename">
+                        <label class="field-group">
+                            <span class="field-label">Rename category</span>
+                            <select name="value" class="maintenance-select" required>
+                                <option value="">Select…</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}">{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label class="field-group">
+                            <span class="field-label">New name</span>
+                            <input name="new_value" placeholder="New name" required />
+                        </label>
+                        <button class="btn secondary" type="submit">Rename</button>
+                    </form>
 
-        <form class="maintenance-form" method="post" action="/maintenance/category/delete">
-            <label class="field-group">
-                <span class="field-label">Delete category</span>
-                <select name="value" required>
-                    <option value="">Select…</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat }}">{{ cat }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <button class="btn danger-outline" type="submit">Delete</button>
-        </form>
-    </div>
-</section>
+                    <form class="maintenance-form" method="post" action="/maintenance/category/delete">
+                        <label class="field-group">
+                            <span class="field-label">Delete category</span>
+                            <select name="value" class="maintenance-select" required>
+                                <option value="">Select…</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}">{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <button class="btn danger-outline" type="submit">Delete</button>
+                    </form>
+                </div>
+                <div class="maintenance-tags">
+                    <span class="field-label">Existing ({{ categories|length }})</span>
+                    <div class="maintenance-list" data-target="category">
+                        {% for cat in categories %}
+                        <button type="button" class="tag" data-value="{{ cat }}">{{ cat }}</button>
+                        {% else %}
+                        <span class="muted">No categories yet.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </details>
 
-<section class="panel">
-    <h3 class="panel-title">Subcategories</h3>
-    <div class="maintenance-list">
-        {% for sub in subcategories %}
-        <span class="chip">{{ sub }}</span>
-        {% else %}
-        <span class="muted">No subcategories yet.</span>
-        {% endfor %}
-    </div>
-    <div class="maintenance-grid">
-        <form class="maintenance-form" method="post" action="/maintenance/subcategory/add">
-            <label class="field-group">
-                <span class="field-label">Add subcategory</span>
-                <input name="value" placeholder="OpAmp, Logic…" required />
-            </label>
-            <button class="btn" type="submit">Add</button>
-        </form>
+    <!-- Subcategories -->
+    <details class="accordion-section" data-section="subcategories">
+        <summary class="accordion-trigger">
+            <span class="accordion-title">Subcategories</span>
+            <span class="accordion-count">{{ subcategories|length }}</span>
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="accordion-content">
+            {% if error and error_section == 'subcategory' %}
+            <div class="maintenance-message maintenance-message--error">{{ error }}</div>
+            {% endif %}
+            {% if notice and notice_section == 'subcategory' %}
+            <div class="maintenance-message maintenance-message--success">{{ notice }}</div>
+            {% endif %}
+            <div class="maintenance-layout">
+                <div class="maintenance-forms">
+                    <form class="maintenance-form" method="post" action="/maintenance/subcategory/add">
+                        <label class="field-group">
+                            <span class="field-label">Add subcategory</span>
+                            <input name="value" placeholder="OpAmp, Logic…" required />
+                        </label>
+                        <button class="btn" type="submit">Add</button>
+                    </form>
 
-        <form class="maintenance-form" method="post" action="/maintenance/subcategory/rename">
-            <label class="field-group">
-                <span class="field-label">Rename subcategory</span>
-                <select name="value" required>
-                    <option value="">Select…</option>
-                    {% for sub in subcategories %}
-                    <option value="{{ sub }}">{{ sub }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="field-group">
-                <span class="field-label">New name</span>
-                <input name="new_value" placeholder="New subcategory" required />
-            </label>
-            <button class="btn secondary" type="submit">Rename</button>
-        </form>
+                    <form class="maintenance-form" method="post" action="/maintenance/subcategory/rename">
+                        <label class="field-group">
+                            <span class="field-label">Rename subcategory</span>
+                            <select name="value" class="maintenance-select" required>
+                                <option value="">Select…</option>
+                                {% for sub in subcategories %}
+                                <option value="{{ sub }}">{{ sub }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label class="field-group">
+                            <span class="field-label">New name</span>
+                            <input name="new_value" placeholder="New name" required />
+                        </label>
+                        <button class="btn secondary" type="submit">Rename</button>
+                    </form>
 
-        <form class="maintenance-form" method="post" action="/maintenance/subcategory/delete">
-            <label class="field-group">
-                <span class="field-label">Delete subcategory</span>
-                <select name="value" required>
-                    <option value="">Select…</option>
-                    {% for sub in subcategories %}
-                    <option value="{{ sub }}">{{ sub }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <button class="btn danger-outline" type="submit">Delete</button>
-        </form>
-    </div>
-</section>
+                    <form class="maintenance-form" method="post" action="/maintenance/subcategory/delete">
+                        <label class="field-group">
+                            <span class="field-label">Delete subcategory</span>
+                            <select name="value" class="maintenance-select" required>
+                                <option value="">Select…</option>
+                                {% for sub in subcategories %}
+                                <option value="{{ sub }}">{{ sub }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <button class="btn danger-outline" type="submit">Delete</button>
+                    </form>
+                </div>
+                <div class="maintenance-tags">
+                    <span class="field-label">Existing ({{ subcategories|length }})</span>
+                    <div class="maintenance-list" data-target="subcategory">
+                        {% for sub in subcategories %}
+                        <button type="button" class="tag" data-value="{{ sub }}">{{ sub }}</button>
+                        {% else %}
+                        <span class="muted">No subcategories yet.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </details>
 
-<section class="panel">
-    <h3 class="panel-title">Containers</h3>
-    <div class="maintenance-list">
-        {% for c in containers %}
-        {% set code = c.code if c.code is defined else c %}
-        <span class="chip mono">{{ code }}</span>
-        {% else %}
-        <span class="muted">No containers yet.</span>
-        {% endfor %}
-    </div>
-    <div class="maintenance-grid">
-        <form class="maintenance-form" method="post" action="/maintenance/container/add">
-            <label class="field-group">
-                <span class="field-label">Add container</span>
-                <input name="value" placeholder="BX-03, DR-A1…" required />
-            </label>
-            <button class="btn" type="submit">Add</button>
-        </form>
+    <!-- Containers -->
+    <details class="accordion-section" data-section="containers">
+        <summary class="accordion-trigger">
+            <span class="accordion-title">Containers</span>
+            <span class="accordion-count">{{ containers|length }}</span>
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="accordion-content">
+            {% if error and error_section == 'container' %}
+            <div class="maintenance-message maintenance-message--error">{{ error }}</div>
+            {% endif %}
+            {% if notice and notice_section == 'container' %}
+            <div class="maintenance-message maintenance-message--success">{{ notice }}</div>
+            {% endif %}
+            <div class="maintenance-layout">
+                <div class="maintenance-forms">
+                    <form class="maintenance-form" method="post" action="/maintenance/container/add">
+                        <label class="field-group">
+                            <span class="field-label">Add container</span>
+                            <input name="value" placeholder="BX-03, DR-A1…" required />
+                        </label>
+                        <button class="btn" type="submit">Add</button>
+                    </form>
 
-        <form class="maintenance-form" method="post" action="/maintenance/container/rename">
-            <label class="field-group">
-                <span class="field-label">Rename container</span>
-                <select name="value" required>
-                    <option value="">Select…</option>
-                    {% for c in containers %}
-                    {% set code = c.code if c.code is defined else c %}
-                    <option value="{{ code }}">{{ code }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="field-group">
-                <span class="field-label">New code</span>
-                <input name="new_value" placeholder="New code" required />
-            </label>
-            <button class="btn secondary" type="submit">Rename</button>
-        </form>
+                    <form class="maintenance-form" method="post" action="/maintenance/container/rename">
+                        <label class="field-group">
+                            <span class="field-label">Rename container</span>
+                            <select name="value" class="maintenance-select" required>
+                                <option value="">Select…</option>
+                                {% for c in containers %}
+                                {% set code = c.code if c.code is defined else c %}
+                                <option value="{{ code }}">{{ code }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label class="field-group">
+                            <span class="field-label">New code</span>
+                            <input name="new_value" placeholder="New code" required />
+                        </label>
+                        <button class="btn secondary" type="submit">Rename</button>
+                    </form>
 
-        <form class="maintenance-form" method="post" action="/maintenance/container/delete">
-            <label class="field-group">
-                <span class="field-label">Delete container</span>
-                <select name="value" required>
-                    <option value="">Select…</option>
-                    {% for c in containers %}
-                    {% set code = c.code if c.code is defined else c %}
-                    <option value="{{ code }}">{{ code }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <button class="btn danger-outline" type="submit">Delete</button>
-        </form>
-    </div>
-</section>
+                    <form class="maintenance-form" method="post" action="/maintenance/container/delete">
+                        <label class="field-group">
+                            <span class="field-label">Delete container</span>
+                            <select name="value" class="maintenance-select" required>
+                                <option value="">Select…</option>
+                                {% for c in containers %}
+                                {% set code = c.code if c.code is defined else c %}
+                                <option value="{{ code }}">{{ code }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <button class="btn danger-outline" type="submit">Delete</button>
+                    </form>
+                </div>
+                <div class="maintenance-tags">
+                    <span class="field-label">Existing ({{ containers|length }})</span>
+                    <div class="maintenance-list" data-target="container">
+                        {% for c in containers %}
+                        {% set code = c.code if c.code is defined else c %}
+                        <button type="button" class="tag mono" data-value="{{ code }}">{{ code }}</button>
+                        {% else %}
+                        <span class="muted">No containers yet.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </details>
 
-<section class="panel">
-    <h3 class="panel-title">Packages</h3>
-    <div class="maintenance-list">
-        {% for pkg in packages %}
-        <span class="chip">{{ pkg }}</span>
-        {% else %}
-        <span class="muted">No packages yet.</span>
-        {% endfor %}
-    </div>
-    <div class="maintenance-grid">
-        <form class="maintenance-form" method="post" action="/maintenance/package/add">
-            <label class="field-group">
-                <span class="field-label">Add package</span>
-                <input name="value" placeholder="DIP, SOIC, 0603…" required />
-            </label>
-            <button class="btn" type="submit">Add</button>
-        </form>
+    <!-- Packages -->
+    <details class="accordion-section" data-section="packages">
+        <summary class="accordion-trigger">
+            <span class="accordion-title">Packages</span>
+            <span class="accordion-count">{{ packages|length }}</span>
+            <svg class="accordion-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="accordion-content">
+            {% if error and error_section == 'package' %}
+            <div class="maintenance-message maintenance-message--error">{{ error }}</div>
+            {% endif %}
+            {% if notice and notice_section == 'package' %}
+            <div class="maintenance-message maintenance-message--success">{{ notice }}</div>
+            {% endif %}
+            <div class="maintenance-layout">
+                <div class="maintenance-forms">
+                    <form class="maintenance-form" method="post" action="/maintenance/package/add">
+                        <label class="field-group">
+                            <span class="field-label">Add package</span>
+                            <input name="value" placeholder="DIP, SOIC, 0603…" required />
+                        </label>
+                        <button class="btn" type="submit">Add</button>
+                    </form>
 
-        <form class="maintenance-form" method="post" action="/maintenance/package/rename">
-            <label class="field-group">
-                <span class="field-label">Rename package</span>
-                <select name="value" required>
-                    <option value="">Select…</option>
-                    {% for pkg in packages %}
-                    <option value="{{ pkg }}">{{ pkg }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="field-group">
-                <span class="field-label">New name</span>
-                <input name="new_value" placeholder="New package" required />
-            </label>
-            <button class="btn secondary" type="submit">Rename</button>
-        </form>
+                    <form class="maintenance-form" method="post" action="/maintenance/package/rename">
+                        <label class="field-group">
+                            <span class="field-label">Rename package</span>
+                            <select name="value" class="maintenance-select" required>
+                                <option value="">Select…</option>
+                                {% for pkg in packages %}
+                                <option value="{{ pkg }}">{{ pkg }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label class="field-group">
+                            <span class="field-label">New name</span>
+                            <input name="new_value" placeholder="New name" required />
+                        </label>
+                        <button class="btn secondary" type="submit">Rename</button>
+                    </form>
 
-        <form class="maintenance-form" method="post" action="/maintenance/package/delete">
-            <label class="field-group">
-                <span class="field-label">Delete package</span>
-                <select name="value" required>
-                    <option value="">Select…</option>
-                    {% for pkg in packages %}
-                    <option value="{{ pkg }}">{{ pkg }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <button class="btn danger-outline" type="submit">Delete</button>
-        </form>
-    </div>
-</section>
+                    <form class="maintenance-form" method="post" action="/maintenance/package/delete">
+                        <label class="field-group">
+                            <span class="field-label">Delete package</span>
+                            <select name="value" class="maintenance-select" required>
+                                <option value="">Select…</option>
+                                {% for pkg in packages %}
+                                <option value="{{ pkg }}">{{ pkg }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <button class="btn danger-outline" type="submit">Delete</button>
+                    </form>
+                </div>
+                <div class="maintenance-tags">
+                    <span class="field-label">Existing ({{ packages|length }})</span>
+                    <div class="maintenance-list" data-target="package">
+                        {% for pkg in packages %}
+                        <button type="button" class="tag" data-value="{{ pkg }}">{{ pkg }}</button>
+                        {% else %}
+                        <span class="muted">No packages yet.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </details>
+</div>
+
+<script>
+(function() {
+    const STORAGE_KEY = 'maintenance_open_section';
+
+    // Restore last opened section from localStorage
+    function restoreOpenSection() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            document.querySelectorAll('.accordion-section').forEach(section => {
+                if (section.dataset.section === saved) {
+                    section.open = true;
+                } else {
+                    section.open = false;
+                }
+            });
+        }
+    }
+
+    // Save which section is open
+    function saveOpenSection(sectionName) {
+        localStorage.setItem(STORAGE_KEY, sectionName);
+    }
+
+    // Handle accordion toggle - save state
+    document.querySelectorAll('.accordion-section').forEach(section => {
+        section.addEventListener('toggle', function() {
+            if (this.open) {
+                saveOpenSection(this.dataset.section);
+            }
+        });
+    });
+
+    // Tag click -> fill both rename and delete selects in that section
+    document.querySelectorAll('.maintenance-list').forEach(list => {
+        list.addEventListener('click', function(e) {
+            const tag = e.target.closest('.tag');
+            if (!tag) return;
+
+            const value = tag.dataset.value;
+            const section = this.closest('.accordion-content');
+
+            // Remove active state from siblings, add to clicked
+            list.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+
+            // Fill all selects in this section with this value
+            section.querySelectorAll('.maintenance-select').forEach(select => {
+                for (const opt of select.options) {
+                    if (opt.value === value) {
+                        select.value = value;
+                        break;
+                    }
+                }
+            });
+        });
+    });
+
+    // On page load, restore section state
+    restoreOpenSection();
+})();
+</script>
 
 {% endblock %}

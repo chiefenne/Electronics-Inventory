@@ -217,33 +217,223 @@ body {
     padding: 0;
 }
 
-.maintenance-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 10px;
+/* =========================
+   Maintenance Page - Header
+   ========================= */
+
+.maintenance-header {
+    margin-bottom: 0;
 }
 
-.maintenance-grid {
+.maintenance-header .panel-title {
+    margin-bottom: 8px;
+}
+
+/* =========================
+   Maintenance Accordion
+   ========================= */
+
+.maintenance-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 16px;
+    align-items: flex-start;
+}
+
+.accordion-section {
+    background: #ffffff;
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 280px;
+    width: 100%;
+    transition: max-width 0.2s ease;
+}
+
+.accordion-section[open] {
+    border-color: var(--blue-primary);
+    box-shadow: 0 0 0 1px rgba(47, 111, 179, 0.08);
+    max-width: 100%;
+}
+
+.accordion-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    background: #fafbfc;
+    border-bottom: 1px solid transparent;
+    list-style: none;
+}
+
+.accordion-trigger::-webkit-details-marker {
+    display: none;
+}
+
+.accordion-section[open] .accordion-trigger {
+    background: var(--blue-soft);
+    border-bottom-color: var(--border-soft);
+}
+
+.accordion-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.accordion-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.accordion-section[open] .accordion-count {
+    background: var(--blue-primary);
+    color: #ffffff;
+}
+
+.accordion-icon {
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.accordion-section[open] .accordion-icon {
+    transform: rotate(180deg);
+    color: var(--blue-primary);
+}
+
+.accordion-content {
+    padding: 16px;
+}
+
+/* =========================
+   Maintenance Layout (forms + tags)
+   ========================= */
+
+.maintenance-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 12px;
-    align-items: end;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .maintenance-layout {
+        grid-template-columns: auto 1fr;
+        gap: 32px;
+    }
+}
+
+.maintenance-forms {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (min-width: 600px) {
+    .maintenance-forms {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
 }
 
 .maintenance-form {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 180px;
+    max-width: 220px;
 }
 
+.maintenance-form input,
+.maintenance-form select {
+    width: 100%;
+    max-width: 200px;
+}
+
+.maintenance-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.maintenance-tags .field-label {
+    margin-bottom: 4px;
+}
+
+.maintenance-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-content: flex-start;
+}
+
+/* =========================
+   Tags (muted, interactive)
+   ========================= */
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-main);
+    background: #f1f5f9;
+    border: 1px solid var(--border-soft);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.tag:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+.tag.active {
+    background: var(--blue-soft);
+    border-color: var(--blue-primary);
+    color: var(--blue-primary);
+    font-weight: 600;
+}
+
+.tag.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* =========================
+   Maintenance Messages (inline)
+   ========================= */
+
 .maintenance-message {
-    margin-bottom: 8px;
-    color: #0f5132;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 16px;
+}
+
+.maintenance-message--success {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
 }
 
 .maintenance-message--error {
-    color: #b91c1c;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
 }
 
 .field-group {
