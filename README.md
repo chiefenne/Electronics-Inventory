@@ -61,6 +61,20 @@ Click any part description in the main table to open its **detail page**, which 
 
 This provides a focused view of a single part with all its information organized in one place. Use the **Back to Inventory** button to return to the main table.
 
+### Editing images and datasheets on the detail page
+
+The detail page allows you to add or update images and datasheets for existing parts:
+
+1. Click the **✏️ edit icon** next to "Device Image", "Pinout", or "Datasheet / Documentation"
+2. An edit form appears with:
+   - **Text input**: enter a filename (for local images) or URL manually
+   - **🔍 AI Search button**: search for images or datasheets using AI (requires API keys)
+3. For images, the AI search opens a modal with image results — click one to download and save it locally
+4. For datasheets, the AI search shows a list of PDF links from electronics distributors — click one to use that URL
+5. Click **Save** to update the part, or **Cancel** to discard changes
+
+This is especially useful for parts that were added without images or datasheets — you can easily populate them later.
+
 ## Screenshots
 
 **Fig. 1:** Main inventory screen with search, filters, and inline editing.
@@ -114,6 +128,8 @@ The 📷 (part image) and 📐 (pinout image) buttons let you search for images:
    - The filename (based on the part description) is inserted into the field
 
 This ensures images are stored permanently and won't break if external sources change or go offline.
+
+**Note:** Image search is also available on the **Part Detail page** for updating existing parts — click the edit icon next to the image section and use the 🔍 search button.
 
 ### Setup
 

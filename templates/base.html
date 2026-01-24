@@ -145,6 +145,15 @@
                         <div class="spinner-border text-primary"></div>
                     </div>
                     <div id="imageGrid" class="row g-2"></div>
+                    <div id="imagePagination" class="d-flex justify-content-between align-items-center mt-3 d-none">
+                        <button type="button" class="btn btn-secondary pagination-btn" id="imagePrevBtn" onclick="showImagePage(-1)">
+                            ← Previous
+                        </button>
+                        <span id="imagePageInfo" class="text-muted">Page 1 of 1</span>
+                        <button type="button" class="btn btn-secondary pagination-btn" id="imageNextBtn" onclick="showImagePage(1)">
+                            Next →
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

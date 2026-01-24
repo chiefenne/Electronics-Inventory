@@ -559,6 +559,21 @@ body {
     object-fit: contain;
 }
 
+/* Pagination buttons - always white text with hover brightness effect */
+.pagination-btn {
+    color: #fff !important;
+    transition: filter 0.2s, transform 0.1s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    filter: brightness(1.3);
+    transform: scale(1.05);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+}
+
 /* Custom instant tooltip (works on disabled buttons too) */
 .tooltip-wrapper {
     position: relative;

@@ -777,7 +777,7 @@ async def search_images(query: str, type: str = "part") -> List[ImageResult]:
             query=query + suffix,
             include_images=True,
             include_answer=False,
-            max_results=6,
+            max_results=18,  # Fetch more for pagination
         )
         images = response.get("images", [])
 

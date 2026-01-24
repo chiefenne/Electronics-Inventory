@@ -9,7 +9,10 @@ let imageSearchState = {
     partUuid: null,           // Part UUID (for detail page edits)
     partDescription: null,    // Query for search
     type: 'part',             // 'part', 'pinout', or 'datasheet'
-    onComplete: null          // Callback after selection
+    onComplete: null,         // Callback after selection
+    allImages: [],            // All fetched images for pagination
+    currentPage: 0,           // Current page index
+    imagesPerPage: 4          // Number of images to show per page
 };
 
 /**
@@ -49,12 +52,16 @@ async function openImageSearchModal(type, options = {}) {
         partUuid: options.partUuid || null,
         partDescription: description,
         type: type,
-        onComplete: options.onComplete || null
+        onComplete: options.onComplete || null,
+        allImages: [],
+        currentPage: 0,
+        imagesPerPage: 4
     };
 
     const grid = document.getElementById("imageGrid");
     const spinner = document.getElementById("imageLoading");
     const title = document.getElementById("imagePickerTitle");
+    const pagination = document.getElementById("imagePagination");
     if (!grid || !spinner) return;
 
     // Update title
@@ -65,6 +72,7 @@ async function openImageSearchModal(type, options = {}) {
     // Reset and show loading
     grid.innerHTML = "";
     spinner.classList.remove("d-none");
+    if (pagination) pagination.classList.add("d-none");
 
     // Show modal
     const modalEl = document.getElementById("imagePickerModal");
@@ -83,21 +91,85 @@ async function openImageSearchModal(type, options = {}) {
             return;
         }
 
-        images.forEach(img => {
-            const col = document.createElement("div");
-            col.className = "col-6 col-md-4 col-lg-2";
-            col.innerHTML = `
-                <div class="card img-card h-100" data-url="${img.url}" onclick="selectAndDownloadImage(this)">
-                    <img src="${img.url}" class="card-img-top preview-img" onerror="this.parentElement.style.display='none'">
-                    <div class="card-body p-1 text-center">
-                        <small class="text-muted" style="font-size:10px">${img.source || "Web"}</small>
-                    </div>
-                </div>`;
-            grid.appendChild(col);
-        });
+        // Store all images and display first page
+        imageSearchState.allImages = images;
+        imageSearchState.currentPage = 0;
+        renderImagePage();
+
     } catch (e) {
         spinner.classList.add("d-none");
         grid.innerHTML = '<p class="text-danger">Search failed. Please try again.</p>';
+    }
+}
+
+/**
+ * Render the current page of images
+ */
+function renderImagePage() {
+    const grid = document.getElementById("imageGrid");
+    const pagination = document.getElementById("imagePagination");
+    const pageInfo = document.getElementById("imagePageInfo");
+    const prevBtn = document.getElementById("imagePrevBtn");
+    const nextBtn = document.getElementById("imageNextBtn");
+
+    if (!grid) return;
+
+    const { allImages, currentPage, imagesPerPage } = imageSearchState;
+    const totalPages = Math.ceil(allImages.length / imagesPerPage);
+    const startIdx = currentPage * imagesPerPage;
+    const endIdx = Math.min(startIdx + imagesPerPage, allImages.length);
+    const pageImages = allImages.slice(startIdx, endIdx);
+
+    // Clear and render images
+    grid.innerHTML = "";
+    pageImages.forEach(img => {
+        const col = document.createElement("div");
+        col.className = "col-6 col-md-3";  // 2 per row on mobile, 4 on desktop
+        col.innerHTML = `
+            <div class="card img-card h-100" data-url="${img.url}" onclick="selectAndDownloadImage(this)">
+                <img src="${img.url}" class="card-img-top preview-img" onerror="this.parentElement.parentElement.style.display='none'">
+                <div class="card-body p-1 text-center">
+                    <small class="text-muted" style="font-size:10px">${img.source || "Web"}</small>
+                </div>
+            </div>`;
+        grid.appendChild(col);
+    });
+
+    // Show/hide pagination controls
+    if (pagination) {
+        // Always show pagination area to display image count
+        pagination.classList.remove("d-none");
+        if (pageInfo) {
+            if (totalPages > 1) {
+                pageInfo.textContent = `Page ${currentPage + 1} of ${totalPages} (${allImages.length} images)`;
+            } else {
+                pageInfo.textContent = `${allImages.length} image${allImages.length !== 1 ? 's' : ''} found`;
+            }
+        }
+        // Only enable buttons if there are multiple pages
+        if (prevBtn) {
+            prevBtn.style.visibility = totalPages > 1 ? 'visible' : 'hidden';
+            prevBtn.disabled = currentPage === 0;
+        }
+        if (nextBtn) {
+            nextBtn.style.visibility = totalPages > 1 ? 'visible' : 'hidden';
+            nextBtn.disabled = currentPage >= totalPages - 1;
+        }
+    }
+}
+
+/**
+ * Navigate to previous/next page of images
+ * @param {number} direction - -1 for previous, 1 for next
+ */
+function showImagePage(direction) {
+    const { allImages, currentPage, imagesPerPage } = imageSearchState;
+    const totalPages = Math.ceil(allImages.length / imagesPerPage);
+    const newPage = currentPage + direction;
+
+    if (newPage >= 0 && newPage < totalPages) {
+        imageSearchState.currentPage = newPage;
+        renderImagePage();
     }
 }
 

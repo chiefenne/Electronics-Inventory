@@ -158,6 +158,10 @@
     <p class="muted">
         This ensures images are stored permanently and won't break if external sources change or go offline.
     </p>
+    <p>
+        <b>Note:</b> Image and datasheet search is also available on the <b>Part Detail page</b> for updating existing parts.
+        Click the edit icon (✏️) next to the image or datasheet section and use the 🔍 search button.
+    </p>
     <h4>Requirements</h4>
     <p>
         AI features require two API keys to be configured as environment variables:
@@ -199,8 +203,28 @@
         <li><b>Datasheet:</b> quick-access button to open the datasheet or documentation URL (if provided).</li>
         <li><b>Back button:</b> returns to the main inventory table.</li>
     </ul>
+    <h4>Editing images and datasheets</h4>
+    <p>
+        The detail page allows you to add or update images and datasheets for existing parts:
+    </p>
+    <ol>
+        <li>Click the <b>✏️ edit icon</b> next to "Device Image", "Pinout", or "Datasheet / Documentation"</li>
+        <li>An edit form appears with a text input and an <b>AI Search</b> button (🔍)</li>
+        <li>You can either:
+            <ul>
+                <li>Enter a filename or URL manually, or</li>
+                <li>Click the <b>🔍 search button</b> to use AI-powered search</li>
+            </ul>
+        </li>
+        <li>For images, the AI search shows a modal with image results — click one to download and save it locally</li>
+        <li>For datasheets, the AI search shows a list of PDF links from electronics distributors</li>
+        <li>Click <b>Save</b> to update the part</li>
+    </ol>
     <p class="muted">
-        Tip: The detail page is useful when you want to see everything about a part at once without needing to hover over icons or toggle cells.
+        Tip: This is especially useful for parts that were added without images or datasheets — you can easily populate them later.
+    </p>
+    <p class="muted">
+        Tip: In the main table, dimmed icons indicate missing data. The tooltip says "Click to enter filename, or view part for AI search" — reminding you that AI search is available on the detail page.
     </p>
 </section>
 
