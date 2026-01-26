@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="panel">
+    <div class="panel-header">
+        <h2 class="panel-title">Container {{ code }} – Images</h2>
+        <a class="btn secondary" href="/containers/{{ code }}">Back to container</a>
+    </div>
+
+    {% if parts and parts|length > 0 %}
+        <div class="container-images-grid">
+            {% for part in parts %}
+                {% set image_url = part.get("image_url", "") %}
+                {% set has_image = image_url and image_url|trim %}
+                {% set image_url_l = image_url|lower %}
+                {% set is_image = image_url_l.endswith('.png')
+                    or image_url_l.endswith('.jpg')
+                    or image_url_l.endswith('.jpeg')
+                    or image_url_l.endswith('.gif')
+                    or image_url_l.endswith('.webp')
+                    or image_url_l.endswith('.svg') %}
+                <div class="container-images-card">
+                    {% if has_image and is_image %}
+                        <span class="tooltip-wrapper" data-tooltip="Open full-size image in new tab">
+                            <a href="{{ image_url }}" target="_blank" rel="noopener" aria-label="Open full-size image in new tab">
+                                <img src="{{ image_url }}" alt="{{ part.description }}" class="container-images-thumb" loading="lazy" />
+                            </a>
+                        </span>
+                    {% else %}
+                        <div class="container-images-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width: 36px; height: 36px; opacity: 0.35;">
+                                <path fill="currentColor" d="M8.5 13.5l2.5 3l3.5-4.5l4.5 6H5m16 1V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/>
+                            </svg>
+                            <span class="placeholder-text">No image</span>
+                        </div>
+                    {% endif %}
+                    <span class="tooltip-wrapper" data-tooltip="Open part details">
+                        <a class="container-images-desc" href="/parts/{{ part.uuid }}/view" aria-label="Open part details">
+                            {{ part.description }}
+                        </a>
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="muted">No parts found in this container.</div>
+    {% endif %}
+</section>
+
+{% endblock %}

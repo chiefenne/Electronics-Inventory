@@ -2,7 +2,10 @@
 {% block content %}
 
 <section class="panel">
-    <h2>Container {{ code }}</h2>
+    <div class="panel-header">
+        <h2 class="panel-heading">Container {{ code }}</h2>
+        <a class="btn secondary" href="/containers/{{ code }}/images">View box contents</a>
+    </div>
 
     <div id="table">
         {% include "_table.html" %}

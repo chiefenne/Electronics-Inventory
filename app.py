@@ -1938,6 +1938,18 @@ def container_view(request: Request, code: str) -> HTMLResponse:
     )
 
 
+@app.get("/containers/{code}/images", response_class=HTMLResponse)
+def container_images(request: Request, code: str) -> HTMLResponse:
+    parts = fetch_parts(container_id=code, limit=2000)
+    return render(
+        "container_images.html",
+        request=request,
+        title=f"Container {code} – Images",
+        code=code,
+        parts=parts,
+    )
+
+
 @app.get("/help", response_class=HTMLResponse)
 def help_page(request: Request) -> HTMLResponse:
     return render("help.html", request=request, title=f"{APP_TITLE}")
