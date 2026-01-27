@@ -18,7 +18,7 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 - Optional links per part: datasheet + pinout (quick-open buttons in the table)
 - Optional images per part: device photo + pinout image (hover preview in the table)
 - Optional stock levels (low-stock warning colors) for quantity
-- Container pages and printable container labels with QR codes
+- Container pages, container image grid view, and printable container labels with QR codes
 - Uses a local SQLite database file (no server required)
 
 ## Maintenance Page
@@ -60,6 +60,16 @@ Click any part description in the main table to open its **detail page**, which 
 - **Datasheet/documentation link** for quick access
 
 This provides a focused view of a single part with all its information organized in one place. Use the **Back to Inventory** button to return to the main table.
+
+## Container image grid
+
+Each container page includes a **View box contents** button that opens a grid view of all parts in that container.
+
+- Each grid tile shows the part image (or a placeholder if missing).
+- The description below each image opens the part detail page.
+- Clicking the image also opens the part detail page.
+
+From the detail page you can open the full-size image.
 
 ### Editing images and datasheets on the detail page
 
@@ -230,6 +240,7 @@ On startup, the app creates/uses a SQLite database at `inventory.db` (in the rep
 - `/help` – help page
 - `/export.csv` – download CSV export (respects current filters via query params)
 - `/containers/{code}` – show parts in a specific container
+- `/containers/{code}/images` – image grid view for all parts in a container
 - `/containers/labels` – printable labels with QR codes
 
 ## Images (device + pinout)

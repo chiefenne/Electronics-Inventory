@@ -21,8 +21,8 @@
                     or image_url_l.endswith('.svg') %}
                 <div class="container-images-card">
                     {% if has_image and is_image %}
-                        <span class="tooltip-wrapper" data-tooltip="Open full-size image in new tab">
-                            <a href="{{ image_url }}" target="_blank" rel="noopener" aria-label="Open full-size image in new tab">
+                        <span class="tooltip-wrapper" data-tooltip="Open part details">
+                            <a href="/parts/{{ part.uuid }}/view" aria-label="Open part details">
                                 <img src="{{ image_url }}" alt="{{ part.description }}" class="container-images-thumb" loading="lazy" />
                             </a>
                         </span>
