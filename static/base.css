@@ -8,6 +8,8 @@
     --blue-primary: #2f6fb3;
     --blue-primary-hi: #3f82c9;
     --blue-soft: #e8f1fb;
+    --panel-search-tint: #e3edff;
+    --panel-add-tint: #e7f6ec;
 
     --border-soft: #d6e1ee;
     --text-main: #0f172a;
@@ -207,6 +209,16 @@ body {
     padding: 12px;
     margin-bottom: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.panel-search {
+    background: var(--panel-search-tint);
+    border: 1px solid rgba(63, 130, 201, 0.25);
+}
+
+.panel-add {
+    background: var(--panel-add-tint);
+    border: 1px solid rgba(22, 163, 74, 0.22);
 }
 
 .panel-title {

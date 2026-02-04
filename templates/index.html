@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<section class="panel">
+<section class="panel panel-search">
     <h3 class="panel-title">Search parts</h3>
     <form class="filters" hx-get="/partials/table" hx-target="#table" hx-trigger="keyup changed delay:300ms, change"
         onsubmit="return false;">
@@ -42,7 +42,7 @@
     </form>
 </section>
 
-<section class="panel">
+<section class="panel panel-add">
     <h3 class="panel-title">Enter new part</h3>
 
     <form class="add" hx-post="/parts" hx-target="#table" hx-swap="innerHTML">
