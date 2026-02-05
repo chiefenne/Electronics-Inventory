@@ -133,6 +133,14 @@
              title="Optional technical role or family (MCU, OpAmp, DC/DC, Encoder)." />
      </div>
 
+     <div class="field-group f-stock">
+         <label class="field-label" for="part-stock-levels">Stock</label>
+         <input name="stock_levels" id="part-stock-levels"
+               value="1:1"
+               placeholder="1:1"
+               title="Stock levels: hi:lo (green >= hi, yellow >= lo, red < lo)." />
+     </div>
+
     <button class="btn f-submit field-button" type="submit">Add</button>
 
     <div class="field-group f-datasheet">
@@ -184,7 +192,7 @@
     const form = document.querySelector("form.add");
     if (!form) return;
 
-    const fields = ["description", "notes", "package", "image_url", "pinout_url", "container_id", "quantity", "category", "subcategory", "datasheet_url"];
+    const fields = ["description", "notes", "package", "image_url", "pinout_url", "container_id", "quantity", "stock_levels", "category", "subcategory", "datasheet_url"];
 
     // Restore saved draft on page load
     const restoreDraft = () => {
@@ -280,6 +288,8 @@
         form.querySelector('[name="category"]').value = btn.dataset.category || "";
         form.querySelector('[name="subcategory"]').value = btn.dataset.subcategory || "";
         form.querySelector('[name="quantity"]').value = "0"; // Reset quantity for new entry
+        const stockInput = form.querySelector('[name="stock_levels"]');
+        if (stockInput) stockInput.value = "1:1";
 
         // Scroll to and focus the form
         form.scrollIntoView({ behavior: "smooth", block: "center" });
