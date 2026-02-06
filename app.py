@@ -1285,6 +1285,7 @@ def add_part(
     package: str = Form(""),
     container_id: str = Form(""),
     quantity: int = Form(0),
+    stock_levels: str = Form(""),
     notes: str = Form(""),
     image_url: str = Form(""),
     datasheet_url: str = Form(""),
@@ -1304,14 +1305,21 @@ def add_part(
 
     part_uuid = str(uuid.uuid4())
 
+    ok_min: int | None = None
+    warn_min: int | None = None
+    try:
+        ok_min, warn_min = _parse_stock_levels(stock_levels)
+    except ValueError:
+        ok_min, warn_min = None, None
+
     with get_conn() as conn:
         conn.execute(
             """
             INSERT INTO parts (
-                uuid, category, subcategory, description, package, container_id, quantity, notes,
+                uuid, category, subcategory, description, package, container_id, quantity, stock_ok_min, stock_warn_min, notes,
                 image_url, datasheet_url, pinout_url, created_at, updated_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
             """,
             (
                 part_uuid,
@@ -1321,6 +1329,8 @@ def add_part(
                 package.strip(),
                 container_id.strip(),
                 max(int(quantity), 0),
+                ok_min,
+                warn_min,
                 notes.strip(),
                 image_url.strip(),
                 datasheet_url.strip(),
