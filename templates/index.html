@@ -57,7 +57,7 @@
      <!-- AI Auto-Fill (optional) -->
      <span class="tooltip-wrapper f-autofill"
            data-tooltip="AI-powered auto-fill using OpenAI and Tavily. Requires OPENAI_API_KEY and TAVILY_API_KEY environment variables.">
-         <button class="btn field-button" type="button" id="btn-autofill"
+         <button class="btn" type="button" id="btn-autofill"
              data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}" disabled
              onclick="runAgent()">
              ✨ Auto-Fill
@@ -88,7 +88,9 @@
      <button class="btn f-part-img-btn field-button" type="button" aria-label="Find part images"
          data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
          {% if not ai_enabled %}disabled{% endif %}
-         onclick="openImageSearch('part')">📷</button>
+         onclick="openImageSearch('part')">
+         <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" />
+     </button>
 
      <div class="field-group f-pinout-img">
          <label class="field-label" for="part-pinout-url">Pinout image</label>
@@ -100,7 +102,9 @@
      <button class="btn f-pinout-img-btn field-button" type="button" aria-label="Find pinout images"
          data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
          {% if not ai_enabled %}disabled{% endif %}
-         onclick="openImageSearch('pinout')">📐</button>
+         onclick="openImageSearch('pinout')">
+         <img src="/static/icons/microchip.svg" alt="" aria-hidden="true" class="icon-invert" />
+     </button>
 
      <div class="field-group f-qty">
          <label class="field-label" for="part-quantity">Qty</label>
@@ -141,7 +145,7 @@
                title="Stock levels: hi:lo (green >= hi, yellow >= lo, red < lo)." />
      </div>
 
-    <button class="btn f-submit field-button" type="submit">Add</button>
+    <button class="btn f-submit" type="submit">Add</button>
 
     <div class="field-group f-datasheet">
         <label class="field-label" for="part-datasheet-url">Datasheet</label>

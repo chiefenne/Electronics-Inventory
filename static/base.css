@@ -745,23 +745,34 @@ body {
     line-height: 42px;
 }
 
-.add .f-autofill .btn,
 .add .f-part-img-btn,
 .add .f-pinout-img-btn {
     height: 42px;
     min-height: 42px;
-    padding: 0 12px;
-    line-height: 42px;
+    padding: 0;
+    width: 100%;
 }
 
 /* Align standalone buttons with input row (below labels) */
-.field-button {
-    display: inline-flex;
+.btn.field-button {
+    display: flex;
     align-items: center;
     justify-content: center;
     height: 42px;
     min-height: 42px;
+    padding: 0;
     box-sizing: border-box;
+}
+
+.btn.field-button img {
+    width: 34px;
+    height: 34px;
+    display: block;
+}
+
+/* Invert dark icons to white for better contrast on colored buttons */
+.btn.field-button img.icon-invert {
+    filter: invert(1);
 }
 
 /* Phone: single column */
