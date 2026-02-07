@@ -762,12 +762,17 @@ body {
     min-height: 42px;
     padding: 0;
     box-sizing: border-box;
+    --field-icon-size: 34px;
 }
 
 .btn.field-button img {
-    width: 34px;
-    height: 34px;
+    width: var(--field-icon-size);
+    height: var(--field-icon-size);
     display: block;
+}
+
+.btn.field-button.f-part-img-btn {
+    --field-icon-size: 46px;
 }
 
 /* Invert dark icons to white for better contrast on colored buttons */
@@ -1156,14 +1161,26 @@ select:focus {
 /* Image icons (SVG via <img>): consistent sizing and alignment */
 .btn.icon img {
     width: 18px;
-    height: 18px;
+    height: auto;
     display: block;
+}
+
+/* Part image icon: independent sizing */
+.btn.icon.icon-part-image {
+    width: auto;
+    height: auto;
+    min-width: unset;
+    min-height: unset;
+    padding: 4px;
+}
+.btn.icon.icon-part-image img {
+    width: 18px;
 }
 
 /* Slightly larger icons for Save/Cancel in edit forms */
 .btn.icon.icon-lg img {
     width: 20px;
-    height: 20px;
+    height: auto;
 }
 
 .btn.danger {

@@ -82,7 +82,7 @@
               or image_url_l.endswith('.webp')
               or image_url_l.endswith('.svg') %}
         <span class="hover-preview">
-            <button class="btn secondary icon" type="button" hx-get="/parts/{{ part.uuid }}/edit/image_url" hx-target="#row-{{ part.uuid }}"
+            <button class="btn secondary icon icon-part-image" type="button" hx-get="/parts/{{ part.uuid }}/edit/image_url" hx-target="#row-{{ part.uuid }}"
                 hx-swap="outerHTML" title="Edit device image" aria-label="Edit device image">
                 <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" />
             </button>
@@ -95,7 +95,7 @@
         </span>
         {% else %}
         <span class="hover-preview">
-            <button class="btn secondary icon" type="button" hx-get="/parts/{{ part.uuid }}/edit/image_url" hx-target="#row-{{ part.uuid }}"
+            <button class="btn secondary icon icon-part-image" type="button" hx-get="/parts/{{ part.uuid }}/edit/image_url" hx-target="#row-{{ part.uuid }}"
                 hx-swap="outerHTML" title="Edit device image" aria-label="Edit device image">
                 <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" />
             </button>
@@ -106,7 +106,7 @@
         </span>
         {% endif %}
         {% else %}
-        <button class="btn secondary icon dimmed" hx-get="/parts/{{ part.uuid }}/edit/image_url" hx-target="#row-{{ part.uuid }}"
+        <button class="btn secondary icon icon-part-image dimmed" hx-get="/parts/{{ part.uuid }}/edit/image_url" hx-target="#row-{{ part.uuid }}"
             hx-swap="outerHTML" title="Click to enter filename, or view part for AI search" aria-label="Add device image">
             <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" />
         </button>
