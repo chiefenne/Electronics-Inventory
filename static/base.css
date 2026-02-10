@@ -248,6 +248,42 @@ body {
     color: var(--text-main);
 }
 
+.panel-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Container full toggle button */
+.container-full-toggle {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border-soft);
+    background: #fff;
+    color: var(--text-main);
+    transition: all 0.15s ease;
+}
+
+.container-full-toggle:hover {
+    border-color: #c9975a;
+    color: #b8874e;
+}
+
+.container-full-toggle.is-full {
+    background: linear-gradient(180deg, #e0ad60, #c9975a);
+    color: #fff;
+    border-color: rgba(180, 135, 70, 0.35);
+}
+
+.container-full-toggle.is-full:hover {
+    filter: brightness(1.06);
+}
+
 .container-images-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -991,6 +1027,16 @@ select:focus {
     color: var(--text-muted);
     border: 1px dashed var(--border-soft);
     font-weight: 600;
+}
+
+/* Container marked as FULL */
+.chip.chip-full {
+    background: linear-gradient(180deg, #e0ad60, #c9975a);
+    border: 1px solid rgba(180, 135, 70, 0.25);
+}
+
+.chip.chip-full:hover {
+    filter: brightness(1.06);
 }
 
 /* Make chips feel consistent inside tables */

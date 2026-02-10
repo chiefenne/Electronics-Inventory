@@ -19,6 +19,7 @@ A lightweight web app to track electronics parts (category, subcategory, descrip
 - Optional images per part: device photo + pinout image (hover preview in the table)
 - Optional stock levels (low-stock warning colors) for quantity
 - Container pages, container image grid view, and printable container labels with QR codes
+- **Container "full" toggle**: mark a container as full when all bins are occupied — the container chip turns amber across all views, signaling that new parts need a new container
 - Uses a local SQLite database file (no server required)
 
 ## Maintenance Page
@@ -70,6 +71,21 @@ Each container page includes a **View box contents** button that opens a grid vi
 - Clicking the image also opens the part detail page.
 
 From the detail page you can open the full-size image.
+
+## Container "full" toggle
+
+When using storage systems like **Gridfinity bins**, containers can become completely filled — all compartments are occupied. The "full" toggle lets you mark this:
+
+1. Navigate to a container page (`/containers/{code}`)
+2. Click **Mark Full** next to the container heading
+3. The button changes to **Full** (amber) and the container chip turns amber everywhere:
+   - Main inventory table
+   - Part detail page
+   - Inline-edit container dropdown (shows `(FULL)` suffix)
+   - Container filter dropdown on the main page
+4. Click the **Full** button again to toggle it back to available
+
+This helps you decide at a glance whether a container has room for new parts or if you need to create a new one for that category.
 
 ### Editing images and datasheets on the detail page
 

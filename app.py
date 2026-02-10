@@ -32,7 +32,8 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from db import get_conn, init_db, \
     list_containers, list_categories, list_subcategories, list_packages, \
-    ensure_container, ensure_category, ensure_subcategory, ensure_package
+    ensure_container, ensure_category, ensure_subcategory, ensure_package, \
+    get_container_full_map, set_container_full
 from models import PartRequest, PartData, ImageResult, ImageDownloadRequest, DatasheetResult
 
 try:
@@ -478,6 +479,7 @@ templates = Environment(
 
 templates.globals["app_title"] = APP_TITLE
 templates.globals["app_version"] = APP_VERSION
+templates.globals["get_container_full_map"] = get_container_full_map
 
 def render(template_name: str, **context: Any) -> HTMLResponse:
     tpl = templates.get_template(template_name)
@@ -1936,15 +1938,27 @@ async def print_labels(
 
 
 
+@app.post("/containers/{code}/toggle-full")
+def toggle_container_full(code: str) -> RedirectResponse:
+    """Toggle the is_full flag for a container."""
+    full_map = get_container_full_map()
+    current = full_map.get(code, False)
+    set_container_full(code, not current)
+    return RedirectResponse(url=f"/containers/{code}", status_code=303)
+
+
 @app.get("/containers/{code}", response_class=HTMLResponse)
 def container_view(request: Request, code: str) -> HTMLResponse:
     parts = fetch_parts(container_id=code)
+    full_map = get_container_full_map()
+    is_full = full_map.get(code, False)
     return render(
         "container.html",
         request=request,
         title=f"Container {code}",
         code=code,
         parts=parts,
+        is_full=is_full,
     )
 
 

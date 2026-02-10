@@ -32,10 +32,11 @@
 
         <label class="field-group" for="filter-container">
             <span class="field-label">Container</span>
+            {% set _cfm = get_container_full_map() %}
             <select id="filter-container" name="container_id">
                 <option value="">All</option>
                 {% for c in containers %}
-                <option value="{{ c }}" {% if c==container_id %}selected{% endif %}>{{ c }}</option>
+                <option value="{{ c }}" {% if c==container_id %}selected{% endif %}>{{ c }}{% if _cfm.get(c) %} (FULL){% endif %}</option>
                 {% endfor %}
             </select>
         </label>

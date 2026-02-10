@@ -51,7 +51,8 @@ def init_db() -> None:
             """
             CREATE TABLE IF NOT EXISTS containers (
                 code TEXT PRIMARY KEY,
-                name TEXT
+                name TEXT,
+                is_full INTEGER NOT NULL DEFAULT 0
             );
             """
         )
@@ -204,6 +205,10 @@ def init_db() -> None:
                 """
             )
 
+        # Migration: add is_full column to containers table
+        if not _has_column("containers", "is_full"):
+            conn.execute("ALTER TABLE containers ADD COLUMN is_full INTEGER NOT NULL DEFAULT 0;")
+
         # Ensure the unique index exists after backfill
         conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_parts_uuid ON parts(uuid);")
 
@@ -211,7 +216,7 @@ def init_db() -> None:
 def list_containers():
     with get_conn() as conn:
         return conn.execute(
-            "SELECT code, name FROM containers ORDER BY code"
+            "SELECT code, name, is_full FROM containers ORDER BY code"
         ).fetchall()
 
 def list_categories():
@@ -267,4 +272,21 @@ def ensure_package(name: str):
         return
     with get_conn() as conn:
         conn.execute("INSERT OR IGNORE INTO packages(name) VALUES (?)", (name,))
+        conn.commit()
+
+
+def get_container_full_map() -> dict:
+    """Return {code: bool} mapping for all containers with is_full status."""
+    with get_conn() as conn:
+        rows = conn.execute("SELECT code, is_full FROM containers").fetchall()
+    return {r["code"]: bool(r["is_full"]) for r in rows}
+
+
+def set_container_full(code: str, is_full: bool) -> None:
+    """Set the is_full flag for a container."""
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE containers SET is_full = ? WHERE code = ?",
+            (1 if is_full else 0, code),
+        )
         conn.commit()

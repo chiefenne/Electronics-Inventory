@@ -18,8 +18,9 @@
     <div class="meta-item">
         <span class="meta-label">Container:</span>
         <span class="meta-value">
+            {% set _cfm = get_container_full_map() %}
             {% if part.container_id and part.container_id|trim %}
-                <a class="chip chip-link" href="/containers/{{ part.container_id|urlencode }}">{{ part.container_id }}</a>
+                <a class="chip chip-link{% if _cfm.get(part.container_id) %} chip-full{% endif %}" href="/containers/{{ part.container_id|urlencode }}">{{ part.container_id }}{% if _cfm.get(part.container_id) %} <small>(FULL)</small>{% endif %}</a>
             {% else %}
                 <span class="chip muted">—</span>
             {% endif %}

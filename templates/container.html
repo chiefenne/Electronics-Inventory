@@ -4,7 +4,26 @@
 <section class="panel">
     <div class="panel-header">
         <h2 class="panel-heading">Container {{ code }}</h2>
-        <a class="btn secondary" href="/containers/{{ code }}/images">View box contents</a>
+        <div class="panel-header-actions">
+            <form method="post" action="/containers/{{ code }}/toggle-full" style="display:inline;">
+                {% if is_full %}
+                <button class="btn container-full-toggle is-full" type="submit" title="Container is FULL — click to mark as available">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:4px;vertical-align:middle;">
+                        <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17 12H7v-2h10v2z"/>
+                    </svg>
+                    Full
+                </button>
+                {% else %}
+                <button class="btn container-full-toggle" type="submit" title="Mark container as full">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:4px;vertical-align:middle;">
+                        <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                    </svg>
+                    Mark Full
+                </button>
+                {% endif %}
+            </form>
+            <a class="btn secondary" href="/containers/{{ code }}/images">View box contents</a>
+        </div>
     </div>
 
     <div id="table">

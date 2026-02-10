@@ -37,11 +37,12 @@
     {% if field == "container_id" %}
     <td class="cell col-container" data-label="Container">
         <form class="edit edit-container" hx-post="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+            {% set _cfm = get_container_full_map() %}
             <select name="value" autofocus onfocus="if (this.showPicker) this.showPicker();">
                 <option value="" {% if not (part.container_id and part.container_id|trim) %}selected{% endif %}>—</option>
                 {% for c in containers %}
                 {% set code = c.code if c.code is defined else c %}
-                <option value="{{ code }}" {% if code==part.container_id %}selected{% endif %}>{{ code }}</option>
+                <option value="{{ code }}" {% if code==part.container_id %}selected{% endif %}>{{ code }}{% if _cfm.get(code) %} (FULL){% endif %}</option>
                 {% endfor %}
             </select>
             <button class="btn secondary icon icon-lg" type="submit" title="Save" aria-label="Save">
@@ -54,8 +55,9 @@
     </td>
     {% else %}
     <td class="cell col-container" data-label="Container" hx-get="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
+        {% set _cfm = get_container_full_map() %}
         {% if part.container_id and part.container_id|trim %}
-        <a class="chip chip-link" href="/containers/{{ part.container_id|urlencode }}" onclick="event.stopPropagation();" title="Open container {{ part.container_id }}">{{ part.container_id }}</a>
+        <a class="chip chip-link{% if _cfm.get(part.container_id) %} chip-full{% endif %}" href="/containers/{{ part.container_id|urlencode }}" onclick="event.stopPropagation();" title="{{ part.container_id }}{% if _cfm.get(part.container_id) %} (FULL){% endif %}">{{ part.container_id }}</a>
         {% else %}
         <span class="chip muted">—</span>
         {% endif %}
