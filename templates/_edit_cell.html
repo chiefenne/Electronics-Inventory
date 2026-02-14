@@ -57,9 +57,9 @@
     <td class="cell col-container" data-label="Container" hx-get="/parts/{{ part.uuid }}/edit/container_id" hx-target="#row-{{ part.uuid }}" hx-swap="outerHTML">
         {% set _cfm = get_container_full_map() %}
         {% if part.container_id and part.container_id|trim %}
-        <a class="chip chip-link{% if _cfm.get(part.container_id) %} chip-full{% endif %}" href="/containers/{{ part.container_id|urlencode }}" onclick="event.stopPropagation();" title="{{ part.container_id }}{% if _cfm.get(part.container_id) %} (FULL){% endif %}">{{ part.container_id }}</a>
+        <a class="chip chip-link chip-dblclick{% if _cfm.get(part.container_id) %} chip-full{% endif %}" href="/containers/{{ part.container_id|urlencode }}" data-part-uuid="{{ part.uuid }}" onclick="event.stopPropagation();" data-tooltip="Click: open · Double-click: change">{{ part.container_id }}</a>
         {% else %}
-        <span class="chip muted">—</span>
+        <span class="chip muted chip-dblclick" data-part-uuid="{{ part.uuid }}" data-tooltip="Double-click to assign">—</span>
         {% endif %}
     </td>
     {% endif %}

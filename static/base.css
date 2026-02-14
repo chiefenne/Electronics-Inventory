@@ -691,39 +691,16 @@ body {
 }
 
 /* Custom instant tooltip (works on disabled buttons too) */
+/* Now inherits from global [data-tooltip] — just adds display:inline-flex */
 .tooltip-wrapper {
-    position: relative;
     display: inline-flex;
 }
 
 .tooltip-wrapper::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 14px;
-    background: linear-gradient(180deg, var(--bg-header-top), var(--bg-header-bot));
-    color: #f2f7fc;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.4;
     white-space: normal;
     width: max-content;
-    max-width: 280px;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.1s, visibility 0.1s;
-    z-index: 1000;
-    pointer-events: none;
-}
-
-.tooltip-wrapper:hover::after {
-    opacity: 1;
-    visibility: visible;
+    padding: 10px 14px;
+    font-size: 12px;
 }
 
 .add {
@@ -1103,6 +1080,91 @@ select:focus {
 
 .chip-link:hover {
     filter: brightness(1.05);
+}
+
+/* =========================
+   Fast custom tooltips (replaces native title)
+   ========================= */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    border-radius: 7px;
+    background: linear-gradient(180deg, var(--bg-header-top), var(--bg-header-bot));
+    color: #f2f7fc;
+    font-size: 11.5px;
+    font-weight: 500;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    line-height: 1.4;
+    white-space: nowrap;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.08s ease, visibility 0.08s ease;
+    z-index: 9999;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+
+[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Allow wrapping for longer tooltip text */
+[data-tooltip].tooltip-wrap::after {
+    white-space: normal;
+    width: max-content;
+}
+
+/* Place tooltip below for elements near the top */
+[data-tooltip].tooltip-bottom::after {
+    bottom: auto;
+    top: calc(100% + 8px);
+}
+
+/* Anchor tooltip to the right edge for elements near the right side */
+[data-tooltip].tooltip-left::after {
+    left: auto;
+    right: 0;
+    transform: none;
+}
+
+/* Hide tooltip when data-tooltip is empty */
+[data-tooltip=""]::after {
+    display: none;
+}
+
+/* Wrapper for void elements (input, img) that can't use ::after */
+.tooltip-input-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+/* Inline container editor (dropdown + cancel) */
+.container-edit-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.container-edit-select {
+    font-size: 13px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-soft);
+    background: #fff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 

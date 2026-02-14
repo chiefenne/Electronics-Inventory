@@ -1598,6 +1598,50 @@ def save_detail_quantity(
     return render("_part_detail_meta.html", part=part)
 
 
+@app.post("/parts/{part_uuid}/detail/container", response_class=HTMLResponse)
+def save_detail_container(
+    part_uuid: str,
+    container_id: str = Form(""),
+) -> HTMLResponse:
+    """Save container from detail page - returns updated metadata section."""
+    container_id = container_id.strip()
+    if container_id:
+        ensure_container(container_id)
+
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE parts SET container_id = ?, updated_at = datetime('now') WHERE uuid = ?",
+            (container_id, part_uuid),
+        )
+
+        row = conn.execute(
+            """
+            SELECT *,
+                   datetime(created_at, 'localtime') AS created_at_local,
+                   datetime(updated_at, 'localtime') AS updated_at_local
+            FROM parts
+            WHERE uuid = ?
+            """,
+            (part_uuid,),
+        ).fetchone()
+
+    if row is None:
+        return HTMLResponse("Not found", status_code=404)
+
+    return render("_part_detail_meta.html", part=dict(row))
+
+
+@app.get("/api/containers")
+def api_containers():
+    """Return JSON list of containers for the inline editor."""
+    containers = list_containers()
+    return [
+        {"code": c["code"] if hasattr(c, "keys") else c[0],
+         "is_full": bool(c["is_full"] if hasattr(c, "keys") else c[2])}
+        for c in containers
+    ]
+
+
 @app.post("/parts/{part_uuid}/quantity_delta", response_class=HTMLResponse)
 def quantity_delta(part_uuid: str, delta: int = Form(0)) -> HTMLResponse:
     try:

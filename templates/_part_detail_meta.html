@@ -15,15 +15,25 @@
         <span class="meta-label">Subcategory:</span>
         <span class="meta-value">{{ part.subcategory or '—' }}</span>
     </div>
-    <div class="meta-item">
+    <div class="meta-item" id="container-meta-{{ part.uuid }}">
         <span class="meta-label">Container:</span>
         <span class="meta-value">
             {% set _cfm = get_container_full_map() %}
-            {% if part.container_id and part.container_id|trim %}
-                <a class="chip chip-link{% if _cfm.get(part.container_id) %} chip-full{% endif %}" href="/containers/{{ part.container_id|urlencode }}">{{ part.container_id }}{% if _cfm.get(part.container_id) %} <small>(FULL)</small>{% endif %}</a>
-            {% else %}
-                <span class="chip muted">—</span>
-            {% endif %}
+            <span id="container-display-{{ part.uuid }}">
+                {% if part.container_id and part.container_id|trim %}
+                    <a class="chip chip-link chip-dblclick{% if _cfm.get(part.container_id) %} chip-full{% endif %}" href="/containers/{{ part.container_id|urlencode }}" data-part-uuid="{{ part.uuid }}" data-tooltip="Click: open · Double-click: change">{{ part.container_id }}{% if _cfm.get(part.container_id) %} <small>(FULL)</small>{% endif %}</a>
+                {% else %}
+                    <span class="chip muted chip-dblclick" data-part-uuid="{{ part.uuid }}" data-tooltip="Double-click to assign">—</span>
+                {% endif %}
+            </span>
+            <span class="container-edit-inline" id="container-edit-{{ part.uuid }}" style="display:none;">
+                <select id="container-select-{{ part.uuid }}" class="container-edit-select" onchange="saveContainerChange('{{ part.uuid }}')">
+                    <option value="" {% if not (part.container_id and part.container_id|trim) %}selected{% endif %}>— none —</option>
+                </select>
+                <button class="btn secondary icon icon-sm" type="button" onclick="toggleContainerEdit('{{ part.uuid }}')" title="Cancel" aria-label="Cancel">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z"/></svg>
+                </button>
+            </span>
         </span>
     </div>
     <div class="meta-item" id="meta-qty-item-{{ part.uuid }}">
