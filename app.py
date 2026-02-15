@@ -29,11 +29,12 @@ from fastapi import HTTPException
 from passlib.hash import pbkdf2_sha256
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+from markupsafe import Markup
 
 from db import get_conn, init_db, \
     list_containers, list_categories, list_subcategories, list_packages, \
     ensure_container, ensure_category, ensure_subcategory, ensure_package, \
-    get_container_full_map, set_container_full
+    get_container_full_map, set_container_full, fetch_statistics
 from models import PartRequest, PartData, ImageResult, ImageDownloadRequest, DatasheetResult
 
 try:
@@ -480,6 +481,10 @@ templates = Environment(
 templates.globals["app_title"] = APP_TITLE
 templates.globals["app_version"] = APP_VERSION
 templates.globals["get_container_full_map"] = get_container_full_map
+
+# Register tojson filter for Jinja2 templates (used by statistics page)
+# Markup() prevents Jinja2 autoescape from escaping quotes in JSON output
+templates.filters["tojson"] = lambda v: Markup(json.dumps(v))
 
 def render(template_name: str, **context: Any) -> HTMLResponse:
     tpl = templates.get_template(template_name)
@@ -2021,3 +2026,14 @@ def container_images(request: Request, code: str) -> HTMLResponse:
 @app.get("/help", response_class=HTMLResponse)
 def help_page(request: Request) -> HTMLResponse:
     return render("help.html", request=request, title=f"{APP_TITLE}")
+
+
+@app.get("/statistics", response_class=HTMLResponse)
+def statistics_page(request: Request) -> HTMLResponse:
+    stats = fetch_statistics()
+    return render(
+        "statistics.html",
+        request=request,
+        title=f"{APP_TITLE} – Statistics",
+        stats=stats,
+    )

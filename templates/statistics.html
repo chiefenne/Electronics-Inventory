@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+/* Inline fallback to guarantee layout even if external CSS is cached */
+.stats-kpi-row { display: flex !important; flex-wrap: wrap !important; gap: 14px !important; margin-bottom: 24px !important; }
+.stat-card { flex: 1 1 130px !important; min-width: 120px !important; background: #fff !important; border-radius: 12px !important; padding: 14px 18px !important; box-shadow: 0 2px 8px rgba(0,0,0,.06) !important; border-left: 5px solid #2f6fb3 !important; display: flex !important; flex-direction: column !important; gap: 4px !important; }
+.stat-card__value { font-size: 1.8rem !important; font-weight: 700 !important; line-height: 1.1 !important; }
+.stat-card__label { font-size: .82rem !important; font-weight: 600 !important; color: #64748b !important; text-transform: uppercase !important; letter-spacing: .06em !important; }
+.stats-grid { display: grid !important; gap: 16px !important; margin-bottom: 24px !important; }
+.stats-grid--2col { grid-template-columns: repeat(2, 1fr) !important; }
+@media (max-width: 820px) { .stats-grid--2col { grid-template-columns: 1fr !important; } }
+.chart-panel { background: #fff !important; border-radius: 12px !important; box-shadow: 0 2px 8px rgba(0,0,0,.06) !important; overflow: hidden !important; border: 1px solid rgba(214,225,238,.6); }
+.chart-panel__title { margin: 0 !important; padding: 14px 18px 6px !important; font-size: 1rem !important; font-weight: 700 !important; }
+.chart-panel__body { padding: 8px 16px 16px !important; position: relative !important; height: 300px !important; }
+.chart-panel__body--table { height: auto !important; min-height: 0 !important; max-height: 380px !important; overflow-y: auto !important; padding: 0 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h2 class="stats-page-title">Inventory Statistics</h2>
+
+<!-- ── KPI Cards ── -->
+<div class="stats-kpi-row">
+    <div class="stat-card stat-card--blue">
+        <div class="stat-card__value">{{ stats.total_parts }}</div>
+        <div class="stat-card__label">Distinct Parts</div>
+    </div>
+    <div class="stat-card stat-card--teal">
+        <div class="stat-card__value">{{ stats.total_quantity }}</div>
+        <div class="stat-card__label">Total Quantity</div>
+    </div>
+    <div class="stat-card stat-card--purple">
+        <div class="stat-card__value">{{ stats.total_containers }}</div>
+        <div class="stat-card__label">Containers</div>
+        <div class="stat-card__sub">{{ stats.containers_in_use }} in use &middot; {{ stats.containers_full }} full</div>
+    </div>
+    <div class="stat-card stat-card--red">
+        <div class="stat-card__value">{{ stats.out_of_stock }}</div>
+        <div class="stat-card__label">Out of Stock</div>
+    </div>
+    <div class="stat-card stat-card--gray">
+        <div class="stat-card__value">{{ stats.trash_count }}</div>
+        <div class="stat-card__label">In Trash</div>
+    </div>
+</div>
+
+<!-- ── Distribution Charts ── -->
+<h3 class="stats-section-heading">Distribution</h3>
+<div class="stats-grid stats-grid--2col">
+    <div class="chart-panel">
+        <h3 class="chart-panel__title">Parts by Category</h3>
+        <div class="chart-panel__body">
+            <canvas id="chartCategory"></canvas>
+        </div>
+    </div>
+    <div class="chart-panel">
+        <h3 class="chart-panel__title">Stock Status</h3>
+        <div class="chart-panel__body">
+            <canvas id="chartStock"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid stats-grid--2col">
+    <div class="chart-panel">
+        <h3 class="chart-panel__title">Package Types</h3>
+        <div class="chart-panel__body">
+            <canvas id="chartPackages"></canvas>
+        </div>
+    </div>
+    <div class="chart-panel">
+        <h3 class="chart-panel__title">Data Completeness</h3>
+        <div class="chart-panel__body">
+            <canvas id="chartCompleteness"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- ── Growth & Usage ── -->
+<h3 class="stats-section-heading">Growth &amp; Usage</h3>
+<div class="stats-grid stats-grid--2col">
+    <div class="chart-panel">
+        <h3 class="chart-panel__title">Parts Over Time</h3>
+        <div class="chart-panel__body">
+            <canvas id="chartTimeline"></canvas>
+        </div>
+    </div>
+    <div class="chart-panel">
+        <h3 class="chart-panel__title">Top Containers</h3>
+        <div class="chart-panel__body">
+            <canvas id="chartContainers"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- ── Recent Activity ── -->
+<h3 class="stats-section-heading">Recent Activity</h3>
+<div class="stats-grid stats-grid--2col">
+    <div class="chart-panel">
+        <h3 class="chart-panel__title">Recently Added</h3>
+        <div class="chart-panel__body chart-panel__body--table">
+            {% if stats.recently_added %}
+            <table class="stats-table">
+                <thead>
+                    <tr><th>Description</th><th>Category</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in stats.recently_added %}
+                    <tr>
+                        <td>{{ p.description }}</td>
+                        <td>{{ p.category }}</td>
+                        <td class="stats-table__date">{{ p.date[:16] if p.date else '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="stats-empty">No data yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="chart-panel">
+        <h3 class="chart-panel__title">Recently Updated</h3>
+        <div class="chart-panel__body chart-panel__body--table">
+            {% if stats.recently_updated %}
+            <table class="stats-table">
+                <thead>
+                    <tr><th>Description</th><th>Category</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in stats.recently_updated %}
+                    <tr>
+                        <td>{{ p.description }}</td>
+                        <td>{{ p.category }}</td>
+                        <td class="stats-table__date">{{ p.date[:16] if p.date else '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="stats-empty">No data yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    /* ---------- colour palette ---------- */
+    const PALETTE = [
+        '#2f6fb3', '#15803d', '#7c3aed', '#e05d22', '#0891b2',
+        '#be185d', '#ca8a04', '#4f46e5', '#059669', '#dc2626',
+        '#6366f1', '#d97706', '#0d9488', '#9333ea', '#ea580c'
+    ];
+
+    /* ---------- data from server ---------- */
+    const byCategory   = {{ stats.by_category | tojson }};
+    const stockStatus  = {{ stats.stock_status | tojson }};
+    const timeline     = {{ stats.parts_over_time | tojson }};
+    const byContainer  = {{ stats.by_container | tojson }};
+    const byPackage    = {{ stats.by_package | tojson }};
+    const completeness = {{ stats.data_completeness | tojson }};
+
+    /* ---------- Chart defaults ---------- */
+    Chart.defaults.font.family = 'system-ui, -apple-system, sans-serif';
+    Chart.defaults.font.size = 13;
+    Chart.defaults.color = '#334155';
+    Chart.defaults.plugins.legend.position = 'bottom';
+
+    /* ---------- 1. Category doughnut ---------- */
+    if (byCategory.length) {
+        new Chart(document.getElementById('chartCategory'), {
+            type: 'doughnut',
+            data: {
+                labels: byCategory.map(c => c.name),
+                datasets: [{
+                    data: byCategory.map(c => c.count),
+                    backgroundColor: PALETTE.slice(0, byCategory.length),
+                    borderWidth: 1,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 14, padding: 10 } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                var item = byCategory[ctx.dataIndex];
+                                return item.name + ': ' + item.count + ' parts (' + item.quantity + ' qty)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ---------- 2. Stock status bar ---------- */
+    new Chart(document.getElementById('chartStock'), {
+        type: 'bar',
+        data: {
+            labels: ['OK', 'Warning', 'Low', 'Zero'],
+            datasets: [{
+                data: [stockStatus.ok, stockStatus.warn, stockStatus.low, stockStatus.zero],
+                backgroundColor: ['#15803d', '#ffa000', '#ef4444', '#94a3b8'],
+                borderRadius: 6,
+                barPercentage: 0.7
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 }, grid: { display: false } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+
+    /* ---------- 3. Timeline ---------- */
+    if (timeline.length) {
+        new Chart(document.getElementById('chartTimeline'), {
+            type: 'line',
+            data: {
+                labels: timeline.map(t => t.month),
+                datasets: [
+                    {
+                        label: 'Cumulative',
+                        data: timeline.map(t => t.cumulative),
+                        borderColor: '#2f6fb3',
+                        backgroundColor: 'rgba(47,111,179,0.10)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        borderWidth: 2.5
+                    },
+                    {
+                        label: 'Added per month',
+                        data: timeline.map(t => t.count),
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(124,58,237,0.08)',
+                        fill: false,
+                        tension: 0.35,
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { ticks: { maxTicksLimit: 12 }, grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    }
+
+    /* ---------- 4. Containers bar ---------- */
+    if (byContainer.length) {
+        new Chart(document.getElementById('chartContainers'), {
+            type: 'bar',
+            data: {
+                labels: byContainer.map(c => c.name),
+                datasets: [{
+                    label: 'Parts',
+                    data: byContainer.map(c => c.count),
+                    backgroundColor: '#0891b2',
+                    borderRadius: 6,
+                    barPercentage: 0.7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    }
+
+    /* ---------- 5. Packages doughnut ---------- */
+    if (byPackage.length) {
+        new Chart(document.getElementById('chartPackages'), {
+            type: 'doughnut',
+            data: {
+                labels: byPackage.map(p => p.name),
+                datasets: [{
+                    data: byPackage.map(p => p.count),
+                    backgroundColor: PALETTE.slice(0, byPackage.length),
+                    borderWidth: 1,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 14, padding: 10 } }
+                }
+            }
+        });
+    }
+
+    /* ---------- 6. Data Completeness horizontal bar ---------- */
+    {
+        const labels = Object.keys(completeness);
+        const pcts   = labels.map(k => completeness[k].pct);
+        const counts = labels.map(k => completeness[k].count);
+        new Chart(document.getElementById('chartCompleteness'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '% of parts',
+                    data: pcts,
+                    backgroundColor: ['#2f6fb3', '#15803d', '#e05d22', '#7c3aed'],
+                    borderRadius: 6,
+                    barPercentage: 0.7
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ctx.raw + '% (' + counts[ctx.dataIndex] + ' parts)';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' }, grid: { display: false } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+})();
+</script>
+{% endblock %}

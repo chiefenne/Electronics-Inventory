@@ -290,3 +290,155 @@ def set_container_full(code: str, is_full: bool) -> None:
             (1 if is_full else 0, code),
         )
         conn.commit()
+
+
+def fetch_statistics() -> dict:
+    """Aggregate inventory statistics for the dashboard."""
+    with get_conn() as conn:
+        stats: dict = {}
+
+        # --- Totals ---
+        row = conn.execute(
+            "SELECT COUNT(*) AS cnt, COALESCE(SUM(quantity), 0) AS total_qty FROM parts"
+        ).fetchone()
+        stats["total_parts"] = row["cnt"]
+        stats["total_quantity"] = row["total_qty"]
+
+        # Container count (from lookup table)
+        row = conn.execute("SELECT COUNT(*) AS cnt FROM containers").fetchone()
+        stats["total_containers"] = row["cnt"]
+
+        # Containers marked as full
+        row = conn.execute("SELECT COUNT(*) AS cnt FROM containers WHERE is_full = 1").fetchone()
+        stats["containers_full"] = row["cnt"]
+
+        # Distinct containers actually in use (assigned to parts)
+        row = conn.execute(
+            "SELECT COUNT(DISTINCT container_id) AS cnt FROM parts WHERE container_id IS NOT NULL AND TRIM(container_id) <> ''"
+        ).fetchone()
+        stats["containers_in_use"] = row["cnt"]
+
+        # Out of stock
+        row = conn.execute("SELECT COUNT(*) AS cnt FROM parts WHERE quantity = 0").fetchone()
+        stats["out_of_stock"] = row["cnt"]
+
+        # Trash count
+        row = conn.execute("SELECT COUNT(*) AS cnt FROM parts_trash").fetchone()
+        stats["trash_count"] = row["cnt"]
+
+        # --- Parts per category ---
+        rows = conn.execute(
+            "SELECT category, COUNT(*) AS cnt, COALESCE(SUM(quantity), 0) AS qty "
+            "FROM parts GROUP BY category ORDER BY cnt DESC"
+        ).fetchall()
+        stats["by_category"] = [
+            {"name": r["category"], "count": r["cnt"], "quantity": r["qty"]} for r in rows
+        ]
+
+        # --- Parts per subcategory (top 15) ---
+        rows = conn.execute(
+            "SELECT subcategory, COUNT(*) AS cnt, COALESCE(SUM(quantity), 0) AS qty "
+            "FROM parts WHERE subcategory IS NOT NULL AND TRIM(subcategory) <> '' "
+            "GROUP BY subcategory ORDER BY cnt DESC LIMIT 15"
+        ).fetchall()
+        stats["by_subcategory"] = [
+            {"name": r["subcategory"], "count": r["cnt"], "quantity": r["qty"]} for r in rows
+        ]
+
+        # --- Parts per container (top 15) ---
+        rows = conn.execute(
+            "SELECT container_id, COUNT(*) AS cnt "
+            "FROM parts WHERE container_id IS NOT NULL AND TRIM(container_id) <> '' "
+            "GROUP BY container_id ORDER BY cnt DESC LIMIT 15"
+        ).fetchall()
+        stats["by_container"] = [
+            {"name": r["container_id"], "count": r["cnt"]} for r in rows
+        ]
+
+        # --- Package type distribution ---
+        rows = conn.execute(
+            "SELECT package, COUNT(*) AS cnt "
+            "FROM parts WHERE package IS NOT NULL AND TRIM(package) <> '' "
+            "GROUP BY package ORDER BY cnt DESC"
+        ).fetchall()
+        stats["by_package"] = [
+            {"name": r["package"], "count": r["cnt"]} for r in rows
+        ]
+
+        # --- Stock status distribution ---
+        row = conn.execute("""
+            SELECT
+                SUM(CASE
+                    WHEN quantity = 0 THEN 1 ELSE 0
+                END) AS zero,
+                SUM(CASE
+                    WHEN quantity > 0 AND stock_warn_min IS NOT NULL AND quantity < stock_warn_min THEN 1 ELSE 0
+                END) AS low,
+                SUM(CASE
+                    WHEN quantity > 0
+                         AND stock_warn_min IS NOT NULL AND quantity >= stock_warn_min
+                         AND stock_ok_min IS NOT NULL AND quantity < stock_ok_min THEN 1 ELSE 0
+                END) AS warn,
+                SUM(CASE
+                    WHEN quantity > 0 AND (stock_ok_min IS NULL OR quantity >= stock_ok_min) THEN 1 ELSE 0
+                END) AS ok
+            FROM parts
+        """).fetchone()
+        stats["stock_status"] = {
+            "ok": row["ok"] or 0,
+            "warn": row["warn"] or 0,
+            "low": row["low"] or 0,
+            "zero": row["zero"] or 0,
+        }
+
+        # --- Data completeness ---
+        total = stats["total_parts"] or 1  # avoid div by zero
+        completeness = {}
+        for field, label in [
+            ("image_url", "Image"),
+            ("datasheet_url", "Datasheet"),
+            ("pinout_url", "Pinout"),
+            ("notes", "Notes"),
+        ]:
+            r = conn.execute(
+                f"SELECT COUNT(*) AS cnt FROM parts WHERE {field} IS NOT NULL AND TRIM({field}) <> ''"
+            ).fetchone()
+            completeness[label] = {"count": r["cnt"], "pct": round(100 * r["cnt"] / total, 1)}
+        stats["data_completeness"] = completeness
+
+        # --- Parts added over time (by month) ---
+        rows = conn.execute(
+            "SELECT SUBSTR(created_at, 1, 7) AS month, COUNT(*) AS cnt "
+            "FROM parts WHERE created_at IS NOT NULL AND TRIM(created_at) <> '' "
+            "GROUP BY month ORDER BY month"
+        ).fetchall()
+        cumulative = []
+        running = 0
+        for r in rows:
+            running += r["cnt"]
+            cumulative.append({"month": r["month"], "count": r["cnt"], "cumulative": running})
+        stats["parts_over_time"] = cumulative
+
+        # --- Recently added (last 10) ---
+        rows = conn.execute(
+            "SELECT description, category, created_at "
+            "FROM parts WHERE created_at IS NOT NULL "
+            "ORDER BY created_at DESC LIMIT 10"
+        ).fetchall()
+        stats["recently_added"] = [
+            {"description": r["description"], "category": r["category"], "date": r["created_at"]}
+            for r in rows
+        ]
+
+        # --- Recently updated (last 10) ---
+        rows = conn.execute(
+            "SELECT description, category, updated_at "
+            "FROM parts WHERE updated_at IS NOT NULL "
+            "ORDER BY updated_at DESC LIMIT 10"
+        ).fetchall()
+        stats["recently_updated"] = [
+            {"description": r["description"], "category": r["category"], "date": r["updated_at"]}
+            for r in rows
+        ]
+
+    return stats

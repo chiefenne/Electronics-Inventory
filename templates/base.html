@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ title }}</title>
-    <link rel="stylesheet" href="/static/base.css?v=5">
+    <link rel="stylesheet" href="/static/base.css?v=6">
     <link rel="stylesheet" href="/static/help.css">
     <link rel="stylesheet" href="/static/labels.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
@@ -39,6 +39,7 @@
                     <a href="/export.csv" class="nav-dropdown__item">Export CSV (all)</a>
                     <a href="/export.csv?q={{ q|default('', true)|urlencode }}&category={{ category|default('', true)|urlencode }}&subcategory={{ subcategory|default('', true)|urlencode }}&container_id={{ container_id|default('', true)|urlencode }}" class="nav-dropdown__item">Export CSV (filtered)</a>
                     <a href="/maintenance" class="nav-dropdown__item">Maintenance</a>
+                    <a href="/statistics" class="nav-dropdown__item">Statistics</a>
                     <span class="nav-dropdown__item nav-dropdown__item--disabled">Import CSV</span>
                 </div>
             </div>
