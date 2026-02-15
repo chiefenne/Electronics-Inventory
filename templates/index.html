@@ -86,12 +86,14 @@
                title="Filename or URL of the part image." />
      </div>
 
-     <button class="btn f-part-img-btn field-button" type="button" aria-label="Find part images"
-         data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
-         {% if not ai_enabled %}disabled{% endif %}
-         onclick="openImageSearch('part')">
-         <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" />
-     </button>
+     <span class="tooltip-wrapper f-part-img-btn" data-tooltip="AI-powered search for part images. Requires AI keys.">
+         <button class="btn field-button" type="button" aria-label="Find part images"
+             data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
+             {% if not ai_enabled %}disabled{% endif %}
+             onclick="openImageSearch('part')">
+             <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" />
+         </button>
+     </span>
 
      <div class="field-group f-pinout-img">
          <label class="field-label" for="part-pinout-url">Pinout image</label>
@@ -100,12 +102,14 @@
                title="Filename or URL of the pinout diagram." />
      </div>
 
-     <button class="btn f-pinout-img-btn field-button" type="button" aria-label="Find pinout images"
-         data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
-         {% if not ai_enabled %}disabled{% endif %}
-         onclick="openImageSearch('pinout')">
-         <img src="/static/icons/microchip.svg" alt="" aria-hidden="true" class="icon-invert" />
-     </button>
+     <span class="tooltip-wrapper f-pinout-img-btn" data-tooltip="AI-powered search for pinout images. Requires AI keys.">
+         <button class="btn field-button" type="button" aria-label="Find pinout images"
+             data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
+             {% if not ai_enabled %}disabled{% endif %}
+             onclick="openImageSearch('pinout')">
+             <img src="/static/icons/microchip.svg" alt="" aria-hidden="true" class="icon-invert" />
+         </button>
+     </span>
 
      <div class="field-group f-qty">
          <label class="field-label" for="part-quantity">Qty</label>

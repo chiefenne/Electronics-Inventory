@@ -96,9 +96,22 @@
                         aria-label="Decrease quantity">−</button>
                 </div>
             </div>
-            <div class="meta-item meta-item-full">
-                <span class="meta-label">Notes:</span>
-                <span class="meta-value">{{ part.notes or '—' }}</span>
+            <div class="meta-item meta-item-full" id="notes-box-{{ part.uuid }}">
+                <span class="meta-label">Notes:
+                    <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'notes')" data-tooltip="Edit notes" aria-label="Edit notes">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:14px;height:14px"><path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+                    </button>
+                </span>
+                <span class="meta-value" id="notes-display-{{ part.uuid }}">{{ part.notes or '—' }}</span>
+                <div id="notes-edit-{{ part.uuid }}" class="part-detail-edit-form" style="display:none;">
+                    <div class="edit-form-row">
+                        <input type="text" id="input-notes-{{ part.uuid }}" value="{{ part.notes or '' }}" placeholder="Add notes…" class="edit-input" style="flex:1;" />
+                    </div>
+                    <div class="edit-form-actions">
+                        <button type="button" class="btn secondary" onclick="saveImageField('{{ part.uuid }}', 'notes')">Save</button>
+                        <button type="button" class="btn secondary" onclick="toggleImageEdit('{{ part.uuid }}', 'notes')">Cancel</button>
+                    </div>
+                </div>
             </div>
             <div class="meta-item">
                 <span class="meta-label">Created:</span>
@@ -124,9 +137,17 @@
             <div class="part-detail-image-box" id="image-box-{{ part.uuid }}">
                 <h4>
                     Device Image
-                    <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'image_url')" title="Edit device image" aria-label="Edit device image">
+                    <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'image_url')" data-tooltip="Edit device image URL" aria-label="Edit device image">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px"><path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
                     </button>
+                    <span class="tooltip-wrapper" data-tooltip="AI-powered search for part images. Requires AI keys.">
+                        <button class="btn secondary icon icon-sm" type="button" aria-label="Find part images"
+                            data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
+                            {% if not ai_enabled %}disabled{% endif %}
+                            onclick="searchImageForPart('{{ part.uuid }}', 'part')">
+                            <img src="/static/icons/IC_SMD16SQ_filled.svg" alt="" aria-hidden="true" style="width:18px;height:18px" />
+                        </button>
+                    </span>
                 </h4>
                 <div id="image-display-{{ part.uuid }}">
                     {% if has_image %}
@@ -171,9 +192,17 @@
             <div class="part-detail-image-box" id="pinout-box-{{ part.uuid }}">
                 <h4>
                     Pinout
-                    <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'pinout_url')" title="Edit pinout" aria-label="Edit pinout">
+                    <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'pinout_url')" data-tooltip="Edit pinout image URL" aria-label="Edit pinout">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px"><path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
                     </button>
+                    <span class="tooltip-wrapper" data-tooltip="AI-powered search for pinout images. Requires AI keys.">
+                        <button class="btn secondary icon icon-sm" type="button" aria-label="Find pinout images"
+                            data-ai-enabled="{{ 'true' if ai_enabled else 'false' }}"
+                            {% if not ai_enabled %}disabled{% endif %}
+                            onclick="searchImageForPart('{{ part.uuid }}', 'pinout')">
+                            <img src="/static/icons/microchip.svg" alt="" aria-hidden="true" class="icon-invert" style="width:18px;height:18px" />
+                        </button>
+                    </span>
                 </h4>
                 <div id="pinout-display-{{ part.uuid }}">
                     {% if has_pinout %}
@@ -227,7 +256,7 @@
     <div class="part-detail-section" id="datasheet-box-{{ part.uuid }}">
         <h3>
             Datasheet / Documentation
-            <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'datasheet_url')" title="Edit datasheet" aria-label="Edit datasheet">
+            <button class="btn secondary icon icon-sm" type="button" onclick="toggleImageEdit('{{ part.uuid }}', 'datasheet_url')" data-tooltip="Edit datasheet URL" aria-label="Edit datasheet">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="width:16px;height:16px"><path fill="currentColor" d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
             </button>
         </h3>
@@ -278,6 +307,9 @@
         } else if (field === 'datasheet_url') {
             editId = 'datasheet-edit-' + uuid;
             displayId = 'datasheet-display-' + uuid;
+        } else if (field === 'notes') {
+            editId = 'notes-edit-' + uuid;
+            displayId = 'notes-display-' + uuid;
         }
 
         const editForm = document.getElementById(editId);
