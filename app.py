@@ -49,7 +49,7 @@ except Exception:  # pragma: no cover - optional dependency
 
 APP_TITLE = "Electronics Inventory"
 
-APP_VERSION = "3.3"
+APP_VERSION = "3.4"
 
 BASE_URL = os.environ.get("INVENTORY_BASE_URL", "http://127.0.0.1:8001").rstrip("/")
 print(f"[startup] BASE_URL = {BASE_URL}")
